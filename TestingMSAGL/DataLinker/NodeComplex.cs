@@ -43,14 +43,16 @@ namespace TestingMSAGL.DataLinker
         /// <returns></returns>
         public bool AddMember(NodeElementary elementary)
         {
-            Subgraph.AddNode(elementary.Node);
-            Composite.AddMember(elementary.Composite);
+            if (Composite.AddMember(elementary.Composite))
+            {
+                Subgraph.AddNode(elementary.Node);
+                return true;
+            }
+            return false;
 
             // TODO Maybe another member list is required here. . . 
-
             //TODO maybe some black magic for constraints
-            
-            return true;
+        
         }
 
         /// <summary>
@@ -60,11 +62,12 @@ namespace TestingMSAGL.DataLinker
         /// <returns></returns>
         public bool AddMember(NodeComplex elementary)
         {
-            Subgraph.AddSubgraph(elementary.Subgraph);
-            Composite.AddMember(elementary.Composite);
-            //TODO maybe some black magic for constraints
-            
-            return true;
+            if (Composite.AddMember(elementary.Composite))
+            {
+                Subgraph.AddSubgraph(elementary.Subgraph);
+                return true;
+            }
+            return false;
         }
 
         public Composite GetPredecessor()

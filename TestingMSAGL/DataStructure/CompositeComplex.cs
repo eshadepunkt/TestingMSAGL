@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace TestingMSAGL.DataStructure
 {
@@ -7,15 +6,22 @@ namespace TestingMSAGL.DataStructure
     {
         public CompositeComplex()
         {
-            Members = new List<Composite>();
+            Members = new HashSet<Composite>();
         }
 
-        public List<Composite> Members { get; }
+        /// <summary>
+        /// Contains all inherent Composites
+        /// </summary>
+        public HashSet<Composite> Members { get; }
 
+        /// <summary>
+        /// Adds a new Composite
+        /// </summary>
+        /// <param name="composite"></param>
+        /// <returns>true on success</returns>
         public bool AddMember(Composite composite)
         {
-            Members.Add(composite);
-            return true;
+            return Members.Add(composite);
         }
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Microsoft.Msagl.Drawing;
 using TestingMSAGL.DataStructure;
 
@@ -14,8 +13,6 @@ namespace TestingMSAGL.DataLinker
             Composite = composite;
             graph.AddNodeWithId(this);
         }
-
-        
         public Node Node { get; private set; }
         public CompositeElementary Composite { get; }
         public string NodeId => Composite.DrawingNodeId;

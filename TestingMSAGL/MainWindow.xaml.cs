@@ -189,9 +189,6 @@ namespace TestingMSAGL
                 Console.WriteLine("More then one node Selected!" + e);
                 throw;
             }
-            
-            
-
             // todo 
         } // todo buggy as hell
 
@@ -256,7 +253,7 @@ namespace TestingMSAGL
             Node highestNode = null;
             Subgraph lowestSubgraph = null;
             Subgraph highestSubgraph = null;
-            NodeComparer comparer = new NodeComparer();
+            //NodeComparer comparer = new NodeComparer();
             var newSubgraph = new Subgraph(IncrementNodeId() + " " + IncrementSubGraphId());
             var arrayList = _graphViewer.Entities.Where(entity => entity.MarkedForDragging);
 
@@ -298,12 +295,12 @@ namespace TestingMSAGL
                   if (highestNode == null)
                       highestNode = node.Node;
             
-                  retValMax = comparer.Compare(node.Node, highestNode);
-                  retValMin = comparer.Compare(node.Node, lowestNode); 
-                  if (retValMax == 1)
-                      highestNode = node.Node;
-                  if (retValMin == -1)
-                      lowestNode = node.Node;
+                  //retValMax = comparer.Compare(node.Node, highestNode);
+                  //retValMin = comparer.Compare(node.Node, lowestNode); 
+                  //if (retValMax == 1)
+                  //    highestNode = node.Node;
+                  //if (retValMin == -1)
+                  //    lowestNode = node.Node;
               
                   node.Node.Attr.LineWidth = 1;
                   newSubgraph.AddNode(node.Node);
