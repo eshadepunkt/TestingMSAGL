@@ -90,27 +90,27 @@ namespace TestingMSAGL
             Subgraph rootSubgraph = new Subgraph("rootSubgraph");
             
             // first element 
-            var root = new NodeComplex(Graph, new CompositeComplex() { Name = "Root"});
+            var root = new NodeComplex(Graph, "Root");
             rootSubgraph.AddSubgraph(root.Subgraph);
 
-            var ros = new NodeComplex(Graph, new CompositeComplex() {Name = "Root Of Subgraph"});
+            var ros = new NodeComplex(Graph, "Root Of Subgraph");
             root.AddMember(ros);
 
-            var c1 = new NodeComplex(Graph, new CompositeComplex() {Name = "Complex: 104"});
-            var c2 = new NodeComplex(Graph, new CompositeComplex() {Name = "Complex: 105"});
-            var c3 = new NodeComplex(Graph, new CompositeComplex() {Name = "Complex: 106"});
+            var c1 = new NodeElementary(Graph, "Complex: 104");
+            var c2 = new NodeComplex(Graph, "Complex: 105");
+            var c3 = new NodeComplex(Graph, "Complex: 106");
             ros.AddMember(c1); // layout Problem.
             ros.AddMember(c2);
             ros.AddMember(c3);
             ////
-            var e1 = new NodeElementary(Graph, new CompositeElementary() {Name = "I am groot!"});
-            var e2 = new NodeElementary(Graph, new CompositeElementary() {Name = "We are groot!"});
+            var e1 = new NodeElementary(Graph,"I am groot!");
+            var e2 = new NodeElementary(Graph, "We are groot!");
             c2.AddMember(e1);
             c2.AddMember(e2);
             //
             //
-            var e3 = new NodeElementary(Graph, new CompositeElementary() {Name = "I am Inevitable!"});
-            var e4 = new NodeElementary(Graph, new CompositeElementary() {Name = "I am Ironman!"});
+            var e3 = new NodeElementary(Graph, "I am Inevitable!");
+            var e4 = new NodeElementary(Graph, "I am Ironman!");
             c3.AddMember(e3);
             c3.AddMember(e4);
 
@@ -177,7 +177,7 @@ namespace TestingMSAGL
                 var subgraph = ((IViewerNode) forDragging).Node;
                 if (subgraph is Subgraph)
                 {
-                    var node = new NodeElementary(Graph, new CompositeElementary() {Name = "New Node"});
+                    var node = new NodeElementary(Graph, "New Node");
                     var nodeComplex = Graph.GetComplexNodeById(subgraph.Id);
                     nodeComplex.AddMember(node);
                     _graphViewer.Graph = Graph;

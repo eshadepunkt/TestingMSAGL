@@ -7,8 +7,9 @@ namespace TestingMSAGL.DataLinker
     public class NodeComplex : IWithId
 
     {
-        public NodeComplex(GraphExtension graph, CompositeComplex composite)
+        public NodeComplex(GraphExtension graph,  string name )
         {
+            var composite = new CompositeComplex() { Name = name };
             composite.DrawingNodeId = AddNode(graph);
             Composite = composite;
             graph.AddNodeWithId(this);
@@ -25,7 +26,7 @@ namespace TestingMSAGL.DataLinker
         /// Pass node id to Extern
         /// </summary>
         public string NodeId => Composite.DrawingNodeId;
-
+        
         /// <summary>
         /// Complex Node Drawing Representation         
         /// </summary>

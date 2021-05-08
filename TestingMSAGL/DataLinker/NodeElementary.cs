@@ -7,8 +7,9 @@ namespace TestingMSAGL.DataLinker
 {
     public class NodeElementary : IWithId
     {    
-        public NodeElementary(GraphExtension graph, CompositeElementary composite)
+        public NodeElementary(GraphExtension graph, string name)
         {
+            var composite = new CompositeElementary() {Name = name};
             composite.DrawingNodeId = AddNode(graph);
             Composite = composite;
             graph.AddNodeWithId(this);
