@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -11,6 +12,8 @@ using System.Windows.Media;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.WpfGraphControl;
 using Microsoft.Win32;
+using TestingMSAGL.DataLinker;
+using TestingMSAGL.DataStructure;
 using Color = Microsoft.Msagl.Drawing.Color;
 using Point = Microsoft.Msagl.Core.Geometry.Point;
 
@@ -62,66 +65,60 @@ namespace TestingMSAGL
             public ObservableCollection<MenuItem> Items { get; set; }
         }
 
-        private Graph Graph { get; } = new Graph("root", "0");
+        private GraphExtension Graph { get; } = new GraphExtension("root", "0");
         private int NodeCounter { get; set; }
         private int SubGraphCounter { get; set; }
 
         private void InitGraph(object sender, RoutedEventArgs e)
         {
-            var maxNodesCount = 10;
-            for (var i = 1; i < maxNodesCount; i++)
-            {
-                var curNode = Graph.AddNode("ID: " + i);
-                var node = Graph.FindNode(curNode.Id);
-                node.Attr.LineWidth = 1;
-                node.LabelText = "Label Nr. " + node.Id.Split(':')[1];
-                node.Label.FontSize = 5;
-                node.Label.FontName = "New Courier";
-                node.Label.FontColor = Color.Blue;
-                if (i != 1) Graph.AddEdge("ID: " + (i - 1), "ID: " + i);
-            }
+            // var maxNodesCount = 10;
+            // for (var i = 1; i < maxNodesCount; i++)
+            // {
+            //     var curNode = Graph.AddNode("ID: " + i);
+            //     var node = Graph.FindNode(curNode.Id);
+            //     node.Attr.LineWidth = 1;
+            //     node.LabelText = "Label Nr. " + node.Id.Split(':')[1];
+            //     node.Label.FontSize = 5;
+            //     node.Label.FontName = "New Courier";
+            //     node.Label.FontColor = Color.Blue;
+            //     if (i != 1) Graph.AddEdge("ID: " + (i - 1), "ID: " + i);
+            // }
+            // 
+            // UpdateNodeCount();
 
-            UpdateNodeCount();
-            Subgraph rootSubgraph = new Subgraph("root of Subgraphs");
-            Subgraph roots = new Subgraph("ID: 104");
-            Subgraph subgraph1 = new Subgraph("ID: 102");
-            Subgraph subgraph2 = new Subgraph("ID: 103");
+            // Drawing Board
+            Subgraph rootSubgraph = new Subgraph("rootSubgraph");
+            
+            // first element 
+            var root = new NodeComplex(Graph, "Root");
+            rootSubgraph.AddSubgraph(root.Subgraph);
 
-            ComplexNode rootComplex = new ComplexNode(rootSubgraph);
-            ComplexNode complexNode1 = new ComplexNode(roots);
-            ComplexNode complexNode2 = new ComplexNode(subgraph1);
-            ComplexNode complexNode3 = new ComplexNode(subgraph2);
-            
-            
-            
-            complexNode2.Subgraph.AddNode(Graph.FindNode("ID: 3"));
-            complexNode2.Subgraph.AddNode(Graph.FindNode("ID: 4"));
-            complexNode2.Subgraph.AddNode(Graph.FindNode("ID: 5"));
-            
-            complexNode3.Subgraph.AddNode(Graph.FindNode("ID: 6"));
-            complexNode3.Subgraph.AddNode(Graph.FindNode("ID: 7"));
-            complexNode3.Subgraph.AddNode(Graph.FindNode("ID: 8"));
-            
-            complexNode1.Subgraph.AddSubgraph(complexNode2.Subgraph);
-            complexNode1.Subgraph.AddSubgraph(complexNode3.Subgraph);
-            
-            rootComplex.Subgraph.AddSubgraph(complexNode1.Subgraph);
-            // Subgraph2.AddNode(Graph.FindNode("ID: 1")); 
-            // Subgraph2.AddNode(Graph.FindNode("ID: 2"));
-            // Subgraph2.AddNode(Graph.FindNode("ID: 3"));
+            var ros = new NodeComplex(Graph, "Root Of Subgraph");
+            root.AddMember(ros);
+
+            var c1 = new NodeElementary(Graph, "Complex: 104");
+            var c2 = new NodeComplex(Graph, "Complex: 105");
+            var c3 = new NodeComplex(Graph, "Complex: 106");
+            ros.AddMember(c1); // layout Problem.
+            ros.AddMember(c2);
+            ros.AddMember(c3);
+            ////
+            var e1 = new NodeElementary(Graph,"I am groot!");
+            var e2 = new NodeElementary(Graph, "We are groot!");
+            c2.AddMember(e1);
+            c2.AddMember(e2);
             //
             //
-            // Subgraph1.AddNode(Graph.FindNode("ID: 4"));
-            // Subgraph1.AddNode(Graph.FindNode("ID: 5"));
-            // Subgraph1.AddNode(Graph.FindNode("ID: 6"));
-            // rootSubgraph.AddSubgraph(roots);
-            // roots.AddSubgraph(Subgraph1);
-            // roots.AddSubgraph(Subgraph2);
+            var e3 = new NodeElementary(Graph, "I am Inevitable!");
+            var e4 = new NodeElementary(Graph, "I am Ironman!");
+            c3.AddMember(e3);
+            c3.AddMember(e4);
+
             
-            
-            Graph.RootSubgraph = rootComplex.Subgraph;
+            Graph.RootSubgraph = rootSubgraph;
             NodeCounter = Graph.NodeCount;
             _graphViewer.Graph = Graph;
+            //_graphViewer.GraphCanvas.UpdateLayout();
             // var arrayList = new ArrayList();
             // foreach (var obj in _graphViewer.Entities)
             //     arrayList.Add(obj);
@@ -129,6 +126,11 @@ namespace TestingMSAGL
             //     if (obj is IViewerNode node)
             //         NodeTree.Items.Add(node.Node.Attr.Id);
             
+        }
+
+        private void CreateDrawingBoard()
+        {
+
         }
 
         private void UpdateNodeCount()
@@ -167,28 +169,27 @@ namespace TestingMSAGL
 
         private void InsertNode()
         {
-            var arrayList = new ArrayList();
-            foreach (var obj in _graphViewer.Entities)
-                if (obj.MarkedForDragging)
-                    arrayList.Add(obj);
-
-            foreach (IViewerObject obj in arrayList)
+            // Possible to Insert into more then one ?
+            try
             {
-                var node = obj as IViewerNode;
-
-                if (node?.Node.Id.Split(':')[2] != null)
-                    //incrementNodeID();
-                    foreach (var subgraph in Graph.RootSubgraph.Subgraphs)
-                        if (subgraph.Id.Contains(node.Node.Id))
-                        {
-                            var curId = IncrementNodeId();
-                            Graph.AddNode(curId);
-                            subgraph.AddNode(Graph.FindNode(curId));
-                            Graph.RemoveNode(Graph.FindNode(curId));
-                        }
-
-                _graphViewer.Graph = Graph;
+                IViewerObject forDragging = _graphViewer.Entities
+                                                        .Single(x => x.MarkedForDragging);
+                var subgraph = ((IViewerNode) forDragging).Node;
+                if (subgraph is Subgraph)
+                {
+                    var node = new NodeElementary(Graph, "New Node");
+                    var nodeComplex = Graph.GetComplexNodeById(subgraph.Id);
+                    nodeComplex.AddMember(node);
+                    _graphViewer.Graph = Graph;
+                    //_graphViewer.GraphCanvas.UpdateLayout();
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine("More then one node Selected!" + e);
+                throw;
+            }
+            // todo 
         } // todo buggy as hell
 
         private void AddNode(Point center)
@@ -248,89 +249,89 @@ namespace TestingMSAGL
 
          private void CreateSubgraphFromSelectedNodes()
          {
-        Node lowestNode = null;
-        Node highestNode = null;
-        Subgraph lowestSubgraph = null;
-        Subgraph highestSubgraph = null;
-        NodeComparer comparer = new NodeComparer();
-        var newSubgraph = new Subgraph(IncrementNodeId() + " " + IncrementSubGraphId());
-        var arrayList = _graphViewer.Entities.Where(entity => entity.MarkedForDragging);
+            Node lowestNode = null;
+            Node highestNode = null;
+            Subgraph lowestSubgraph = null;
+            Subgraph highestSubgraph = null;
+            //NodeComparer comparer = new NodeComparer();
+            var newSubgraph = new Subgraph(IncrementNodeId() + " " + IncrementSubGraphId());
+            var arrayList = _graphViewer.Entities.Where(entity => entity.MarkedForDragging);
 
-        var nodes = arrayList.Cast<IViewerNode>();
-        
-        
-        foreach (var obj in arrayList )
-        {
-        
-            var node = obj as IViewerNode;
-            if (node == null) break;
-        
-          int retValMax, retValMin;
-          
-          if (node.Node.Id.Contains("SUBG123"))
+            var nodes = arrayList.Cast<IViewerNode>();
+            
+            
+            foreach (var obj in arrayList )
+            {
+            
+                var node = obj as IViewerNode;
+                if (node == null) break;
+            
+              int retValMax, retValMin;
               
-          {
-              // var subgraph = node;
-              // if (lowestSubgraph == null)
-              //     lowestSubgraph = subgraph;
-              // if (highestSubgraph == null)
-              //     highestSubgraph  = subgraph;
-              //
-              // retValMax = subComparer.Compare(subgraph, highestSubgraph);
-              // retValMin = subComparer.Compare(subgraph, lowestSubgraph);
-              //
-              // if (retValMax == 1)
-              //     highestSubgraph = subgraph;
-              // if (retValMin == -1)
-              //     lowestSubgraph = subgraph;
-              // subgraph.Attr.LineWidth = 1;
-              // newSubgraph.AddSubgraph(subgraph);
-          }
-          else
-          {
-        
-              if (lowestNode == null)
-                  lowestNode = node.Node;
-              if (highestNode == null)
-                  highestNode = node.Node;
-        
-              retValMax = comparer.Compare(node.Node, highestNode);
-              retValMin = comparer.Compare(node.Node, lowestNode); 
-              if (retValMax == 1)
-                  highestNode = node.Node;
-              if (retValMin == -1)
-                  lowestNode = node.Node;
-          
-              node.Node.Attr.LineWidth = 1;
-              newSubgraph.AddNode(node.Node);
-          }
-          
-        
-          
-        }
-        
-        if (!newSubgraph.Nodes.Any() ) return;
-        Graph.RootSubgraph.AddSubgraph(newSubgraph);
-        
-        List<Edge> toBeDeleted = new List<Edge>();
-        if (lowestNode != null)
-            foreach (var edge in lowestNode.InEdges)
-            {
-                var parentNodeId = edge.SourceNode.Id;
-                toBeDeleted.Add(edge);
-                Graph.AddEdge(parentNodeId, newSubgraph.Id);
+              if (node.Node.Id.Contains("SUBG123"))
+                  
+              {
+                  // var subgraph = node;
+                  // if (lowestSubgraph == null)
+                  //     lowestSubgraph = subgraph;
+                  // if (highestSubgraph == null)
+                  //     highestSubgraph  = subgraph;
+                  //
+                  // retValMax = subComparer.Compare(subgraph, highestSubgraph);
+                  // retValMin = subComparer.Compare(subgraph, lowestSubgraph);
+                  //
+                  // if (retValMax == 1)
+                  //     highestSubgraph = subgraph;
+                  // if (retValMin == -1)
+                  //     lowestSubgraph = subgraph;
+                  // subgraph.Attr.LineWidth = 1;
+                  // newSubgraph.AddSubgraph(subgraph);
+              }
+              else
+              {
+            
+                  if (lowestNode == null)
+                      lowestNode = node.Node;
+                  if (highestNode == null)
+                      highestNode = node.Node;
+            
+                  //retValMax = comparer.Compare(node.Node, highestNode);
+                  //retValMin = comparer.Compare(node.Node, lowestNode); 
+                  //if (retValMax == 1)
+                  //    highestNode = node.Node;
+                  //if (retValMin == -1)
+                  //    lowestNode = node.Node;
+              
+                  node.Node.Attr.LineWidth = 1;
+                  newSubgraph.AddNode(node.Node);
+              }
+              
+            
+              
             }
-        
-        if (highestNode != null)
-            foreach (var edge in highestNode.OutEdges)
-            {
-                var childNodeId = edge.TargetNode.Id;
-                toBeDeleted.Add(edge);
-                Graph.AddEdge(newSubgraph.Id, childNodeId);
-            }
-        
-        toBeDeleted.ForEach(edge => {Graph.RemoveEdge(edge);});
-        _graphViewer.Graph = Graph;
+            
+            if (!newSubgraph.Nodes.Any() ) return;
+            Graph.RootSubgraph.AddSubgraph(newSubgraph);
+            
+            List<Edge> toBeDeleted = new List<Edge>();
+            if (lowestNode != null)
+                foreach (var edge in lowestNode.InEdges)
+                {
+                    var parentNodeId = edge.SourceNode.Id;
+                    toBeDeleted.Add(edge);
+                    Graph.AddEdge(parentNodeId, newSubgraph.Id);
+                }
+            
+            if (highestNode != null)
+                foreach (var edge in highestNode.OutEdges)
+                {
+                    var childNodeId = edge.TargetNode.Id;
+                    toBeDeleted.Add(edge);
+                    Graph.AddEdge(newSubgraph.Id, childNodeId);
+                }
+            
+            toBeDeleted.ForEach(edge => {Graph.RemoveEdge(edge);});
+            _graphViewer.Graph = Graph;
         }
 
 
