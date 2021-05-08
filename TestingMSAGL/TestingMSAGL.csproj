@@ -68,15 +68,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ComplexNode.cs" />
+    <Compile Include="DataLinker\IWithId.cs" />
     <Compile Include="DataLinker\NodeComplex.cs" />
     <Compile Include="DataLinker\NodeElementary.cs" />
     <Compile Include="DataStructure\Composite.cs" />
     <Compile Include="DataStructure\CompositeComplex.cs" />
     <Compile Include="DataStructure\CompositeElementary.cs" />
-    <Compile Include="ElementaryNode.cs" />
-    <Compile Include="tools\NodeComparer.cs" />
-    <Compile Include="tools\SubgraphComparer.cs" />
+    <Compile Include="DataStructure\GraphExtension.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -110,7 +108,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Fonts\Dosis.ttf" />
-    <Content Include="PlantUML\ClassDiagramm.puml" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

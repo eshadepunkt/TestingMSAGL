@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -64,7 +65,7 @@ namespace TestingMSAGL
             public ObservableCollection<MenuItem> Items { get; set; }
         }
 
-        private Graph Graph { get; } = new Graph("root", "0");
+        private GraphExtension Graph { get; } = new GraphExtension("root", "0");
         private int NodeCounter { get; set; }
         private int SubGraphCounter { get; set; }
 
@@ -86,39 +87,38 @@ namespace TestingMSAGL
             // UpdateNodeCount();
 
             // Drawing Board
-            Subgraph rootSubgraph = new Subgraph("root of all evil");
+            Subgraph rootSubgraph = new Subgraph("rootSubgraph");
             
             // first element 
             var root = new NodeComplex(Graph, new CompositeComplex() { Name = "Root"});
             rootSubgraph.AddSubgraph(root.Subgraph);
 
-            //var ros = new NodeComplex(Graph, new CompositeComplex() {Name = "Root Of Subgraph"});
+            var ros = new NodeComplex(Graph, new CompositeComplex() {Name = "Root Of Subgraph"});
+            root.AddMember(ros);
 
             var c1 = new NodeComplex(Graph, new CompositeComplex() {Name = "Complex: 104"});
-            //var c2 = new NodeComplex(Graph, new CompositeComplex() {Name = "Complex: 105"});
-            //var c3 = new NodeComplex(Graph, new CompositeComplex() {Name = "Complex: 106"});
-            //
-            //
-            root.AddMember(c1);
-            //root.AddMember(ros);
-            //ros.AddMember(c2);
-            //ros.AddMember(c3);
+            var c2 = new NodeComplex(Graph, new CompositeComplex() {Name = "Complex: 105"});
+            var c3 = new NodeComplex(Graph, new CompositeComplex() {Name = "Complex: 106"});
+            ros.AddMember(c1); // layout Problem.
+            ros.AddMember(c2);
+            ros.AddMember(c3);
             ////
-            //var e1 = new NodeElementary(Graph, new CompositeElementary() {Name = "I am groot!"});
-            //var e2 = new NodeElementary(Graph, new CompositeElementary() {Name = "We are groot!"});
-            //c2.AddMember(e1);
-            //c2.AddMember(e2);
+            var e1 = new NodeElementary(Graph, new CompositeElementary() {Name = "I am groot!"});
+            var e2 = new NodeElementary(Graph, new CompositeElementary() {Name = "We are groot!"});
+            c2.AddMember(e1);
+            c2.AddMember(e2);
             //
             //
-            //var e3 = new NodeElementary(Graph, new CompositeElementary() {Name = "I am Inevitable!"});
-            //var e4 = new NodeElementary(Graph, new CompositeElementary() {Name = "I am Ironman!"});
-            //c3.AddMember(e3);
-            //c3.AddMember(e4);
+            var e3 = new NodeElementary(Graph, new CompositeElementary() {Name = "I am Inevitable!"});
+            var e4 = new NodeElementary(Graph, new CompositeElementary() {Name = "I am Ironman!"});
+            c3.AddMember(e3);
+            c3.AddMember(e4);
 
-
+            
             Graph.RootSubgraph = rootSubgraph;
             NodeCounter = Graph.NodeCount;
             _graphViewer.Graph = Graph;
+            //_graphViewer.GraphCanvas.UpdateLayout();
             // var arrayList = new ArrayList();
             // foreach (var obj in _graphViewer.Entities)
             //     arrayList.Add(obj);
@@ -169,10 +169,29 @@ namespace TestingMSAGL
 
         private void InsertNode()
         {
+            // Possible to Insert into more then one ?
+            try
+            {
+                IViewerObject forDragging = _graphViewer.Entities
+                                                        .Single(x => x.MarkedForDragging);
+                var subgraph = ((IViewerNode) forDragging).Node;
+                if (subgraph is Subgraph)
+                {
+                    var node = new NodeElementary(Graph, new CompositeElementary() {Name = "New Node"});
+                    var nodeComplex = Graph.GetComplexNodeById(subgraph.Id);
+                    nodeComplex.AddMember(node);
+                    _graphViewer.Graph = Graph;
+                    //_graphViewer.GraphCanvas.UpdateLayout();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("More then one node Selected!" + e);
+                throw;
+            }
+            
+            
 
-            var forDragging = _graphViewer.Entities
-                                            .Where(x => x.MarkedForDragging)
-                                            .Cast<IViewerNode>();
             // todo 
         } // todo buggy as hell
 
