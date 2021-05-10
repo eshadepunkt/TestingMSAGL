@@ -1,6 +1,9 @@
 using System;
+using Microsoft.Msagl.Core.Geometry.Curves;
+using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
 using TestingMSAGL.DataStructure;
+using Edge = Microsoft.Msagl.Drawing.Edge;
 
 namespace TestingMSAGL.DataLinker
 {
@@ -18,7 +21,7 @@ namespace TestingMSAGL.DataLinker
         private string AddNode(Graph graph)
         {
             var nodeId =  Guid.NewGuid().ToString();
-            Subgraph = new Subgraph(nodeId);
+            Subgraph = new Subgraph(nodeId) {Attr = {FillColor = Color.Beige, Padding = 20}};
             graph.AddNode(Subgraph);
             return nodeId;
         }

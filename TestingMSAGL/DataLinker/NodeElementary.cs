@@ -21,8 +21,7 @@ namespace TestingMSAGL.DataLinker
         private string AddNode(Graph graph)
         {
             var nodeId = Guid.NewGuid().ToString();
-            Node = new Node(nodeId);
-            Node.Attr.LineWidth = 1;
+            Node = new Node(nodeId) {Attr = {LineWidth = 1, FillColor = Color.WhiteSmoke}};
             Node.LabelText = "Label Nr. " + Node.Id.Split('-')[1];
             Node.Label.FontSize = 5;
             Node.Label.FontName = "New Courier";

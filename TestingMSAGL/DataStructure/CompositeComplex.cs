@@ -23,5 +23,6 @@ namespace TestingMSAGL.DataStructure
         {
             return Members.Add(composite);
         }
+        
     }
 }
