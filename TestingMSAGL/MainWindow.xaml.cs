@@ -137,7 +137,7 @@ namespace TestingMSAGL
             try
             {
                 IViewerObject forDragging = _graphViewer.Entities
-                                                        .Single(x => x.MarkedForDragging);
+                    .Single(x => x.MarkedForDragging);
                 var subgraph = ((IViewerNode) forDragging).Node;
                 subgraph.Attr.LineWidth = 1;
                 if (subgraph is Subgraph)
@@ -154,12 +154,19 @@ namespace TestingMSAGL
                     //_graphViewer.GraphCanvas.UpdateLayout();
                 }
             }
-            catch (Exception e)
+
+            // todo repair exception handling and message
+
+            catch (ArgumentNullException e)
+            {
+                MessageBox.Show("No complex selected!");
+                // throw;
+            }
+            catch (InvalidOperationException invalid)
             {
                 MessageBox.Show("More than one complex selected!");
-               // throw;
             }
-            // todo 
+
         } // todo buggy as hell
 
        
@@ -167,50 +174,36 @@ namespace TestingMSAGL
         private void AddEdge()
         {
             //todo predecessor successor
-            if (_graphViewer.Entities.Any())
+            
+            var forDragging = _graphViewer.Entities
+                .Where(x => x.MarkedForDragging)
+                .Cast<IViewerNode>()
+                .ToArray();
+            if (forDragging.Length < 1) return;
+                            
+            var nodes = new List<NodeComplex>();
+            foreach (var node in forDragging)
             {
-                var forDragging = _graphViewer.Entities
-                    .Where(x => x.MarkedForDragging)
-                    .Cast<IViewerNode>()
-                    .ToArray();
-                if (forDragging.Length > 1)
-                {
-                    foreach (var node in forDragging)
-                    {
-                        node.Node.Attr.LineWidth = 1;
-                    }                       
-
-                    var nodes = new List<NodeComplex>();
-                    foreach (var node in forDragging)
-                    {
-                        nodes.Add(Graph.GetComplexNodeById(node.Node.Id));
-                    }
-                    
-                    foreach (var composite in nodes)
-                    {
-                        if (composite?.Composite.Successor != null)
-                        {
-                            Graph.AddEdge(
-                                composite.NodeId,
-                                composite.Composite.Successor.DrawingNodeId
-                            );
-
-                            Graph.LayerConstraints.AddSameLayerNeighbors(
-                                Graph.FindNode(composite.Composite.DrawingNodeId),
-                                Graph.FindNode(composite.Composite.Successor.DrawingNodeId)
-                            );
-                        }
-                      
-
-
-                    }
-
-
-
-                }
-                
-
+                nodes.Add(Graph.GetComplexNodeById(node.Node.Id));
+                node.Node.Attr.LineWidth = 1;
             }
+            
+            foreach (var composite in nodes)
+            {
+                if (composite?.Composite.Successor != null)
+                {
+                    Graph.AddEdge(
+                        composite.NodeId,
+                        composite.Composite.Successor.DrawingNodeId
+                    );
+                    // adds nodes side-by-side (same layer left -> right)
+                    Graph.LayerConstraints.AddSameLayerNeighbors(
+                        Graph.FindNode(composite.Composite.DrawingNodeId),
+                        Graph.FindNode(composite.Composite.Successor.DrawingNodeId)
+                    );
+                }
+            }   
+
             Graph.Attr.LayerDirection = LayerDirection.LR;
             _graphViewer.Graph = Graph;
             Graph.Attr.LayerDirection = LayerDirection.TB;

@@ -44,6 +44,5 @@ namespace TestingMSAGL.DataStructure
         {
             return DataLinkerNodes.Add(item);
         }
-
     }
 }

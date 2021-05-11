@@ -42,6 +42,9 @@
       <HintPath>..\packages\AutomaticGraphLayout.Drawing.1.1.11\lib\netstandard2.0\AutomaticGraphLayout.Drawing.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="DumpExtensions, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DumpExtensions.2.0.0\lib\net45\DumpExtensions.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Msagl.WpfGraphControl, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6baa2c1345e83b6e">
       <HintPath>..\packages\AutomaticGraphLayout.WpfGraphControl.1.1.11\lib\net472\Microsoft.Msagl.WpfGraphControl.dll</HintPath>
       <Private>True</Private>
@@ -54,6 +57,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>

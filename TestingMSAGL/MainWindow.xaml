@@ -140,25 +140,6 @@
             <TextBox x:Name="CounterText" />
         </StackPanel>
 
-        <!--<wpfgraphcontrol:AutomaticGraphLayoutControl
-            
-            ClipToBounds="True"
-            IsManipulationEnabled="False"
-            Grid.Column="2" Grid.Row="2"
-            Grid.ColumnSpan="3"
-            Margin="15 0 15 15"
-            Height="600" Width="1040"                                                     
-            x:Name="graphViewer"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Top"
-            Background="red"
-            Foreground="Red"
-            VerticalScrollBarVisibility="Hidden"
-            CanContentScroll="False"
-            ToolBarTray.IsLocked="true"
-            Panel.ZIndex="-1"
-            />-->
-
         <DockPanel ClipToBounds="True"
                    Grid.Column="2" Grid.Row="2"
                    Grid.ColumnSpan="3"
@@ -171,9 +152,9 @@
             <DockPanel.ContextMenu>
                 <ContextMenu Name="cm" Opened="cm_Opened" Closed="cm_Closed" StaysOpen="true">
                     <MenuItem Name="InsertNodeCM" Header="Insert Node" Click="InsertNodeCM_Click" />
-                    <!--<MenuItem Name="AddToSelectedNodeCM" Header="Add Node (2)" Click="AddToSelectedNodeCM_Click" />-->
                     <MenuItem Name="AddSubgraphToSelectedNodeCM" Header="Insert ComplexNode"
                               Click="AddSubgraphToSelectedNodeCM_Click" />
+                    <MenuItem Name="AddEdgeCM" Header="Add Edge" Click="AddEdgeCM_OnClick" />
                     <!--<MenuItem Name="DeleteNodeCM" Header="Delete Node" Click="DeleteNodeCM_Click" />-->
                 </ContextMenu>
             </DockPanel.ContextMenu>
