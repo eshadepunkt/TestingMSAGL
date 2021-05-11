@@ -171,10 +171,10 @@
             <DockPanel.ContextMenu>
                 <ContextMenu Name="cm" Opened="cm_Opened" Closed="cm_Closed" StaysOpen="true">
                     <MenuItem Name="InsertNodeCM" Header="Insert Node" Click="InsertNodeCM_Click" />
-                    <MenuItem Name="AddToSelectedNodeCM" Header="Add Node (2)" Click="AddToSelectedNodeCM_Click" />
-                    <MenuItem Name="AddSubgraphToSelectedNodeCM" Header="Add Subgraph"
+                    <!--<MenuItem Name="AddToSelectedNodeCM" Header="Add Node (2)" Click="AddToSelectedNodeCM_Click" />-->
+                    <MenuItem Name="AddSubgraphToSelectedNodeCM" Header="Insert ComplexNode"
                               Click="AddSubgraphToSelectedNodeCM_Click" />
-                    <MenuItem Name="DeleteNodeCM" Header="Delete Node" Click="DeleteNodeCM_Click" />
+                    <!--<MenuItem Name="DeleteNodeCM" Header="Delete Node" Click="DeleteNodeCM_Click" />-->
                 </ContextMenu>
             </DockPanel.ContextMenu>
 
