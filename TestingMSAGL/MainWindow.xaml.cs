@@ -80,9 +80,6 @@ namespace TestingMSAGL
             rootSubgraph.AddSubgraph(root.Subgraph);
 
             var ros = new NodeComplex(Graph, "Root Of Subgraph");
-            ros.Composite.Predecessor = root.Composite;
-            
-            root.Composite.Successor = ros.Composite;
             root.AddMember(ros);
 
             var c1 = new NodeElementary(Graph, "Complex: 104");
@@ -90,32 +87,29 @@ namespace TestingMSAGL
             var c3 = new NodeComplex(Graph, "Complex: 106");
             ros.AddMember(c1); // layout Problem.
             ros.AddMember(c2);
-            ros.Composite.Successor = c2.Composite;
-            c2.Composite.Predecessor = ros.Composite;
             ros.AddMember(c3);
-            c3.Composite.Predecessor = c2.Composite;
-            c2.Composite.Successor = c3.Composite;
-
-
             ////
             var e1 = new NodeElementary(Graph,"I am groot!");
             var e2 = new NodeElementary(Graph, "We are groot!");
-            var e3 = new NodeElementary(Graph, "We are not groot!");
             c2.AddMember(e1);
             c2.AddMember(e2);
-            c2.AddMember(e3);
             //
             //
-            var e4 = new NodeElementary(Graph, "I am Inevitable!");
-            var e5 = new NodeElementary(Graph, "I am Ironman!");
+            var e3 = new NodeElementary(Graph, "I am Inevitable!");
+            var e4 = new NodeElementary(Graph, "I am Ironman!");
+            c3.AddMember(e3);
             c3.AddMember(e4);
-            c3.AddMember(e5);
 
             
             Graph.RootSubgraph = rootSubgraph;
             NodeCounter = Graph.NodeCount;
             _graphViewer.Graph = Graph;
             
+        }
+
+        private void CreateDrawingBoard()
+        {
+
         }
 
         private void UpdateNodeCount()
@@ -128,6 +122,18 @@ namespace TestingMSAGL
             NodeCounter++;
             UpdateNodeCount();
             return "ID: " + NodeCounter;
+        }
+        private string IncrementSubGraphId()
+        {
+            SubGraphCounter++;
+            UpdateNodeCount();
+            return ":SUBG: " + SubGraphCounter;
+        }
+
+        private string getNodeID_before()
+        {
+            var preNode = NodeCounter - 1;
+            return "ID: " + preNode;
         }
        
 
@@ -145,19 +151,14 @@ namespace TestingMSAGL
                     var node = new NodeElementary(Graph, "New Node");
                     var nodeComplex = Graph.GetComplexNodeById(subgraph.Id);
                     nodeComplex.AddMember(node);
-
-                    //todo add method to detect if children are already present, sort new node as successor of last child
-
-                    node.Composite.Predecessor = nodeComplex.Composite;
-                    nodeComplex.Composite.Successor = node.Composite;
                     _graphViewer.Graph = Graph;
                     //_graphViewer.GraphCanvas.UpdateLayout();
                 }
             }
             catch (Exception e)
             {
-                MessageBox.Show("More than one complex selected!");
-               // throw;
+                Console.WriteLine("More then one node Selected!" + e);
+                throw;
             }
             // todo 
         } // todo buggy as hell
@@ -178,35 +179,10 @@ namespace TestingMSAGL
                     foreach (var node in forDragging)
                     {
                         node.Node.Attr.LineWidth = 1;
-                    }                       
-
-                    var nodes = new List<NodeComplex>();
-                    foreach (var node in forDragging)
-                    {
-                        nodes.Add(Graph.GetComplexNodeById(node.Node.Id));
                     }
                     
-                    foreach (var composite in nodes)
-                    {
-                        if (composite?.Composite.Successor != null)
-                        {
-                            Graph.AddEdge(
-                                composite.NodeId,
-                                composite.Composite.Successor.DrawingNodeId
-                            );
-
-                            Graph.LayerConstraints.AddSameLayerNeighbors(
-                                Graph.FindNode(composite.Composite.DrawingNodeId),
-                                Graph.FindNode(composite.Composite.Successor.DrawingNodeId)
-                            );
-                        }
-                      
-
-
-                    }
-
-
-
+                    Graph.AddEdge(forDragging[0].Node.Id, forDragging[1].Node.Id);
+                    Graph.LayerConstraints.AddSameLayerNeighbors(forDragging[0].Node,forDragging[1].Node); 
                 }
                 
 
@@ -232,15 +208,13 @@ namespace TestingMSAGL
                      var node = new NodeComplex(Graph, "New Complex");
                      var nodeComplex = Graph.GetComplexNodeById(subgraph.Id);
                      nodeComplex.AddMember(node);
-                     node.Composite.Predecessor = nodeComplex.Composite;
-                     nodeComplex.Composite.Successor = node.Composite;
-                    _graphViewer.Graph = Graph;
+                     _graphViewer.Graph = Graph;
                      //_graphViewer.GraphCanvas.UpdateLayout();
                  }
              }
              catch (Exception e)
              {
-                 MessageBox.Show("More than one complex selected!");
+                 MessageBox.Show("More then one complex selected!");
                  //throw;
 
              }
