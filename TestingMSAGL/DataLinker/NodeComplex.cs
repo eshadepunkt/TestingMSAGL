@@ -1,9 +1,12 @@
 using System;
+using System.Linq;
 using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
 using TestingMSAGL.DataStructure;
+using TestingMSAGL.RoutedOperation;
 using Edge = Microsoft.Msagl.Drawing.Edge;
+using Node = Microsoft.Msagl.Drawing.Node;
 
 namespace TestingMSAGL.DataLinker
 {
@@ -40,6 +43,8 @@ namespace TestingMSAGL.DataLinker
         /// </summary>
         internal CompositeComplex Composite { get; }
 
+        public ComplexType ComplexType { get; set; } 
+
         /// <summary>
         /// add a new Elementary to Complex node and return true on success
         /// </summary>
@@ -73,7 +78,6 @@ namespace TestingMSAGL.DataLinker
             }
             return false;
         }
-
         public Composite GetPredecessor()
         {
             return null;
@@ -85,6 +89,16 @@ namespace TestingMSAGL.DataLinker
             return null;
         }
 
+        public static NodeElementary GetParent(GraphExtension graph, NodeElementary elementary)
+        {
+            return null;
+
+        }
+
+        public NodeComplex GetChild(GraphExtension graph, NodeComplex complex)
+        {
+            return null;
+        }
         //todo am I the only one?
 
         //todo constraints

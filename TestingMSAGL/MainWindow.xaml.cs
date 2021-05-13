@@ -14,6 +14,7 @@ using Microsoft.Msagl.WpfGraphControl;
 using Microsoft.Win32;
 using TestingMSAGL.DataLinker;
 using TestingMSAGL.DataStructure;
+using TestingMSAGL.RoutedOperation;
 using Color = Microsoft.Msagl.Drawing.Color;
 using Point = Microsoft.Msagl.Core.Geometry.Point;
 
@@ -44,7 +45,9 @@ namespace TestingMSAGL
 
         private void NodeTreeView()
         {
-            MenuItem root = new MenuItem() {Title = "Menu"};
+            MenuItem root = new MenuItem() {Title = "Root"};
+            
+            
             MenuItem childItem1 = new MenuItem() {Title = "Child item #1"};
             childItem1.Items.Add(new MenuItem() {Title = "Child item #1.1"});
             childItem1.Items.Add(new MenuItem() {Title = "Child item #1.2"});
@@ -67,14 +70,12 @@ namespace TestingMSAGL
 
         private GraphExtension Graph { get; } = new GraphExtension("root", "0");
         private int NodeCounter { get; set; }
-        private int SubGraphCounter { get; set; }
 
         private void InitGraph(object sender, RoutedEventArgs e)
         {
             // Drawing Board
             Subgraph rootSubgraph = new Subgraph("rootSubgraph");
-            
-            
+
             // first element 
             var root = new NodeComplex(Graph, "Root");
             rootSubgraph.AddSubgraph(root.Subgraph);
@@ -106,16 +107,29 @@ namespace TestingMSAGL
             c2.AddMember(e3);
             //
             //
+            var c4 = new Fixed(Graph, "heya") {ComplexType = ComplexType.Fixed};
+            //var c5 = new Fixed(Graph, "fix it!");
+            var c6 = new Parallel(Graph, "fix it!"){ComplexType = ComplexType.Parallel};
+
+            c4.Composite.Successor = c6.Composite;
+            c6.Composite.Predecessor = c4.Composite;
+            c2.AddMember(c4);
+            //c2.AddMember(c5);
+            c2.AddMember(c6);
             var e4 = new NodeElementary(Graph, "I am Inevitable!");
             var e5 = new NodeElementary(Graph, "I am Ironman!");
             c3.AddMember(e4);
             c3.AddMember(e5);
 
-            
+            var composites = root.Composite.Members;
+
+            var source = rootSubgraph.AllSubgraphsDepthFirst();
             Graph.RootSubgraph = rootSubgraph;
             NodeCounter = Graph.NodeCount;
+            Graph.FormatAllNodesToConvention();
             _graphViewer.Graph = Graph;
-            
+            NodeDataGrid.ItemsSource = source;
+
         }
 
         private void UpdateNodeCount()
@@ -148,8 +162,8 @@ namespace TestingMSAGL
 
                     //todo add method to detect if children are already present, sort new node as successor of last child
 
-                    node.Composite.Predecessor = nodeComplex.Composite;
-                    nodeComplex.Composite.Successor = node.Composite;
+                   //node.Composite.Predecessor = nodeComplex.Composite;
+                   //nodeComplex.Composite.Successor = node.Composite; //todo fix issues
                     _graphViewer.Graph = Graph;
                     //_graphViewer.GraphCanvas.UpdateLayout();
                 }

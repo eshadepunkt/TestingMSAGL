@@ -56,3 +56,4 @@ C:\Users\martin\source\repos\TestingMSAGL_git\TestingMSAGL\obj\Debug\TestingMSAG
 C:\Users\martin\source\repos\TestingMSAGL_git\TestingMSAGL\obj\Debug\TestingMSAGL.csproj.CopyComplete
 C:\Users\martin\source\repos\TestingMSAGL_git\TestingMSAGL\obj\Debug\TestingMSAGL.exe
 C:\Users\martin\source\repos\TestingMSAGL_git\TestingMSAGL\obj\Debug\TestingMSAGL.pdb
+C:\Users\martin\RiderProjects\TestingMSAGL\TestingMSAGL\bin\Debug\DumpExtensions.dll
