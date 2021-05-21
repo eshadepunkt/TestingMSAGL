@@ -80,9 +80,6 @@
     <Compile Include="DataStructure\CompositeComplex.cs" />
     <Compile Include="DataStructure\CompositeElementary.cs" />
     <Compile Include="DataStructure\GraphExtension.cs" />
-    <Compile Include="RoutedOperation\Alternative.cs" />
-    <Compile Include="RoutedOperation\Fixed.cs" />
-    <Compile Include="RoutedOperation\Parallel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -91,7 +88,11 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DataStructure\RoutedOperation.cs" />
+    <Compile Include="DataStructure\IComposite.cs" />
+    <Compile Include="DataStructure\RoutedOperation\Alternative.cs" />
+    <Compile Include="DataStructure\RoutedOperation\Fixed.cs" />
+    <Compile Include="DataStructure\RoutedOperation\Parallel.cs" />
+    <Compile Include="DataStructure\RoutedOperation\Single.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

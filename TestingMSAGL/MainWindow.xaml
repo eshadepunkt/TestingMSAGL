@@ -151,10 +151,22 @@
                    MouseLeftButtonDown="ViewerPanel_OnMouseLeftButtonDown">
             <DockPanel.ContextMenu>
                 <ContextMenu Name="cm" Opened="cm_Opened" Closed="cm_Closed" StaysOpen="true">
-                    <MenuItem Name="InsertNodeCM" Header="Insert Node" Click="InsertNodeCM_Click" />
-                    <MenuItem Name="AddSubgraphToSelectedNodeCM" Header="Insert ComplexNode"
-                              Click="AddSubgraphToSelectedNodeCM_Click" />
-                    <MenuItem Name="AddEdgeCM" Header="Add Edge" Click="EdgeSelectedNode_Click" />
+                    <MenuItem Name="InsertNodeMenuItem" Header="Insert Node" Click="InsertNodeCM_Click" />
+                    <MenuItem Name="AddSubgraphToSelectedNodeMenuItem" Header="Insert ComplexNode">
+                        <MenuItem Name="AddAlternativMenuItem" Header="Insert AlternativeComplex" Click="AddAlternativMenuItem_OnClick"/>
+                        <MenuItem Name="AddParallelMenuItem" Header="Insert ParallelComplex" Click="AddParallelMenuItem_OnClick"/>
+                        <MenuItem Name="AddFixedMenuItem" Header="Insert FixedComplex" Click="AddFixedMenuItem_OnClick"/>
+                        <MenuItem Name="AddSingleMenuItem" Header="Insert SingleComplex" Click="AddSingleMenuItem_OnClick"/>
+                    </MenuItem>  
+                    <MenuItem Name="GroupElementaries" Header="Group Elementaries to..">
+                        <MenuItem Name="GroupAlternative" Header="..Alternative" Click="GroupAlternative_OnClick"/>
+                        <MenuItem Name="GroupParallel" Header="..Parallel" Click="GroupParallel_OnClick"/>
+                        <MenuItem Name="GroupFixed" Header="..Fixed" Click="GroupFixed_OnClick"/>
+                        <MenuItem Name="GroupSingle" Header="..Single" Click="GroupSingle_OnClick"/>
+                        
+                    </MenuItem>
+                    
+                    <MenuItem Name="AddEdgeMenuItem" Header="Add Edge" Click="EdgeSelectedNode_Click" />
                     <!--<MenuItem Name="DeleteNodeCM" Header="Delete Node" Click="DeleteNodeCM_Click" />-->
                 </ContextMenu>
             </DockPanel.ContextMenu>
@@ -165,7 +177,7 @@
                Content=""
                VerticalAlignment="Bottom"
                VerticalContentAlignment="Center"
-               x:Name="mouseLabel"
+               x:Name="MouseLabel"
                Height="25" Width="100"
                FontSize="12"
                Background="white" />
