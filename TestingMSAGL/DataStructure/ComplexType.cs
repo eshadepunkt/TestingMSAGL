@@ -2,7 +2,7 @@ namespace TestingMSAGL.DataStructure
 {
     public enum ComplexType
     {
-        Alternativ,
+        Alternative,
         Parallel,
         Fixed,
         Single
