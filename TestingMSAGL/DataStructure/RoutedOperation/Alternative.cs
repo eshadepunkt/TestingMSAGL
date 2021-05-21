@@ -1,16 +1,17 @@
 using Microsoft.Msagl.Drawing;
 using TestingMSAGL.DataLinker;
-using TestingMSAGL.DataStructure;
 using Shape = Microsoft.Msagl.Drawing.Shape;
 
-namespace TestingMSAGL.RoutedOperation
+namespace TestingMSAGL.DataStructure.RoutedOperation
 {
     public class Alternative : NodeComplex
     {
         public Alternative(GraphExtension graph, string name) : base(graph, name)
         {
-            Subgraph.Attr.Shape = Shape.Diamond;
+            Subgraph.LabelText = "Alternative: " + Subgraph.Id;
+            Subgraph.Attr.Shape = Shape.Box;
             Subgraph.Attr.FillColor = Color.Gold;
         }
+        
     }
 }
