@@ -2,7 +2,6 @@
 using System.Linq;
 using Microsoft.Msagl.Drawing;
 using TestingMSAGL.DataLinker;
-using TestingMSAGL.RoutedOperation;
 
 
 namespace TestingMSAGL.DataStructure
@@ -47,35 +46,6 @@ namespace TestingMSAGL.DataStructure
             return DataLinkerNodes.Add(item);
         }
 
-        public bool FormatAllNodesToConvention()
-        {
-            foreach (var subgraph in this.SubgraphMap.Keys)
-            {
-               var complexNode = GetComplexNodeById(subgraph);
-               if (complexNode?.ComplexType == ComplexType.Alternativ)
-               {
-                   complexNode.Subgraph.Attr.Shape = Shape.Box;
-                   complexNode.Subgraph.Attr.FillColor = Color.Beige;
-                   
-               } else if (complexNode?.ComplexType == ComplexType.Fixed)
-               {
-                   complexNode.Subgraph.Attr.Shape = Shape.Diamond;
-                   complexNode.Subgraph.Attr.FillColor = Color.Pink;
-
-               } else if (complexNode?.ComplexType == ComplexType.Single)
-               {
-                   complexNode.Subgraph.Attr.Shape = Shape.Box;
-                   complexNode.Subgraph.Attr.FillColor = Color.GreenYellow;
-
-               } else if (complexNode?.ComplexType == ComplexType.Parallel)
-               {
-                   complexNode.Subgraph.Attr.Shape = Shape.Circle;
-                   complexNode.Subgraph.Attr.FillColor = Color.LightSkyBlue;
-                   
-               } else
-                   return false;
-            }
-            return true;
-        }
+        
     }
 }
