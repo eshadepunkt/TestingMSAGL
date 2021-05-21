@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace TestingMSAGL.DataStructure
 {
@@ -23,6 +24,12 @@ namespace TestingMSAGL.DataStructure
         {
             return Members.Add(composite);
         }
-        
+
+        public bool RemoveChildOfMember(Composite composite)
+        {
+            return Members.Remove(composite);
+        }
+
+     
     }
 }
