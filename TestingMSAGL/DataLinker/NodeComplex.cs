@@ -38,7 +38,13 @@ namespace TestingMSAGL.DataLinker
         /// Pass node id to Extern
         /// </summary>
         public string NodeId => Composite.DrawingNodeId;
-        
+
+        public string ParentId
+        {
+            get => Composite.ParentId;
+            set => Composite.ParentId = value;
+        }
+
         /// <summary>
         /// Complex Node Drawing Representation         
         /// </summary>
@@ -62,7 +68,7 @@ namespace TestingMSAGL.DataLinker
             
             if (Composite.AddMember(elementary.Composite))
             {
-                elementary.Composite.ParentId = Composite.DrawingNodeId;
+                elementary.ParentId = Composite.DrawingNodeId;
                 Subgraph.AddNode(elementary.Node);
                 return true;
             }
@@ -82,49 +88,36 @@ namespace TestingMSAGL.DataLinker
         /// <summary>
         /// add a new Node to Complex node and return true on success
         /// </summary>
-        /// <param name="elementary"></param>
+        /// <param name="node"></param>
         /// <returns></returns>
-        public bool AddMember(IWithId elementary)
+        public bool AddMember(IWithId node)
         {
-            var complex = elementary as NodeComplex;
-          
-            
-            if (Composite.AddMember(complex.Composite))
+            if (node is NodeComplex)
             {
-                Subgraph.AddSubgraph(complex.Subgraph);
-                complex.Composite.ParentId = Composite.DrawingNodeId;
+                var complex = node as NodeComplex;
+                if (Composite.AddMember(complex.Composite))
+                {
+                    Subgraph.AddSubgraph(complex.Subgraph);
+                    complex.Composite.ParentId = Composite.DrawingNodeId;
 
-                return true;
+                    return true;
+                }
             }
+
+            if (node is NodeElementary elementary)
+            {
+                if (Composite.AddMember(elementary.Composite))
+                {
+                    elementary.Composite.ParentId = Composite.DrawingNodeId;
+                    Subgraph.AddNode(elementary.Node);
+                    return true;
+                }
+            }
+
             return false;
         }
         
-        public Composite GetPredecessor()
-        {
-            return null;
-        }
-
-        //todo 
-        public Composite GetSuccessor()
-        {
-            return null;
-        }
-
-        public static NodeElementary GetParent(GraphExtension graph, NodeElementary elementary)
-        {
-            return null;
-
-        }
-
-        public NodeComplex GetChild(GraphExtension graph, NodeComplex complex)
-        {
-            return null;
-        }
-        //todo am I the only one?
-
-        //todo constraints
-
-
+    
         public bool RemoveMember(IWithId child)
         {
             List<Subgraph> subgraphs = new List<Subgraph>();

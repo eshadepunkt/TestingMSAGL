@@ -16,7 +16,8 @@ namespace TestingMSAGL.DataLinker
         public Node Node { get; private set; }
         public CompositeElementary Composite { get; }
         public string NodeId => Composite.DrawingNodeId;
-        
+        public string ParentId { get; set; }
+
         private string AddNode(Graph graph)
         {
             var nodeId = Guid.NewGuid().ToString();

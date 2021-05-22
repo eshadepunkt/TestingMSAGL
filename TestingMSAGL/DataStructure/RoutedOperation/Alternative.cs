@@ -9,7 +9,7 @@ namespace TestingMSAGL.DataStructure.RoutedOperation
         public Alternative(GraphExtension graph, string name) : base(graph, name)
         {
             Subgraph.LabelText = "Alternative: " + Subgraph.Id;
-            Subgraph.Attr.Shape = Shape.Box;
+            Subgraph.Attr.Shape = Shape.InvHouse;
             Subgraph.Attr.FillColor = Color.Gold;
         }
         

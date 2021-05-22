@@ -10,7 +10,6 @@ namespace TestingMSAGL.DataStructure.RoutedOperation
             Subgraph.LabelText = "Single: " + Subgraph.Id;
             Subgraph.Attr.Shape = Shape.Box;
             Subgraph.Attr.FillColor = Color.DarkMagenta;
-            ComplexType = ComplexType.Fixed;
         }
     }
 }

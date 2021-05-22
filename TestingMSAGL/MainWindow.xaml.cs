@@ -12,6 +12,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using Microsoft.Msagl.Core.Geometry;
 using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
@@ -42,8 +43,9 @@ namespace TestingMSAGL
         {
             InitializeComponent();
             Loaded += InitGraph;
-            viewerPanel.ClipToBounds = true;
-            _graphViewer.BindToPanel(viewerPanel);
+            
+            ViewerPanel.ClipToBounds = true;
+            _graphViewer.BindToPanel(ViewerPanel);
             Graph.LayoutAlgorithmSettings.EdgeRoutingSettings.RouteMultiEdgesAsBundles = true;
             _graphViewer.LayoutEditingEnabled = true;
             //todo graphViewer props for pane moving
@@ -51,6 +53,8 @@ namespace TestingMSAGL
             NodeTreeView();
             
         }
+
+       
 
         private void NodeTreeView()
         {
@@ -137,10 +141,13 @@ namespace TestingMSAGL
            // if(c3 is Alternative alternative)
                 Console.WriteLine("Test");
             var composites = root.Composite.Members;
-
+            
             Graph.RootSubgraph = rootSubgraph;
             NodeCounter = Graph.NodeCount;
             _graphViewer.Graph = Graph;
+            _graphViewer.RunLayoutAsync = true;
+            
+
 
         }
 
@@ -161,15 +168,13 @@ namespace TestingMSAGL
                 {
                     var node = new NodeElementary(Graph, "New Node") ;
                     var nodeComplex = Graph.GetComplexNodeById(subgraph.Id);
+                    //todo check if member exists?
                     if(!nodeComplex.AddMember(node))
                         MessageBox.Show("Could not add to member list");
-                    
-                    
-
                     //todo add method to detect if children are already present, sort new node as successor of last child
-
                    //node.Composite.Predecessor = nodeComplex.Composite;
-                   //nodeComplex.Composite.Successor = node.Composite; //todo fix issues
+                   //nodeComplex.Composite.Successor = node.Composite;
+                   //todo fix issues
                     _graphViewer.Graph = Graph;
                     //_graphViewer.GraphCanvas.UpdateLayout();
                 }
@@ -209,25 +214,37 @@ namespace TestingMSAGL
                 nodes.Add(nodeComplex);
                 node.Node.Attr.LineWidth = 1;
             }
-            
-            var anyNode = nodes.First() as NodeElementary;
-            var parent = anyNode?.Composite.ParentId;
-            var parentNode = Graph.GetComplexNodeById(parent);
 
-            var toBeDeleted = parentNode.Subgraph.Nodes.Where(node => nodes.Contains(Graph.GetNodeById(node.Id))).ToList();
-
-            foreach (var node in toBeDeleted)
+            if (nodes.Any(x => x.ParentId == null))
             {
-                parentNode.Subgraph.RemoveNode(node);
+                MessageBox.Show("Error: Root can't be part of a Complex.");
+                return;
             }
+
+            var parentNode = Graph.GetComplexNodeById(nodes.First().ParentId);         
+                
+            
+            var toBeDeleted = parentNode.Subgraph.Nodes.Where(node => nodes.Contains(Graph.GetNodeById(node.Id)))
+                    .ToList();
+            toBeDeleted.AddRange(parentNode.Subgraph.AllSubgraphsDepthFirstExcludingSelf());
+            
+            foreach (var entity in toBeDeleted)
+            {
+                parentNode.Subgraph.RemoveNode(entity);
+                parentNode.Subgraph.RemoveNode(entity);
+
+            }
+
             if (parentNode.AddMember(newComplex))
             {
-                foreach (var member in nodes.Select(node => node as NodeElementary))
+                foreach (var member in nodes.Select(node => node))
                 {
-                    
                     newComplex.AddMember(member);
                 }
             }
+            
+                
+            
             _graphViewer.Graph = Graph;
         }
         
@@ -267,6 +284,7 @@ namespace TestingMSAGL
             Graph.Attr.LayerDirection = LayerDirection.LR;
             _graphViewer.Graph = Graph;
             Graph.Attr.LayerDirection = LayerDirection.TB;
+
 
             //todo magic for constraints?!
         }
@@ -421,9 +439,27 @@ namespace TestingMSAGL
              InsertNode();
          }
 
-         private void ViewerPanel_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-         {
-             _graphViewer.StartDrawingRubberLine(_mMouseLeftButtonDownPoint);
+         
+         void ViewerPanel_OnMouseLeftButtonDown(object sender, MouseEventArgs e)
+         {  
+             // todo get this to work!
+             var p0 = new Point(e.GetPosition(this).X, e.GetPosition(this).Y);
+             var p1 = new Point(e.GetPosition(this).X, e.GetPosition(this).Y);
+             if (e.LeftButton == MouseButtonState.Pressed)
+             {
+                p0.X = e.GetPosition(this).X;
+                p0.Y = e.GetPosition(this).Y;
+                 
+             }
+
+             if (e.LeftButton == MouseButtonState.Released)
+             {
+                 p1.X = e.GetPosition(this).X;
+                 p1.Y = e.GetPosition(this).Y;
+
+             }
+            
+             var rubberRec = new Rectangle(p0, p1);
          }
 
          private void AddAlternativMenuItem_OnClick(object sender, RoutedEventArgs e)
