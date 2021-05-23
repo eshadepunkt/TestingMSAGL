@@ -25,12 +25,8 @@ namespace TestingMSAGL.DataLinker
         private string AddNode(Graph graph)
         {
             var nodeId =  Guid.NewGuid().ToString();
-            Subgraph = new Subgraph(nodeId) {Attr = {FillColor = Color.Beige, Padding = 20}};
-            /*if (!Subgraph.Nodes.Any())
-            {
-                var node = new Node("Dummy") {IsVisible = true};
-                Subgraph.AddNode(node);
-            }*/
+            Subgraph = new Subgraph(nodeId) {Attr = {FillColor = Color.Beige, LabelWidthToHeightRatio = 0.5}};
+          
             graph.AddNode(Subgraph);
             return nodeId;
         }
@@ -92,12 +88,13 @@ namespace TestingMSAGL.DataLinker
         /// <returns></returns>
         public bool AddMember(IWithId node)
         {
-            if (node is NodeComplex)
+            if (node is NodeComplex complex)
             {
-                var complex = node as NodeComplex;
                 if (Composite.AddMember(complex.Composite))
                 {
+                   
                     Subgraph.AddSubgraph(complex.Subgraph);
+                    
                     complex.Composite.ParentId = Composite.DrawingNodeId;
 
                     return true;
@@ -108,57 +105,25 @@ namespace TestingMSAGL.DataLinker
             {
                 if (Composite.AddMember(elementary.Composite))
                 {
-                    elementary.Composite.ParentId = Composite.DrawingNodeId;
+                   
                     Subgraph.AddNode(elementary.Node);
+                    elementary.Composite.ParentId = Composite.DrawingNodeId;
+                    
                     return true;
                 }
             }
-
             return false;
         }
         
     
         public bool RemoveMember(IWithId child)
         {
-            List<Subgraph> subgraphs = new List<Subgraph>();
-            List<Node> nodes = new List<Node>();
-            
-            var nodeComplex = child as NodeComplex;
-        
-                if (Composite.RemoveChildOfMember(nodeComplex?.Composite) )
-                {
-                    if(nodeComplex.Subgraph.Nodes.Any())
-                        foreach (var subgraphNode in nodeComplex.Subgraph.Nodes)
-                        {
-                            nodes.Add(subgraphNode);
-                        }
-                    if(Subgraph.Subgraphs.Any())
-                        foreach (var subgraph in nodeComplex.Subgraph.Subgraphs)
-                        {
-                            subgraphs.Add(subgraph);
-                        }
-                    nodes.RemoveAll(x=>x.Equals(x));
+            if (child is NodeComplex complex)
+            {
+                return Composite.RemoveMember(complex.Composite);
+            }
 
-                    subgraphs.RemoveAll(x=>x.Equals(x));
-                    Subgraph.RemoveSubgraph(nodeComplex?.Subgraph);
-                    return true;
-                }
             return false;
         }
-
-        public bool RemoveChild(IWithId child)
-        {
-            var childNode = child as NodeComplex;
-            //if (Composite.RemoveMember())
-            //{
-                   // Subgraph.RemoveNode(child?.);
-                
-                    //Subgraph.RemoveSubgraph(child.Node );
-              
-            //}
-            return true;
-        }
-
-
     }
 }

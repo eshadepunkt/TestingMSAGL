@@ -25,7 +25,7 @@ namespace TestingMSAGL.DataStructure
             return Members.Add(composite);
         }
 
-        public bool RemoveChildOfMember(Composite composite)
+        public bool RemoveMember(Composite composite)
         {
             return Members.Remove(composite);
         }

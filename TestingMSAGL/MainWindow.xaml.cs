@@ -145,7 +145,12 @@ namespace TestingMSAGL
             var composites = root.Composite.Members;
 
             Graph.RootSubgraph = rootSubgraph;
+            
             NodeCounter = Graph.NodeCount;
+            Graph.Attr.Margin = 0;
+            Graph.Attr.OptimizeLabelPositions = true;
+            Graph.Attr.MinNodeHeight = 10;
+            
             _graphViewer.Graph = Graph;
             _graphViewer.RunLayoutAsync = true;
 
@@ -229,19 +234,22 @@ namespace TestingMSAGL
             var parentNode = Graph.GetComplexNodeById(nodes.First().ParentId);
 
 
-            var toBeDeleted = parentNode.Subgraph.Nodes.Where(node => nodes.Contains(Graph.GetNodeById(node.Id)))
+            var toBeDeletedNode = parentNode.Subgraph.Nodes.Where(node => nodes.Contains(Graph.GetNodeById(node.Id)))
                 .ToList();
+            var toBeDeletedComplex =
+                parentNode.Subgraph.Subgraphs.Where(subgraph => nodes.Contains(Graph.GetComplexNodeById(subgraph.Id))).ToList();
+           
             
-            toBeDeleted.AddRange(parentNode.Subgraph.AllSubgraphsDepthFirstExcludingSelf());
-
-          
-
-            foreach (var entity in toBeDeleted)
+            //todo extract this to complexNode class
+            foreach (var subgraph in toBeDeletedComplex)
             {
-                parentNode.Subgraph.RemoveNode(entity);
-                if (entity is Subgraph subgraph )
-                    parentNode.Subgraph.RemoveSubgraph(subgraph);
+                parentNode.Subgraph.RemoveSubgraph(subgraph);
+                parentNode.RemoveMember(Graph.GetComplexNodeById(subgraph.Id));
+            }
 
+            foreach (var node in toBeDeletedNode)
+            {
+                parentNode.Subgraph.RemoveNode(node);
             }
 
             if (parentNode.AddMember(newComplex))
