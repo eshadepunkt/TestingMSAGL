@@ -167,7 +167,7 @@
                     </MenuItem>
                     
                     <MenuItem Name="AddEdgeMenuItem" Header="Add Edge" Click="EdgeSelectedNode_Click" />
-                    <!--<MenuItem Name="DeleteNodeCM" Header="Delete Node" Click="DeleteNodeCM_Click" />-->
+                    <MenuItem Name="DeleteNodeCM" Header="Delete Node" Click="DeleteNodeCM_OnClick" />-->
                 </ContextMenu>
             </DockPanel.ContextMenu>
 
