@@ -25,8 +25,7 @@ namespace TestingMSAGL.DataLinker
         private string AddNode(Graph graph)
         {
             var nodeId =  Guid.NewGuid().ToString();
-            Subgraph = new Subgraph(nodeId) {Attr = {FillColor = Color.Beige, LabelWidthToHeightRatio = 0.5}};
-          
+            Subgraph = new Subgraph(nodeId) {Attr = {FillColor = Color.Beige}};
             graph.AddNode(Subgraph);
             return nodeId;
         }

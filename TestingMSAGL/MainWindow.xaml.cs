@@ -50,8 +50,8 @@ namespace TestingMSAGL
             Graph.LayoutAlgorithmSettings.EdgeRoutingSettings.RouteMultiEdgesAsBundles = true;
             _graphViewer.LayoutEditingEnabled = true;
             //todo graphViewer props for pane moving
-            _graphViewer.Graph = Graph;
             NodeTreeView();
+            _graphViewer.Invalidate();
 
         }
 
@@ -106,7 +106,7 @@ namespace TestingMSAGL
             root.AddMember(ros);
 
             var c1 = new Single(Graph, "Complex: 104");
-            var c2 = new Fixed(Graph, "Complex: 105");
+            var c2 = new Parallel(Graph, "Complex: 105");
             //NodeComplex c3 = new Alternative(Graph, "Complex: 106");
             ros.AddMember(c1); // layout Problem. - does not contain any nodes - that's why :)
             ros.AddMember(c2);
@@ -124,8 +124,6 @@ namespace TestingMSAGL
             c2.AddMember(e1);
             c2.AddMember(e2);
             c2.AddMember(e3);
-            //
-            //
             var c4 = new Fixed(Graph, "heya");
             //var c5 = new Fixed(Graph, "fix it!");
             //var c6 = new Parallel(Graph, "fix it!");
@@ -139,7 +137,7 @@ namespace TestingMSAGL
             //var e5 = new NodeElementary(Graph, "I am Ironman!");
             //c3.AddMember(e4);  
             //c3.AddMember(e5);
-
+            
             // if(c3 is Alternative alternative)
             Console.WriteLine("Test");
             var composites = root.Composite.Members;
@@ -149,10 +147,10 @@ namespace TestingMSAGL
             NodeCounter = Graph.NodeCount;
             Graph.Attr.Margin = 0;
             Graph.Attr.OptimizeLabelPositions = true;
-            Graph.Attr.MinNodeHeight = 10;
-            
-            _graphViewer.Graph = Graph;
+            Graph.Attr.MinNodeHeight = 5;
             _graphViewer.RunLayoutAsync = true;
+            _graphViewer.Graph = Graph;
+
 
 
 
@@ -183,7 +181,6 @@ namespace TestingMSAGL
                     //nodeComplex.Composite.Successor = node.Composite;
                     //todo fix issues
                     _graphViewer.Graph = Graph;
-                    //_graphViewer.GraphCanvas.UpdateLayout();
                 }
             }
 
@@ -300,6 +297,7 @@ namespace TestingMSAGL
 
             Graph.Attr.LayerDirection = LayerDirection.LR;
             _graphViewer.Graph = Graph;
+            
             Graph.Attr.LayerDirection = LayerDirection.TB;
 
 
@@ -347,42 +345,28 @@ namespace TestingMSAGL
                 var forDragging = _graphViewer.Entities
                     .Where(x => x.MarkedForDragging)
                     .Cast<IViewerNode>()
-                    .ToArray();
-                if (forDragging.Length < 1) return;
-
-                var nodes = new List<IWithId>();
-
-                foreach (var node in forDragging)
-                {
-                    var nodeComplex = Graph.GetNodeById(node.Node.Id);
-
-                    nodes.Add(nodeComplex);
-                    node.Node.Attr.LineWidth = 1;
-                }
-
-                if (nodes.Any(x => x.ParentId == null))
-                {
-                    MessageBox.Show("Error: Root can't be deleted!");
-                    return;
-                }
-
-
-                var parentNode = Graph.GetComplexNodeById(nodes.First().ParentId);
-
-
-                var toBeDeleted = parentNode.Subgraph.Nodes.Where(node => nodes.Contains(Graph.GetNodeById(node.Id)))
                     .ToList();
-                toBeDeleted.AddRange(parentNode.Subgraph.AllSubgraphsDepthFirstExcludingSelf());
-
-                foreach (var entity in toBeDeleted)
+                if (forDragging.Count < 1) return;
+                foreach (var viewerNode in forDragging)
                 {
-                    parentNode.Subgraph.RemoveNode(entity);
-                    parentNode.Subgraph.RemoveNode(entity);
-
+                    
+                    if (viewerNode.Node is Subgraph subgraph)
+                    {
+                        if (subgraph.ParentSubgraph.ParentSubgraph == null)
+                        {
+                            MessageBox.Show("Error: Root can't be deleted!");
+                            return;
+                        }  
+                        if (subgraph.Subgraphs.Any())
+                            Graph.DeleteRecursive(subgraph);
+                        else
+                        {
+                            Graph.DeleteById(subgraph.Id);
+                            Graph.RemoveNode(subgraph);
+                        }
+                    }
                 }
-
                 _graphViewer.Graph = Graph;
-
             } catch (Exception e)
             {
                 MessageBox.Show("Error in Delete()\n" + e);
@@ -391,7 +375,7 @@ namespace TestingMSAGL
         }
 
 
-
+        
       
 
          private void MenuItem_OnClick(object sender, RoutedEventArgs e)
