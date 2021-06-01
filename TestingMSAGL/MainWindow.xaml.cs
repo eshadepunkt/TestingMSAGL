@@ -180,7 +180,7 @@ namespace TestingMSAGL
                     //node.Composite.Predecessor = nodeComplex.Composite;
                     //nodeComplex.Composite.Successor = node.Composite;
                     //todo fix issues
-                    _graphViewer.Graph = Graph;
+                    //_graphViewer.Graph = Graph;
                 }
             }
 
@@ -303,6 +303,22 @@ namespace TestingMSAGL
 
             //todo magic for constraints?!
         }
+        
+        /// <summary>
+        /// Testing purpose only
+        /// Creates 10 Nodes, if a complex is marked.
+        /// </summary>
+        private void CreateTenNodesForTesting()
+        {
+            if (!_graphViewer.Entities.Any(x => x.MarkedForDragging)) return;
+            
+            for (var i = 0; i < 10; i++)
+            {
+                InsertNode();
+                    
+            }
+            _graphViewer.Graph = Graph;
+        }
 
         private void InsertSubgraph(IWithId complex)
         {
@@ -356,13 +372,27 @@ namespace TestingMSAGL
                         {
                             MessageBox.Show("Error: Root can't be deleted!");
                             return;
-                        }  
+                        }
+
                         if (subgraph.Subgraphs.Any())
-                            Graph.DeleteRecursive(subgraph);
+                        {
+                            var allChildren = subgraph.AllSubgraphsDepthFirst().ToList();
+                            foreach (var child in allChildren)
+                            {
+                                Graph.DeleteRecursive(child);
+                            }
+                        }
                         else
                         {
+                            var allNodes = subgraph.Nodes.ToList();
+                            foreach (var node in allNodes)
+                            {
+                                Graph.RemoveNode(node);
+                            }
+                            subgraph.ParentSubgraph.RemoveSubgraph(subgraph);
                             Graph.DeleteById(subgraph.Id);
                             Graph.RemoveNode(subgraph);
+                            
                         }
                     }
                 }
@@ -406,7 +436,7 @@ namespace TestingMSAGL
 
          private void Hexa_button_Click(object sender, RoutedEventArgs e)
          {
-         
+             CreateTenNodesForTesting();
          }
 
          private void DeleteSelectedNode_Click(object sender, RoutedEventArgs e)
@@ -461,6 +491,8 @@ namespace TestingMSAGL
          private void InsertNodeCM_Click(object sender, RoutedEventArgs e)
          {
              InsertNode();
+             _graphViewer.Graph = Graph;
+
          }
 
          

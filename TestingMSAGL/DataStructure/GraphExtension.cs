@@ -60,13 +60,13 @@ namespace TestingMSAGL.DataStructure
             {
                 return false;}
 
-            var listOfChildren = subgraph.AllSubgraphsDepthFirstExcludingSelf().ToList();
+            var listOfChildren = subgraph.AllSubgraphsWidthFirstExcludingSelf().ToList();
             if (subgraph.Subgraphs.Any())
             {
-                foreach (var child in listOfChildren)
-                {
-                    DeleteRecursive(child);
-                }
+                 foreach (var child in listOfChildren)
+                 {
+                    DeleteRecursive(subgraph);
+                 }
             }
             if (subgraph.Nodes.Any())
             {
@@ -74,9 +74,9 @@ namespace TestingMSAGL.DataStructure
                 foreach (var node in toBeDeleted)
                 {
                     //todo naming!
-                    // var elementary = GetNodeById(node.Id);
-                    // var complex = GetComplexNodeById(elementary.ParentId);
-                    // complex.RemoveMember(elementary);
+                    var elementary = GetNodeById(node.Id);
+                    var complex = GetComplexNodeById(elementary.ParentId);
+                    complex.RemoveMember(elementary);
                     
                     subgraph.RemoveNode(node);
                     DeleteById(node.Id);
@@ -84,9 +84,9 @@ namespace TestingMSAGL.DataStructure
                 } 
             }
             //todo naming!
-            // var parent = GetComplexNodeById(subgraph.Id);
-            // var grandparent = GetComplexNodeById(parent.NodeId);
-            // grandparent.RemoveMember(parent);
+            var parent = GetComplexNodeById(subgraph.Id);
+            var grandparent = GetComplexNodeById(parent.NodeId);
+            grandparent.RemoveMember(parent);
             
             subgraph.ParentSubgraph.RemoveSubgraph(subgraph);
             DeleteById(subgraph.Id);
