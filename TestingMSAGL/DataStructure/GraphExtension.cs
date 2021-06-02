@@ -99,7 +99,19 @@ namespace TestingMSAGL.DataStructure
             // if check so, call this method again
 
         }
-
+        
+        public void EnforceConstraints(Subgraph subgraph)
+        {
+            if (subgraph.Nodes.Count() > 1 && subgraph.Subgraphs.Count() > 1)
+            {
+                var allNodes = subgraph.Nodes.ToArray();
+                var allSubgraphs = subgraph.Subgraphs.ToArray();
+                
+                LayerConstraints.AddSameLayerNeighbors(allNodes);
+                LayerConstraints.AddSameLayerNeighbors(allSubgraphs);
+                
+            }
+        }
         
     }
 }
