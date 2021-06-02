@@ -25,7 +25,7 @@ namespace TestingMSAGL.DataLinker
         private string AddNode(Graph graph)
         {
             var nodeId =  Guid.NewGuid().ToString();
-            Subgraph = new Subgraph(nodeId) {Attr = {FillColor = Color.Beige}};
+            Subgraph = new Subgraph(nodeId) {Attr = {FillColor = Color.Beige, LabelMargin = 10}};
             graph.AddNode(Subgraph);
             return nodeId;
         }
@@ -107,6 +107,7 @@ namespace TestingMSAGL.DataLinker
                    
                     Subgraph.AddNode(elementary.Node);
                     elementary.Composite.ParentId = Composite.DrawingNodeId;
+                    elementary.ParentId = Composite.DrawingNodeId;
                     
                     return true;
                 }
@@ -117,9 +118,9 @@ namespace TestingMSAGL.DataLinker
     
         public bool RemoveMember(IWithId child)
         {
-            if (child is NodeComplex complex)
+            if (child is NodeElementary elementary)
             {
-                return Composite.RemoveMember(complex.Composite);
+                return Composite.RemoveMember(elementary.Composite);
             }
 
             return false;

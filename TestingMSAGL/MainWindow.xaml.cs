@@ -36,7 +36,7 @@ namespace TestingMSAGL
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly GraphViewer _graphViewer = new GraphViewer();
+        private readonly GraphViewer _graphViewer;
         private Point _mMouseRightButtonDownPoint;
         private Point _mMouseLeftButtonDownPoint;
 
@@ -44,14 +44,20 @@ namespace TestingMSAGL
         {
             InitializeComponent();
             Loaded += InitGraph;
-
+            _graphViewer = new GraphViewer();
             ViewerPanel.ClipToBounds = true;
+            ViewerPanel.Background = (SolidColorBrush) new BrushConverter().ConvertFromString("#4d22ff");
+            _graphViewer.GraphCanvas.Height = ViewerPanel.Height;
+            _graphViewer.GraphCanvas.Width = ViewerPanel.Width;
+            _graphViewer.GraphCanvas.Background = (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
+
             _graphViewer.BindToPanel(ViewerPanel);
-            Graph.LayoutAlgorithmSettings.EdgeRoutingSettings.RouteMultiEdgesAsBundles = true;
+
+
+
             _graphViewer.LayoutEditingEnabled = true;
             //todo graphViewer props for pane moving
             NodeTreeView();
-            _graphViewer.Invalidate();
 
         }
 
@@ -95,6 +101,7 @@ namespace TestingMSAGL
             // Drawing Board
             Subgraph rootSubgraph = new Subgraph("rootSubgraph");
 
+
             // first element 
             var root = new NodeComplex(Graph, "Root");
             rootSubgraph.AddSubgraph(root.Subgraph);
@@ -137,19 +144,25 @@ namespace TestingMSAGL
             //var e5 = new NodeElementary(Graph, "I am Ironman!");
             //c3.AddMember(e4);  
             //c3.AddMember(e5);
-            
+
             // if(c3 is Alternative alternative)
             Console.WriteLine("Test");
             var composites = root.Composite.Members;
 
             Graph.RootSubgraph = rootSubgraph;
-            
+
             NodeCounter = Graph.NodeCount;
-            Graph.Attr.Margin = 0;
+            Graph.LayerConstraints.AddSameLayerNeighbors();
+            Graph.Attr.Margin = 5;
             Graph.Attr.OptimizeLabelPositions = true;
-            Graph.Attr.MinNodeHeight = 5;
-            _graphViewer.RunLayoutAsync = true;
+            Graph.Attr.MinNodeHeight = 10;
+            Graph.Attr.MinNodeWidth = 10;
+            Graph.Attr.MinimalWidth = 10;
+            Graph.Attr.MinimalHeight = 10;
+            Graph.Attr.BackgroundColor = Color.Orange;
+            Graph.Attr.ClearStyles();
             _graphViewer.Graph = Graph;
+            _graphViewer.RunLayoutAsync = true;
 
 
 
@@ -165,8 +178,10 @@ namespace TestingMSAGL
             // Possible to Insert into more then one ?
             try
             {
-                IViewerObject forDragging = _graphViewer.Entities
-                    .Single(x => x.MarkedForDragging);
+                var forDragging = _graphViewer.Entities
+                    .SingleOrDefault(x => x.MarkedForDragging);
+                if (forDragging == null) return;
+
                 var subgraph = ((IViewerNode) forDragging).Node;
                 subgraph.Attr.LineWidth = 1;
                 if (subgraph is Subgraph)
@@ -175,7 +190,9 @@ namespace TestingMSAGL
                     var nodeComplex = Graph.GetComplexNodeById(subgraph.Id);
                     //todo check if member exists?
                     if (!nodeComplex.AddMember(node))
+                    {
                         MessageBox.Show("Could not add to member list");
+                    }
                     //todo add method to detect if children are already present, sort new node as successor of last child
                     //node.Composite.Predecessor = nodeComplex.Composite;
                     //nodeComplex.Composite.Successor = node.Composite;
@@ -188,12 +205,12 @@ namespace TestingMSAGL
 
             catch (ArgumentNullException e)
             {
-                MessageBox.Show("No complex selected!");
+                MessageBox.Show("No complex selected!" + e);
                 // throw;
             }
             catch (InvalidOperationException invalid)
             {
-                MessageBox.Show("More than one complex selected!");
+                MessageBox.Show("More than one complex selected!" + invalid);
             }
 
         } // todo buggy as hell
@@ -205,61 +222,50 @@ namespace TestingMSAGL
         /// <param name="newComplex"></param>
         private void ConvertGroupOfElementariesToComplex(NodeComplex newComplex)
         {
-
-            var forDragging = _graphViewer.Entities
-                .Where(x => x.MarkedForDragging)
-                .Cast<IViewerNode>()
-                .ToArray();
-            if (forDragging.Length < 1) return;
-
-            var nodes = new List<IWithId>();
-
-            foreach (var node in forDragging)
+            try
             {
-                var nodeComplex = Graph.GetNodeById(node.Node.Id);
+                var forDragging = _graphViewer.Entities
+                    .Where(x => x.MarkedForDragging)
+                    .Cast<IViewerNode>()
+                    .ToList();
+                if (forDragging.Count < 1) return;
 
-                nodes.Add(nodeComplex);
-                node.Node.Attr.LineWidth = 1;
-            }
-
-            if (nodes.Any(x => x.ParentId == null))
-            {
-                MessageBox.Show("Error: Root can't be part of a Complex.");
-                return;
-            }
-
-            var parentNode = Graph.GetComplexNodeById(nodes.First().ParentId);
-
-
-            var toBeDeletedNode = parentNode.Subgraph.Nodes.Where(node => nodes.Contains(Graph.GetNodeById(node.Id)))
-                .ToList();
-            var toBeDeletedComplex =
-                parentNode.Subgraph.Subgraphs.Where(subgraph => nodes.Contains(Graph.GetComplexNodeById(subgraph.Id))).ToList();
-           
-            
-            //todo extract this to complexNode class
-            foreach (var subgraph in toBeDeletedComplex)
-            {
-                parentNode.Subgraph.RemoveSubgraph(subgraph);
-                parentNode.RemoveMember(Graph.GetComplexNodeById(subgraph.Id));
-            }
-
-            foreach (var node in toBeDeletedNode)
-            {
-                parentNode.Subgraph.RemoveNode(node);
-            }
-
-            if (parentNode.AddMember(newComplex))
-            {
-                foreach (var member in nodes.Select(node => node))
+                foreach (var viewerNode in forDragging)
                 {
-                    newComplex.AddMember(member);
+                    //workaround for select issue
+                    viewerNode.Node.Attr.LineWidth = 1;
+                    if (viewerNode.Node is Subgraph subgraph)
+                    {
+                        if (subgraph.ParentSubgraph.ParentSubgraph == null)
+                        {
+                            MessageBox.Show("Error Root can't be part of a Group!");
+                            return;
+                        }
+
+                        var parent = Graph.GetComplexNodeById(subgraph.ParentSubgraph.Id);
+                        var child = Graph.GetNodeById(subgraph.Id);
+                        parent.AddMember(newComplex);
+                        parent.RemoveMember(child);
+                        newComplex.AddMember(child);
+                    }
+                    else
+                    {
+                        var child = Graph.GetNodeById(viewerNode.Node.Id);
+                        var parent = Graph.GetComplexNodeById(child.ParentId);
+                        parent.RemoveMember(child);
+                        parent.Subgraph.RemoveNode(viewerNode.Node);
+                        parent.AddMember(newComplex);
+                        newComplex.AddMember(child);
+                    }
                 }
+
+                _graphViewer.Graph = Graph;
             }
-
-
-
-            _graphViewer.Graph = Graph;
+            catch (Exception e)
+            {
+                MessageBox.Show("Error in GroupNodes()\n" + e);
+                throw;
+            }
         }
 
         private void AddEdge()
@@ -297,13 +303,13 @@ namespace TestingMSAGL
 
             Graph.Attr.LayerDirection = LayerDirection.LR;
             _graphViewer.Graph = Graph;
-            
+
             Graph.Attr.LayerDirection = LayerDirection.TB;
 
 
             //todo magic for constraints?!
         }
-        
+
         /// <summary>
         /// Testing purpose only
         /// Creates 10 Nodes, if a complex is marked.
@@ -311,49 +317,37 @@ namespace TestingMSAGL
         private void CreateTenNodesForTesting()
         {
             if (!_graphViewer.Entities.Any(x => x.MarkedForDragging)) return;
-            
-            for (var i = 0; i < 10; i++)
+
+            for (var i = 0; i < Int32.Parse(CounterText.Text); i++)
             {
                 InsertNode();
-                    
+
             }
+
             _graphViewer.Graph = Graph;
         }
 
-        private void InsertSubgraph(IWithId complex)
+        private void InsertSubgraph(IWithId complex, Node subgraph)
         {
             // Possible to Insert into more then one ?
             try
             {
-                var forDragging = _graphViewer.Entities
-                    .Single(x => x.MarkedForDragging);
-                var subgraph = ((IViewerNode) forDragging).Node;
                 subgraph.Attr.LineWidth = 1;
-                if (subgraph is Subgraph)
-                {
-                    var nodeComplex = Graph.GetComplexNodeById(subgraph.Id);
-                    nodeComplex.AddMember(complex);
-
-
-                }
-                else
-                {
-                    MessageBox.Show("Error: You tried to insert into an elementary.");
-
-                }
+                var nodeComplex = Graph.GetComplexNodeById(subgraph.Id);
+                nodeComplex.AddMember(complex);
 
                 _graphViewer.Graph = Graph;
-
             }
             catch (Exception e)
             {
                 MessageBox.Show("More than one complex selected! " + e);
-                //throw;
             }
-
             // todo can't handle clicked elementary nodes
         } // todo buggy as hell
 
+        /// <summary>
+        /// Checks for any selected node (subgraph) and deletes the node (subgraph and all children)
+        /// </summary>
         private void DeleteNode()
         {
             try
@@ -363,9 +357,10 @@ namespace TestingMSAGL
                     .Cast<IViewerNode>()
                     .ToList();
                 if (forDragging.Count < 1) return;
+
                 foreach (var viewerNode in forDragging)
                 {
-                    
+                    //todo extract as method to Graph Extension
                     if (viewerNode.Node is Subgraph subgraph)
                     {
                         if (subgraph.ParentSubgraph.ParentSubgraph == null)
@@ -374,6 +369,7 @@ namespace TestingMSAGL
                             return;
                         }
 
+                        //check for Children
                         if (subgraph.Subgraphs.Any())
                         {
                             var allChildren = subgraph.AllSubgraphsDepthFirst().ToList();
@@ -389,15 +385,28 @@ namespace TestingMSAGL
                             {
                                 Graph.RemoveNode(node);
                             }
+
                             subgraph.ParentSubgraph.RemoveSubgraph(subgraph);
                             Graph.DeleteById(subgraph.Id);
                             Graph.RemoveNode(subgraph);
-                            
                         }
                     }
+                    else
+                    {
+                        //todo extract as method to Graph Extension
+                        var childComposite = Graph.GetNodeById(viewerNode.Node.Id);
+                        var parentComposite = Graph.GetComplexNodeById(childComposite.ParentId);
+                        parentComposite.RemoveMember(childComposite);
+                        // removes nodes from (root)subgraph into Graph
+                        parentComposite.Subgraph.RemoveNode(viewerNode.Node);
+                        // removes straying nodes from Graph
+                        Graph.RemoveNode(viewerNode.Node);
+                    }
                 }
+
                 _graphViewer.Graph = Graph;
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 MessageBox.Show("Error in Delete()\n" + e);
                 //throw;
@@ -405,163 +414,206 @@ namespace TestingMSAGL
         }
 
 
-        
-      
-
-         private void MenuItem_OnClick(object sender, RoutedEventArgs e)
-         {
-             Close();
-         }
-
-         private void Open_OnClick(object sender, RoutedEventArgs e)
-         {
-             var openFileDlg = new OpenFileDialog();
-
-             // Launch OpenFileDialog by calling ShowDialog method
-             openFileDlg.ShowDialog();
-             // Get the selected file name and display in a TextBox.
-             // Load content of file in a TextBlock
-         }
 
 
-         private void Rectangle1_OnMouseEnter(object sender, MouseEventArgs e)
-         {
-             rectangle1.Fill = (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
-         }
 
-         private void Rectangle1_OnMouseLeave(object sender, MouseEventArgs e)
-         {
-             rectangle1.Fill = (SolidColorBrush) new BrushConverter().ConvertFromString("#00ace6");
-         }
+        private void MenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
 
-         private void Hexa_button_Click(object sender, RoutedEventArgs e)
-         {
-             CreateTenNodesForTesting();
-         }
+        private void Open_OnClick(object sender, RoutedEventArgs e)
+        {
+            var openFileDlg = new OpenFileDialog();
 
-         private void DeleteSelectedNode_Click(object sender, RoutedEventArgs e)
-         {
-             
-         }
-
-         private void cm_Opened(object sender, RoutedEventArgs e)
-         {
-         }
-
-         private void cm_Closed(object sender, RoutedEventArgs e)
-         {
-         }
+            // Launch OpenFileDialog by calling ShowDialog method
+            openFileDlg.ShowDialog();
+            // Get the selected file name and display in a TextBox.
+            // Load content of file in a TextBlock
+        }
 
 
-         private void Window_MouseMove(object sender, MouseEventArgs e)
-         {
-             MouseLabel.Content = e.GetPosition(this).ToString();
-         }
+        private void Rectangle1_OnMouseEnter(object sender, MouseEventArgs e)
+        {
+            rectangle1.Fill = (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
+        }
 
-         private void cm_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
-         {
-             _mMouseRightButtonDownPoint = new Point(e.GetPosition(this).X, e.GetPosition(this).Y);
-         }
+        private void Rectangle1_OnMouseLeave(object sender, MouseEventArgs e)
+        {
+            rectangle1.Fill = (SolidColorBrush) new BrushConverter().ConvertFromString("#00ace6");
+        }
 
-       
-         private void ResetGraph_Click(object sender, RoutedEventArgs e)
-         {
-         }
+        private void Hexa_button_Click(object sender, RoutedEventArgs e)
+        {
+            CreateTenNodesForTesting();
+        }
 
-         private void EdgeSelectedNode_Click(object sender, RoutedEventArgs e)
-         {
-             AddEdge();
-         }
+        private void DeleteSelectedNode_Click(object sender, RoutedEventArgs e)
+        {
 
-         private void EditMode_Click(object sender, RoutedEventArgs e)
-         {
-             var defaultColor = EditMode.Background;
-             if (_graphViewer.InsertingEdge)
-             {
-                 _graphViewer.InsertingEdge = false;
-                 EditMode.Background = (SolidColorBrush) new BrushConverter().ConvertFromString(defaultColor.ToString());
-             }
-             else
-             {
-                 _graphViewer.InsertingEdge = true;
-                 EditMode.Background = (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
-             }
-         }
+        }
 
-         private void InsertNodeCM_Click(object sender, RoutedEventArgs e)
-         {
-             InsertNode();
-             _graphViewer.Graph = Graph;
+        private void cm_Opened(object sender, RoutedEventArgs e)
+        {
+        }
 
-         }
+        private void cm_Closed(object sender, RoutedEventArgs e)
+        {
+        }
 
-         
-         void ViewerPanel_OnMouseLeftButtonDown(object sender, MouseEventArgs e)
-         {  
-             // todo get this to work!
-             var p0 = new Point(e.GetPosition(this).X, e.GetPosition(this).Y);
-             var p1 = new Point(e.GetPosition(this).X, e.GetPosition(this).Y);
-             if (e.LeftButton == MouseButtonState.Pressed)
-             {
+
+        private void Window_MouseMove(object sender, MouseEventArgs e)
+        {
+            MouseLabel.Content = e.GetPosition(this).ToString();
+        }
+
+        private void cm_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            _mMouseRightButtonDownPoint = new Point(e.GetPosition(this).X, e.GetPosition(this).Y);
+        }
+
+
+        private void ResetGraph_Click(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void EdgeSelectedNode_Click(object sender, RoutedEventArgs e)
+        {
+            AddEdge();
+        }
+
+        private void EditMode_Click(object sender, RoutedEventArgs e)
+        {
+            var defaultColor = EditMode.Background;
+            if (_graphViewer.InsertingEdge)
+            {
+                _graphViewer.InsertingEdge = false;
+                EditMode.Background = defaultColor;
+            }
+            else
+            {
+                _graphViewer.InsertingEdge = true;
+                EditMode.Background = (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
+            }
+        }
+
+        private void InsertNodeCM_Click(object sender, RoutedEventArgs e)
+        {
+            InsertNode();
+            _graphViewer.Graph = Graph;
+
+        }
+
+
+        void ViewerPanel_OnMouseLeftButtonDown(object sender, MouseEventArgs e)
+        {
+            // todo get this to work!
+            var p0 = new Point(e.GetPosition(this).X, e.GetPosition(this).Y);
+            var p1 = new Point(e.GetPosition(this).X, e.GetPosition(this).Y);
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
                 p0.X = e.GetPosition(this).X;
                 p0.Y = e.GetPosition(this).Y;
-                 
-             }
 
-             if (e.LeftButton == MouseButtonState.Released)
-             {
-                 p1.X = e.GetPosition(this).X;
-                 p1.Y = e.GetPosition(this).Y;
+            }
 
-             }
-            
-             var rubberRec = new Rectangle(p0, p1);
-         }
+            if (e.LeftButton == MouseButtonState.Released)
+            {
+                p1.X = e.GetPosition(this).X;
+                p1.Y = e.GetPosition(this).Y;
 
-         private void AddAlternativMenuItem_OnClick(object sender, RoutedEventArgs e)
-         {
-             InsertSubgraph(new Alternative(Graph, "New Alternative"));
-         }
+            }
 
-         private void AddParallelMenuItem_OnClick(object sender, RoutedEventArgs e)
-         {
-             InsertSubgraph(new Parallel(Graph, "New Parallel"));
-         }
+            var rubberRec = new Rectangle(p0, p1);
+        }
 
-         private void AddFixedMenuItem_OnClick(object sender, RoutedEventArgs e)
-         {
-             InsertSubgraph(new Fixed(Graph, "New Fixed"));
-         }
 
-         private void AddSingleMenuItem_OnClick(object sender, RoutedEventArgs e)
-         {
-             InsertSubgraph(new Single(Graph, "New Single"));
+        private void AddAlternativMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
 
-         }
+            var forDragging = _graphViewer.Entities
+                .Single(x => x.MarkedForDragging);
+            var subgraph = ((IViewerNode) forDragging).Node;
+            if (subgraph is Subgraph)
+            {
+                InsertSubgraph(new Alternative(Graph, "New Alternative"), subgraph);
+            }
+            else
+            {
+                MessageBox.Show("Error: You tried to insert into an elementary.");
+            }
 
-         private void GroupAlternative_OnClick(object sender, RoutedEventArgs e)
-         {
-             ConvertGroupOfElementariesToComplex(new Alternative(Graph, "New Group Alternative"));
-         }
 
-         private void GroupParallel_OnClick(object sender, RoutedEventArgs e)
-         {
-             ConvertGroupOfElementariesToComplex(new Parallel(Graph, "New Group Parallel"));
-         }
+        }
 
-         private void GroupFixed_OnClick(object sender, RoutedEventArgs e)
-         {
-             ConvertGroupOfElementariesToComplex(new Fixed(Graph, "New Group Fixed"));
-         }
+        private void AddParallelMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            var forDragging = _graphViewer.Entities
+                .Single(x => x.MarkedForDragging);
+            var subgraph = ((IViewerNode) forDragging).Node;
+            if (subgraph is Subgraph)
+            {
+                InsertSubgraph(new Parallel(Graph, "New Parallel"), subgraph);
+            }
+            else
+            {
+                MessageBox.Show("Error: You tried to insert into an elementary.");
+            }
+        }
 
-         private void GroupSingle_OnClick(object sender, RoutedEventArgs e)
-         {
-             ConvertGroupOfElementariesToComplex(new Single(Graph, "New Group Single"));
-         }
+        private void AddFixedMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            var forDragging = _graphViewer.Entities
+                .Single(x => x.MarkedForDragging);
+            var subgraph = ((IViewerNode) forDragging).Node;
+            if (subgraph is Subgraph)
+            {
+                InsertSubgraph(new Fixed(Graph, "New Fixed"), subgraph);
+            }
+            else
+            {
+                MessageBox.Show("Error: You tried to insert into an elementary.");
+            }
+        }
 
-         private void DeleteNodeCM_OnClick(object sender, RoutedEventArgs e)
-         {
-             DeleteNode();
-         }
+        private void AddSingleMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            var forDragging = _graphViewer.Entities
+                .Single(x => x.MarkedForDragging);
+            var subgraph = ((IViewerNode) forDragging).Node;
+            if (subgraph is Subgraph)
+            {
+                InsertSubgraph(new Single(Graph, "New Single"), subgraph);
+            }
+            else
+            {
+                MessageBox.Show("Error: You tried to insert into an elementary.");
+            }
+        }
+
+        private void GroupAlternative_OnClick(object sender, RoutedEventArgs e)
+        {
+            ConvertGroupOfElementariesToComplex(new Alternative(Graph, "New Group Alternative"));
+        }
+
+        private void GroupParallel_OnClick(object sender, RoutedEventArgs e)
+        {
+            ConvertGroupOfElementariesToComplex(new Parallel(Graph, "New Group Parallel"));
+        }
+
+        private void GroupFixed_OnClick(object sender, RoutedEventArgs e)
+        {
+            ConvertGroupOfElementariesToComplex(new Fixed(Graph, "New Group Fixed"));
+        }
+
+        private void GroupSingle_OnClick(object sender, RoutedEventArgs e)
+        {
+            ConvertGroupOfElementariesToComplex(new Single(Graph, "New Group Single"));
+        }
+
+        private void DeleteNodeCM_OnClick(object sender, RoutedEventArgs e)
+        {
+            DeleteNode();
+        }
     }
 }

@@ -129,19 +129,21 @@
                     <TextBlock Text="Test" />
                 </CheckBox>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+            <StackPanel Orientation="Horizontal" Margin="0 10 0 10">
                 <CheckBox Width="100">
                     <TextBlock Text="Test" />
                 </CheckBox>
             </StackPanel>
-            <Button Content="Create Node" x:Name="Hexa_button" Click="Hexa_button_Click" />
-            <Button Content="Delete Selected Node" x:Name="DeleteSelectedNode" Click="DeleteSelectedNode_Click" />
-            <Button Content="Create Edge on Selected Node" x:Name="EdgeSelectedNode" Click="EdgeSelectedNode_Click" />
-            <TextBox x:Name="CounterText" />
+            <StackPanel Orientation="Horizontal">
+                
+            <Button Content="Create Node(s)" x:Name="Hexa_button" Click="Hexa_button_Click" />
+            <!--<Button Content="CreateRndGraph" x:Name="CreateRndGraph" Click="CreateRndGraph_OnClick" />
+            <Button Content="Create Edge on Selected Node" x:Name="EdgeSelectedNode" Click="EdgeSelectedNode_Click" />-->
+            <TextBox x:Name="CounterText" Text="0" Width="50"/>
+            </StackPanel>
         </StackPanel>
 
-        <DockPanel ClipToBounds="True"
-                   Grid.Column="2" Grid.Row="2"
+        <DockPanel Grid.Column="2" Grid.Row="2"
                    Grid.ColumnSpan="3"
                    Grid.RowSpan="5"
                    Margin="15 0 15 15"
@@ -167,7 +169,7 @@
                     </MenuItem>
                     
                     <MenuItem Name="AddEdgeMenuItem" Header="Add Edge" Click="EdgeSelectedNode_Click" />
-                    <MenuItem Name="DeleteNodeCM" Header="Delete Node" Click="DeleteNodeCM_OnClick" />-->
+                    <MenuItem Name="DeleteNodeCM" Header="Delete Node" Click="DeleteNodeCM_OnClick" />
                 </ContextMenu>
             </DockPanel.ContextMenu>
 
