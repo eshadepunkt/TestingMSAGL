@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace TestingMSAGL.DataStructure
 {
@@ -11,12 +10,12 @@ namespace TestingMSAGL.DataStructure
         }
 
         /// <summary>
-        /// Contains all inherent Composites
+        ///     Contains all inherent Composites
         /// </summary>
         public HashSet<Composite> Members { get; }
 
         /// <summary>
-        /// Adds a new Composite
+        ///     Adds a new Composite
         /// </summary>
         /// <param name="composite"></param>
         /// <returns>true on success</returns>
@@ -29,7 +28,5 @@ namespace TestingMSAGL.DataStructure
         {
             return Members.Remove(composite);
         }
-
-     
     }
 }

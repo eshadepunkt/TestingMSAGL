@@ -1,6 +1,5 @@
 using Microsoft.Msagl.Drawing;
 using TestingMSAGL.DataLinker;
-using Shape = Microsoft.Msagl.Drawing.Shape;
 
 namespace TestingMSAGL.DataStructure.RoutedOperation
 {
@@ -12,6 +11,5 @@ namespace TestingMSAGL.DataStructure.RoutedOperation
             Subgraph.Attr.Shape = Shape.InvHouse;
             Subgraph.Attr.FillColor = Color.Gold;
         }
-        
     }
 }

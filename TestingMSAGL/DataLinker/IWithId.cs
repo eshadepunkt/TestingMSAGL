@@ -1,6 +1,4 @@
-﻿using TestingMSAGL.DataStructure;
-
-namespace TestingMSAGL.DataLinker
+﻿namespace TestingMSAGL.DataLinker
 {
     public interface IWithId
     {

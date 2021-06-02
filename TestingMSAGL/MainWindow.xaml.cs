@@ -1,31 +1,18 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Security;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.ServiceModel.Channels;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Msagl.Core.Geometry;
-using Microsoft.Msagl.Core.Geometry.Curves;
-using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
-using Microsoft.Msagl.Layout.Layered;
 using Microsoft.Msagl.WpfGraphControl;
 using Microsoft.Win32;
 using TestingMSAGL.DataLinker;
 using TestingMSAGL.DataStructure;
 using TestingMSAGL.DataStructure.RoutedOperation;
 using Color = Microsoft.Msagl.Drawing.Color;
-using ModifierKeys = Microsoft.Msagl.Drawing.ModifierKeys;
-using Node = Microsoft.Msagl.Drawing.Node;
 using Point = Microsoft.Msagl.Core.Geometry.Point;
 using Single = TestingMSAGL.DataStructure.RoutedOperation.Single;
 
@@ -37,8 +24,8 @@ namespace TestingMSAGL
     public partial class MainWindow : Window
     {
         private readonly GraphViewer _graphViewer;
-        private Point _mMouseRightButtonDownPoint;
         private Point _mMouseLeftButtonDownPoint;
+        private Point _mMouseRightButtonDownPoint;
 
         public MainWindow()
         {
@@ -54,57 +41,43 @@ namespace TestingMSAGL
             _graphViewer.BindToPanel(ViewerPanel);
 
 
-
             _graphViewer.LayoutEditingEnabled = true;
             //todo graphViewer props for pane moving
             NodeTreeView();
-
         }
 
+        private GraphExtension Graph { get; } = new("root", "0");
+        private int NodeCounter { get; set; }
 
 
         private void NodeTreeView()
         {
-            MenuItem root = new MenuItem() {Title = "Root"};
+            var root = new MenuItem {Title = "Root"};
 
 
-            MenuItem childItem1 = new MenuItem() {Title = "Child item #1"};
-            childItem1.Items.Add(new MenuItem() {Title = "Child item #1.1"});
-            childItem1.Items.Add(new MenuItem() {Title = "Child item #1.2"});
+            var childItem1 = new MenuItem {Title = "Child item #1"};
+            childItem1.Items.Add(new MenuItem {Title = "Child item #1.1"});
+            childItem1.Items.Add(new MenuItem {Title = "Child item #1.2"});
             root.Items.Add(childItem1);
-            root.Items.Add(new MenuItem() {Title = "Child item #2"});
+            root.Items.Add(new MenuItem {Title = "Child item #2"});
             NodeTree.Items.Add(root);
         }
 
-        public class MenuItem
-        {
-            public MenuItem()
-            {
-                this.Items = new ObservableCollection<MenuItem>();
-            }
-
-            public string Title { get; set; }
-
-            public ObservableCollection<MenuItem> Items { get; set; }
-        }
-
-        private GraphExtension Graph { get; } = new GraphExtension("root", "0");
-        private int NodeCounter { get; set; }
-
         /// <summary>
-        /// Static graph creating for testing purposes only.
+        ///     Static graph creating for testing purposes only.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void InitGraph(object sender, RoutedEventArgs e)
         {
             // Drawing Board
-            Subgraph rootSubgraph = new Subgraph("rootSubgraph");
+            var rootSubgraph = new Subgraph("rootSubgraph");
 
 
             // first element 
             var root = new NodeComplex(Graph, "Root");
             rootSubgraph.AddSubgraph(root.Subgraph);
+            
 
             var ros = new Alternative(Graph, "Root Of Subgraph");
             ros.Composite.Predecessor = root.Composite;
@@ -151,8 +124,8 @@ namespace TestingMSAGL
 
             Graph.RootSubgraph = rootSubgraph;
 
+
             NodeCounter = Graph.NodeCount;
-            Graph.LayerConstraints.AddSameLayerNeighbors();
             Graph.Attr.Margin = 5;
             Graph.Attr.OptimizeLabelPositions = true;
             Graph.Attr.MinNodeHeight = 10;
@@ -163,15 +136,11 @@ namespace TestingMSAGL
             Graph.Attr.ClearStyles();
             _graphViewer.Graph = Graph;
             _graphViewer.RunLayoutAsync = true;
-
-
-
-
         }
 
 
         /// <summary>
-        /// Method to create a new node in given Subgraph/Complex
+        ///     Method to create a new node in given Subgraph/Complex
         /// </summary>
         private void InsertNode()
         {
@@ -189,10 +158,7 @@ namespace TestingMSAGL
                     var node = new NodeElementary(Graph, "New Node");
                     var nodeComplex = Graph.GetComplexNodeById(subgraph.Id);
                     //todo check if member exists?
-                    if (!nodeComplex.AddMember(node))
-                    {
-                        MessageBox.Show("Could not add to member list");
-                    }
+                    if (!nodeComplex.AddMember(node)) MessageBox.Show("Could not add to member list");
                     //todo add method to detect if children are already present, sort new node as successor of last child
                     //node.Composite.Predecessor = nodeComplex.Composite;
                     //nodeComplex.Composite.Successor = node.Composite;
@@ -212,12 +178,11 @@ namespace TestingMSAGL
             {
                 MessageBox.Show("More than one complex selected!" + invalid);
             }
-
         } // todo buggy as hell
         //todo probably needs to be extracted to NodeComplex / Elementary 
 
         /// <summary>
-        /// Takes any type of a complex and merges all selected elementaries or complex into it
+        ///     Takes any type of a complex and merges all selected elementaries or complex into it
         /// </summary>
         /// <param name="newComplex"></param>
         private void ConvertGroupOfElementariesToComplex(NodeComplex newComplex)
@@ -236,6 +201,7 @@ namespace TestingMSAGL
                     viewerNode.Node.Attr.LineWidth = 1;
                     if (viewerNode.Node is Subgraph subgraph)
                     {
+                        //todo rework this check, because newComplex is already instantiated but whether deleted nor used
                         if (subgraph.ParentSubgraph.ParentSubgraph == null)
                         {
                             MessageBox.Show("Error Root can't be part of a Group!");
@@ -286,7 +252,6 @@ namespace TestingMSAGL
             }
 
             foreach (var composite in nodes)
-            {
                 if (composite?.Composite.Successor != null)
                 {
                     Graph.AddEdge(
@@ -299,30 +264,19 @@ namespace TestingMSAGL
                         Graph.FindNode(composite.Composite.Successor.DrawingNodeId)
                     );
                 }
-            }
-
-            Graph.Attr.LayerDirection = LayerDirection.LR;
             _graphViewer.Graph = Graph;
-
-            Graph.Attr.LayerDirection = LayerDirection.TB;
-
-
             //todo magic for constraints?!
         }
 
         /// <summary>
-        /// Testing purpose only
-        /// Creates 10 Nodes, if a complex is marked.
+        ///     Testing purpose only
+        ///     Creates 10 Nodes, if a complex is marked.
         /// </summary>
         private void CreateTenNodesForTesting()
         {
             if (!_graphViewer.Entities.Any(x => x.MarkedForDragging)) return;
 
-            for (var i = 0; i < Int32.Parse(CounterText.Text); i++)
-            {
-                InsertNode();
-
-            }
+            for (var i = 0; i < int.Parse(CounterText.Text); i++) InsertNode();
 
             _graphViewer.Graph = Graph;
         }
@@ -346,7 +300,7 @@ namespace TestingMSAGL
         } // todo buggy as hell
 
         /// <summary>
-        /// Checks for any selected node (subgraph) and deletes the node (subgraph and all children)
+        ///     Checks for any selected node (subgraph) and deletes the node (subgraph and all children)
         /// </summary>
         private void DeleteNode()
         {
@@ -359,7 +313,6 @@ namespace TestingMSAGL
                 if (forDragging.Count < 1) return;
 
                 foreach (var viewerNode in forDragging)
-                {
                     //todo extract as method to Graph Extension
                     if (viewerNode.Node is Subgraph subgraph)
                     {
@@ -373,18 +326,12 @@ namespace TestingMSAGL
                         if (subgraph.Subgraphs.Any())
                         {
                             var allChildren = subgraph.AllSubgraphsDepthFirst().ToList();
-                            foreach (var child in allChildren)
-                            {
-                                Graph.DeleteRecursive(child);
-                            }
+                            foreach (var child in allChildren) Graph.DeleteRecursive(child);
                         }
                         else
                         {
                             var allNodes = subgraph.Nodes.ToList();
-                            foreach (var node in allNodes)
-                            {
-                                Graph.RemoveNode(node);
-                            }
+                            foreach (var node in allNodes) Graph.RemoveNode(node);
 
                             subgraph.ParentSubgraph.RemoveSubgraph(subgraph);
                             Graph.DeleteById(subgraph.Id);
@@ -402,7 +349,6 @@ namespace TestingMSAGL
                         // removes straying nodes from Graph
                         Graph.RemoveNode(viewerNode.Node);
                     }
-                }
 
                 _graphViewer.Graph = Graph;
             }
@@ -412,9 +358,6 @@ namespace TestingMSAGL
                 //throw;
             }
         }
-
-
-
 
 
         private void MenuItem_OnClick(object sender, RoutedEventArgs e)
@@ -450,7 +393,6 @@ namespace TestingMSAGL
 
         private void DeleteSelectedNode_Click(object sender, RoutedEventArgs e)
         {
-
         }
 
         private void cm_Opened(object sender, RoutedEventArgs e)
@@ -501,11 +443,10 @@ namespace TestingMSAGL
         {
             InsertNode();
             _graphViewer.Graph = Graph;
-
         }
 
 
-        void ViewerPanel_OnMouseLeftButtonDown(object sender, MouseEventArgs e)
+        private void ViewerPanel_OnMouseLeftButtonDown(object sender, MouseEventArgs e)
         {
             // todo get this to work!
             var p0 = new Point(e.GetPosition(this).X, e.GetPosition(this).Y);
@@ -514,14 +455,12 @@ namespace TestingMSAGL
             {
                 p0.X = e.GetPosition(this).X;
                 p0.Y = e.GetPosition(this).Y;
-
             }
 
             if (e.LeftButton == MouseButtonState.Released)
             {
                 p1.X = e.GetPosition(this).X;
                 p1.Y = e.GetPosition(this).Y;
-
             }
 
             var rubberRec = new Rectangle(p0, p1);
@@ -530,20 +469,13 @@ namespace TestingMSAGL
 
         private void AddAlternativMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-
             var forDragging = _graphViewer.Entities
                 .Single(x => x.MarkedForDragging);
             var subgraph = ((IViewerNode) forDragging).Node;
             if (subgraph is Subgraph)
-            {
                 InsertSubgraph(new Alternative(Graph, "New Alternative"), subgraph);
-            }
             else
-            {
                 MessageBox.Show("Error: You tried to insert into an elementary.");
-            }
-
-
         }
 
         private void AddParallelMenuItem_OnClick(object sender, RoutedEventArgs e)
@@ -552,13 +484,9 @@ namespace TestingMSAGL
                 .Single(x => x.MarkedForDragging);
             var subgraph = ((IViewerNode) forDragging).Node;
             if (subgraph is Subgraph)
-            {
                 InsertSubgraph(new Parallel(Graph, "New Parallel"), subgraph);
-            }
             else
-            {
                 MessageBox.Show("Error: You tried to insert into an elementary.");
-            }
         }
 
         private void AddFixedMenuItem_OnClick(object sender, RoutedEventArgs e)
@@ -567,13 +495,9 @@ namespace TestingMSAGL
                 .Single(x => x.MarkedForDragging);
             var subgraph = ((IViewerNode) forDragging).Node;
             if (subgraph is Subgraph)
-            {
                 InsertSubgraph(new Fixed(Graph, "New Fixed"), subgraph);
-            }
             else
-            {
                 MessageBox.Show("Error: You tried to insert into an elementary.");
-            }
         }
 
         private void AddSingleMenuItem_OnClick(object sender, RoutedEventArgs e)
@@ -582,13 +506,9 @@ namespace TestingMSAGL
                 .Single(x => x.MarkedForDragging);
             var subgraph = ((IViewerNode) forDragging).Node;
             if (subgraph is Subgraph)
-            {
                 InsertSubgraph(new Single(Graph, "New Single"), subgraph);
-            }
             else
-            {
                 MessageBox.Show("Error: You tried to insert into an elementary.");
-            }
         }
 
         private void GroupAlternative_OnClick(object sender, RoutedEventArgs e)
@@ -614,6 +534,18 @@ namespace TestingMSAGL
         private void DeleteNodeCM_OnClick(object sender, RoutedEventArgs e)
         {
             DeleteNode();
+        }
+
+        public class MenuItem
+        {
+            public MenuItem()
+            {
+                Items = new ObservableCollection<MenuItem>();
+            }
+
+            public string Title { get; set; }
+
+            public ObservableCollection<MenuItem> Items { get; set; }
         }
     }
 }

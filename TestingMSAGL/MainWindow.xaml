@@ -135,11 +135,11 @@
                 </CheckBox>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
-                
-            <Button Content="Create Node(s)" x:Name="Hexa_button" Click="Hexa_button_Click" />
-            <!--<Button Content="CreateRndGraph" x:Name="CreateRndGraph" Click="CreateRndGraph_OnClick" />
+
+                <Button Content="Create Node(s)" x:Name="Hexa_button" Click="Hexa_button_Click" />
+                <!--<Button Content="CreateRndGraph" x:Name="CreateRndGraph" Click="CreateRndGraph_OnClick" />
             <Button Content="Create Edge on Selected Node" x:Name="EdgeSelectedNode" Click="EdgeSelectedNode_Click" />-->
-            <TextBox x:Name="CounterText" Text="0" Width="50"/>
+                <TextBox x:Name="CounterText" Text="0" Width="50" />
             </StackPanel>
         </StackPanel>
 
@@ -155,19 +155,22 @@
                 <ContextMenu Name="cm" Opened="cm_Opened" Closed="cm_Closed" StaysOpen="true">
                     <MenuItem Name="InsertNodeMenuItem" Header="Insert Node" Click="InsertNodeCM_Click" />
                     <MenuItem Name="AddSubgraphToSelectedNodeMenuItem" Header="Insert ComplexNode">
-                        <MenuItem Name="AddAlternativMenuItem" Header="Insert AlternativeComplex" Click="AddAlternativMenuItem_OnClick"/>
-                        <MenuItem Name="AddParallelMenuItem" Header="Insert ParallelComplex" Click="AddParallelMenuItem_OnClick"/>
-                        <MenuItem Name="AddFixedMenuItem" Header="Insert FixedComplex" Click="AddFixedMenuItem_OnClick"/>
-                        <MenuItem Name="AddSingleMenuItem" Header="Insert SingleComplex" Click="AddSingleMenuItem_OnClick"/>
-                    </MenuItem>  
-                    <MenuItem Name="GroupElementaries" Header="Group Elementaries to..">
-                        <MenuItem Name="GroupAlternative" Header="..Alternative" Click="GroupAlternative_OnClick"/>
-                        <MenuItem Name="GroupParallel" Header="..Parallel" Click="GroupParallel_OnClick"/>
-                        <MenuItem Name="GroupFixed" Header="..Fixed" Click="GroupFixed_OnClick"/>
-                        <MenuItem Name="GroupSingle" Header="..Single" Click="GroupSingle_OnClick"/>
-                        
+                        <MenuItem Name="AddAlternativMenuItem" Header="Insert AlternativeComplex"
+                                  Click="AddAlternativMenuItem_OnClick" />
+                        <MenuItem Name="AddParallelMenuItem" Header="Insert ParallelComplex"
+                                  Click="AddParallelMenuItem_OnClick" />
+                        <MenuItem Name="AddFixedMenuItem" Header="Insert FixedComplex" Click="AddFixedMenuItem_OnClick" />
+                        <MenuItem Name="AddSingleMenuItem" Header="Insert SingleComplex"
+                                  Click="AddSingleMenuItem_OnClick" />
                     </MenuItem>
-                    
+                    <MenuItem Name="GroupElementaries" Header="Group Elementaries to..">
+                        <MenuItem Name="GroupAlternative" Header="..Alternative" Click="GroupAlternative_OnClick" />
+                        <MenuItem Name="GroupParallel" Header="..Parallel" Click="GroupParallel_OnClick" />
+                        <MenuItem Name="GroupFixed" Header="..Fixed" Click="GroupFixed_OnClick" />
+                        <MenuItem Name="GroupSingle" Header="..Single" Click="GroupSingle_OnClick" />
+
+                    </MenuItem>
+
                     <MenuItem Name="AddEdgeMenuItem" Header="Add Edge" Click="EdgeSelectedNode_Click" />
                     <MenuItem Name="DeleteNodeCM" Header="Delete Node" Click="DeleteNodeCM_OnClick" />
                 </ContextMenu>
@@ -189,13 +192,13 @@
                   Grid.RowSpan="4" Name="NodeTree">
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type MenuItem}" ItemsSource="{Binding Items}">
-                    <TextBlock Text="{Binding Title}"/>
+                    <TextBlock Text="{Binding Title}" />
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
 
             <!--<TreeViewItem Background="Beige" Header="Test" ></TreeViewItem>-->
         </TreeView>
 
-        
+
     </Grid>
 </Window>

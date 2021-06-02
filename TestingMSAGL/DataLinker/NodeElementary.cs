@@ -6,13 +6,14 @@ namespace TestingMSAGL.DataLinker
 
 {
     public class NodeElementary : IWithId
-    {    
+    {
         public NodeElementary(GraphExtension graph, string name)
         {
             var composite = new CompositeElementary {Name = name, DrawingNodeId = AddNode(graph)};
             Composite = composite;
             graph.AddNodeWithId(this);
         }
+
         public Node Node { get; private set; }
         public CompositeElementary Composite { get; }
         public string NodeId => Composite.DrawingNodeId;
@@ -29,6 +30,5 @@ namespace TestingMSAGL.DataLinker
             graph.AddNode(Node);
             return nodeId;
         }
-
     }
 }

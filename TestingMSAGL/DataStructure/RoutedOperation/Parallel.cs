@@ -1,6 +1,5 @@
 using Microsoft.Msagl.Drawing;
 using TestingMSAGL.DataLinker;
-using Shape = Microsoft.Msagl.Drawing.Shape;
 
 namespace TestingMSAGL.DataStructure.RoutedOperation
 {
@@ -10,9 +9,8 @@ namespace TestingMSAGL.DataStructure.RoutedOperation
         {
             Subgraph.LabelText = "Parallel: " + Subgraph.Id;
             Subgraph.Attr.Shape = Shape.Box;
-            Subgraph.Attr.FillColor = Color.YellowGreen;            
+            Subgraph.Attr.FillColor = Color.YellowGreen;
             graph.LayerConstraints.AddSameLayerNeighbors();
-
         }
     }
 }
