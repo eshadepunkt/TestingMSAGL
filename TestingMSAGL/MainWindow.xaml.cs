@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Msagl.Core.Geometry;
@@ -26,6 +27,7 @@ namespace TestingMSAGL
         private readonly GraphViewer _graphViewer;
         private Point _mMouseLeftButtonDownPoint;
         private Point _mMouseRightButtonDownPoint;
+        private Node _nodeUnderCursor;
 
         public MainWindow()
         {
@@ -37,15 +39,24 @@ namespace TestingMSAGL
             _graphViewer.GraphCanvas.Height = ViewerPanel.Height;
             _graphViewer.GraphCanvas.Width = ViewerPanel.Width;
             _graphViewer.GraphCanvas.Background = (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
+            _graphViewer.ObjectUnderMouseCursorChanged += graphViewer_ObjectUnderMouseCursorChanged;
+                _graphViewer.BindToPanel(ViewerPanel);
 
-            _graphViewer.BindToPanel(ViewerPanel);
-
-
+            
             _graphViewer.LayoutEditingEnabled = true;
             //todo graphViewer props for pane moving
             NodeTreeView();
         }
 
+        private void graphViewer_ObjectUnderMouseCursorChanged(object sender, ObjectUnderMouseCursorChangedEventArgs e)
+        {
+            var node = _graphViewer.ObjectUnderMouseCursor as IViewerNode;
+            if (node != null)
+            {
+                _nodeUnderCursor = (Node) node.DrawingObject;
+                statusTextBox.Text = _nodeUnderCursor.Label.Text;
+            }
+        }
         private GraphExtension Graph { get; } = new("root", "0");
         private int NodeCounter { get; set; }
 
@@ -376,16 +387,6 @@ namespace TestingMSAGL
         }
 
 
-        private void Rectangle1_OnMouseEnter(object sender, MouseEventArgs e)
-        {
-            rectangle1.Fill = (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
-        }
-
-        private void Rectangle1_OnMouseLeave(object sender, MouseEventArgs e)
-        {
-            rectangle1.Fill = (SolidColorBrush) new BrushConverter().ConvertFromString("#00ace6");
-        }
-
         private void Hexa_button_Click(object sender, RoutedEventArgs e)
         {
             CreateTenNodesForTesting();
@@ -444,8 +445,7 @@ namespace TestingMSAGL
             InsertNode();
             _graphViewer.Graph = Graph;
         }
-
-
+          
         private void ViewerPanel_OnMouseLeftButtonDown(object sender, MouseEventArgs e)
         {
             // todo get this to work!
@@ -546,6 +546,41 @@ namespace TestingMSAGL
             public string Title { get; set; }
 
             public ObservableCollection<MenuItem> Items { get; set; }
+        }
+
+
+
+        private void Alternative_OnMouseMove(object sender, MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            if (e.LeftButton is MouseButtonState.Pressed)
+            {
+                var data = new DataObject();
+                data.SetData(DataFormats.StringFormat, Alternative.Name);
+
+                DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
+            }
+        }
+
+    
+        private void ViewerPanel_OnDrop(object sender, DragEventArgs e)
+        {
+            base.OnDrop(e);
+            
+            if (e.Data.GetDataPresent(DataFormats.StringFormat))
+            {
+                var dataString = e.Data.GetData(DataFormats.StringFormat) as string;
+
+                var alternative = new Alternative(Graph, dataString);
+
+                if (_nodeUnderCursor != null)
+                {
+                    var markedNode = _graphViewer.Entities.Cast<IViewerNode>().Single(x => x.DrawingObject.Equals(_nodeUnderCursor));
+                    markedNode.MarkedForDragging = true;
+                    InsertSubgraph(alternative, _nodeUnderCursor);
+                }
+            }
+            e.Handled = true;
         }
     }
 }
