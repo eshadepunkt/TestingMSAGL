@@ -59,7 +59,7 @@
         <StackPanel Grid.Column="1" Grid.Row="2">
 
             <TextBlock Text="Standard Elements"
-                       Margin="0 5 0 10"
+                       Margin="0 15 0 10"
                        Foreground="White"
                        FontSize="16"
                        FontWeight="Medium" />
@@ -69,7 +69,7 @@
                 MouseMove="Alternative_OnMouseMove"
                 Width="100"
                 Height="50"
-                Margin="0 15 0 10"
+                Margin="0 15 0 0"
                 BorderBrush="Black"
                 BorderThickness="2"
                 Background="Gold"
@@ -80,9 +80,10 @@
             </Border> 
             <Border
                 x:Name="Fixed"
+                MouseMove="Fixed_OnMouseMove"
                 Width="100"
                 Height="50"
-                Margin="0 15 0 10"
+                Margin="0 5 0 0"
                 BorderBrush="Black"
                 BorderThickness="2"
                 Background="Gray"
@@ -92,9 +93,11 @@
                            HorizontalAlignment="Center"></TextBlock>
             </Border> 
             <Border
+                x:Name="Parallel"
+                MouseMove="Parallel_OnMouseMove"
                 Width="100"
                 Height="50"
-                Margin="0 15 0 10"
+                Margin="0 5 0 0"
                 BorderBrush="Black"
                 BorderThickness="2"
                 Background="YellowGreen"
@@ -104,14 +107,30 @@
                            HorizontalAlignment="Center"></TextBlock>
             </Border> 
             <Border
+                x:Name="Single"
+                MouseMove="Single_OnMouseMove"
                 Width="100"
                 Height="50"
-                Margin="0 15 0 10"
+                Margin="0 5 0 0"
                 BorderBrush="Black"
                 BorderThickness="2"
                 Background="DarkMagenta"
                 CornerRadius="10">
                 <TextBlock Text="Single" 
+                           Margin="10"
+                           HorizontalAlignment="Center"></TextBlock>
+            </Border> 
+            <Border
+                x:Name="Node"
+                MouseMove="Node_OnMouseMove"
+                Width="100"
+                Height="50"
+                Margin="0 5 0 10"
+                BorderBrush="Black"
+                BorderThickness="2"
+                Background="White"
+                CornerRadius="10">
+                <TextBlock Text="Node" 
                            Margin="10"
                            HorizontalAlignment="Center"></TextBlock>
             </Border>
@@ -158,7 +177,7 @@
         </StackPanel>
 
         <DockPanel Grid.Column="2" Grid.Row="2"
-                   Grid.ColumnSpan="3"
+                   Grid.ColumnSpan="4"
                    Grid.RowSpan="5"
                    Margin="15 0 15 15"
                    x:Name="ViewerPanel"
@@ -167,6 +186,7 @@
                    MouseRightButtonDown="cm_MouseRightButtonDown"
                    MouseLeftButtonDown="ViewerPanel_OnMouseLeftButtonDown"
                    Drop="ViewerPanel_OnDrop"
+                   DragOver="ViewerPanel_OnDragOver"
                    >
             <DockPanel.ContextMenu>
                 <ContextMenu Name="cm" Opened="cm_Opened" Closed="cm_Closed" StaysOpen="true">
@@ -205,16 +225,16 @@
                Background="white" />
 
 
-        <TreeView Grid.Column="5" Grid.Row="2"
-                  Grid.RowSpan="4" Name="NodeTree">
-            <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate DataType="{x:Type MenuItem}" ItemsSource="{Binding Items}">
-                    <TextBlock Text="{Binding Title}" />
-                </HierarchicalDataTemplate>
-            </TreeView.ItemTemplate>
-
-            <!--<TreeViewItem Background="Beige" Header="Test" ></TreeViewItem>-->
-        </TreeView>
+        <!-- <TreeView Grid.Column="5" Grid.Row="2" -->
+        <!--           Grid.RowSpan="4" Name="NodeTree"> -->
+        <!--     <TreeView.ItemTemplate> -->
+        <!--         <HierarchicalDataTemplate DataType="{x:Type MenuItem}" ItemsSource="{Binding Items}"> -->
+        <!--             <TextBlock Text="{Binding Title}" /> -->
+        <!--         </HierarchicalDataTemplate> -->
+        <!--     </TreeView.ItemTemplate> -->
+        <!-- -->
+        <!--     ~1~<TreeViewItem Background="Beige" Header="Test" ></TreeViewItem>@1@ -->
+        <!-- </TreeView> -->
 
 
     </Grid>

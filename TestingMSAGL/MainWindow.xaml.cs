@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,34 +25,41 @@ namespace TestingMSAGL
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly GraphViewer _graphViewer;
+        private readonly GraphViewerExtended _graphViewer;
         private Point _mMouseLeftButtonDownPoint;
         private Point _mMouseRightButtonDownPoint;
         private Node _nodeUnderCursor;
+        private static BackgroundWorker _backgroundWorker; 
 
         public MainWindow()
         {
             InitializeComponent();
             Loaded += InitGraph;
-            _graphViewer = new GraphViewer();
+            _graphViewer = new GraphViewerExtended();
             ViewerPanel.ClipToBounds = true;
             ViewerPanel.Background = (SolidColorBrush) new BrushConverter().ConvertFromString("#4d22ff");
             _graphViewer.GraphCanvas.Height = ViewerPanel.Height;
             _graphViewer.GraphCanvas.Width = ViewerPanel.Width;
             _graphViewer.GraphCanvas.Background = (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
             _graphViewer.ObjectUnderMouseCursorChanged += graphViewer_ObjectUnderMouseCursorChanged;
-                _graphViewer.BindToPanel(ViewerPanel);
+            _graphViewer.BindToPanel(ViewerPanel);
+            
 
+            _backgroundWorker = new BackgroundWorker
+            {
+                WorkerReportsProgress = true,
+                WorkerSupportsCancellation = true
+            };
+           
             
             _graphViewer.LayoutEditingEnabled = true;
             //todo graphViewer props for pane moving
-            NodeTreeView();
+            //NodeTreeView();
         }
 
         private void graphViewer_ObjectUnderMouseCursorChanged(object sender, ObjectUnderMouseCursorChangedEventArgs e)
         {
-            var node = _graphViewer.ObjectUnderMouseCursor as IViewerNode;
-            if (node != null)
+            if (_graphViewer.ObjectUnderMouseCursor is IViewerNode node)
             {
                 _nodeUnderCursor = (Node) node.DrawingObject;
                 statusTextBox.Text = _nodeUnderCursor.Label.Text;
@@ -61,7 +69,7 @@ namespace TestingMSAGL
         private int NodeCounter { get; set; }
 
 
-        private void NodeTreeView()
+        /*private void NodeTreeView()
         {
             var root = new MenuItem {Title = "Root"};
 
@@ -72,7 +80,7 @@ namespace TestingMSAGL
             root.Items.Add(childItem1);
             root.Items.Add(new MenuItem {Title = "Child item #2"});
             NodeTree.Items.Add(root);
-        }
+        }*/
 
         /// <summary>
         ///     Static graph creating for testing purposes only.
@@ -392,9 +400,6 @@ namespace TestingMSAGL
             CreateTenNodesForTesting();
         }
 
-        private void DeleteSelectedNode_Click(object sender, RoutedEventArgs e)
-        {
-        }
 
         private void cm_Opened(object sender, RoutedEventArgs e)
         {
@@ -469,6 +474,7 @@ namespace TestingMSAGL
 
         private void AddAlternativMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
+            
             var forDragging = _graphViewer.Entities
                 .Single(x => x.MarkedForDragging);
             var subgraph = ((IViewerNode) forDragging).Node;
@@ -553,34 +559,123 @@ namespace TestingMSAGL
         private void Alternative_OnMouseMove(object sender, MouseEventArgs e)
         {
             base.OnMouseMove(e);
-            if (e.LeftButton is MouseButtonState.Pressed)
-            {
-                var data = new DataObject();
-                data.SetData(DataFormats.StringFormat, Alternative.Name);
-
-                DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
-            }
+            
+            if (e.LeftButton is not MouseButtonState.Pressed) return;
+            
+            var data = new DataObject();
+            data.SetData(DataFormats.StringFormat, Alternative.Name);
+            DragDrop.DoDragDrop(this, data, DragDropEffects.Move);
         }
+        
+        private void Fixed_OnMouseMove(object sender, MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
 
-    
+            if (e.LeftButton is not MouseButtonState.Pressed) return;
+            
+            var data = new DataObject();
+            data.SetData(DataFormats.StringFormat, Fixed.Name);
+
+            DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
+            
+        }
+        private void Parallel_OnMouseMove(object sender, MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            if (e.LeftButton is not MouseButtonState.Pressed) return;
+            
+            var data = new DataObject();
+            data.SetData(DataFormats.StringFormat, Parallel.Name);
+
+            DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
+        }
+        private void Single_OnMouseMove(object sender, MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            if (e.LeftButton is not MouseButtonState.Pressed) return;
+            
+            var data = new DataObject();
+            data.SetData(DataFormats.StringFormat, Single.Name);
+
+            DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
+        }
+        
+        private void Node_OnMouseMove(object sender, MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            if (e.LeftButton is not MouseButtonState.Pressed) return;
+            
+            var data = new DataObject();
+            data.SetData(DataFormats.StringFormat, Node.Name);
+
+            DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
+        }
+        
+        /// <summary>
+        /// holds logic for type switching
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ViewerPanel_OnDrop(object sender, DragEventArgs e)
         {
             base.OnDrop(e);
             
-            if (e.Data.GetDataPresent(DataFormats.StringFormat))
+            if (e.Data.GetDataPresent(DataFormats.StringFormat) && _nodeUnderCursor != null)
             {
+                NodeComplex createdComplex = null;
                 var dataString = e.Data.GetData(DataFormats.StringFormat) as string;
-
-                var alternative = new Alternative(Graph, dataString);
-
-                if (_nodeUnderCursor != null)
+                
+                var markedNode = _graphViewer.Entities.Cast<IViewerNode>().Single(x => x.DrawingObject.Equals(_nodeUnderCursor));
+                markedNode.MarkedForDragging = true;
+                //todo refactoring 
+                if (dataString != null)
                 {
-                    var markedNode = _graphViewer.Entities.Cast<IViewerNode>().Single(x => x.DrawingObject.Equals(_nodeUnderCursor));
-                    markedNode.MarkedForDragging = true;
-                    InsertSubgraph(alternative, _nodeUnderCursor);
+                    if (dataString.Contains("Alternative"))
+                    {
+                        createdComplex = new Alternative(Graph, dataString);
+                       
+                    } else if(dataString.Contains("Fixed"))
+                    {
+                        createdComplex = new Fixed(Graph, dataString); 
+                        
+                    } else if(dataString.Contains("Parallel"))
+                    {
+                        createdComplex = new Parallel(Graph, dataString); 
+                        
+                    } else if(dataString.Contains("Single"))
+                    {
+                        createdComplex = new Single(Graph, dataString);                       
+                    } else if (dataString.Contains("Node"))
+                    {
+                        if (_nodeUnderCursor != null)
+                        {
+                            InsertNode();
+                            _graphViewer.Graph = Graph;
+                        }
+                    }
+
+                    if (_nodeUnderCursor != null && createdComplex != null)
+                    {
+                        InsertSubgraph(createdComplex, _nodeUnderCursor);
+                    }
+                    
                 }
             }
-            e.Handled = true;
+            e.Handled = false;
         }
+
+
+        private void ViewerPanel_OnDragOver(object sender, DragEventArgs e)
+        {
+            MouseLabel.Content = e.GetPosition(this).ToString();
+            var position = e.GetPosition(this);
+            
+
+
+        }
+
     }
 }
