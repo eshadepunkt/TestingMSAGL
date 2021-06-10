@@ -10,7 +10,6 @@
         MouseMove="Window_MouseMove">
 
     <Grid x:Name="MainGrid">
-
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="20" />
             <ColumnDefinition Width="Auto" />
@@ -66,7 +65,9 @@
             <Separator BorderThickness="5" BorderBrush="#ccf2ff" Height="5" />
             <Border
                 x:Name="Alternative"
-                MouseMove="Alternative_OnMouseMove"
+                MouseMove="Node_OnMouseMove"
+                MouseLeftButtonDown="OnMouseLeftButtonDown"
+                DragOver="ViewerPanel_OnDragOver"
                 Width="100"
                 Height="50"
                 Margin="0 15 0 0"
@@ -187,6 +188,7 @@
                    MouseLeftButtonDown="ViewerPanel_OnMouseLeftButtonDown"
                    Drop="ViewerPanel_OnDrop"
                    DragOver="ViewerPanel_OnDragOver"
+
                    >
             <DockPanel.ContextMenu>
                 <ContextMenu Name="cm" Opened="cm_Opened" Closed="cm_Closed" StaysOpen="true">

@@ -29,7 +29,7 @@ namespace TestingMSAGL
         private Point _mMouseLeftButtonDownPoint;
         private Point _mMouseRightButtonDownPoint;
         private Node _nodeUnderCursor;
-        private static BackgroundWorker _backgroundWorker; 
+        private static BackgroundWorker _backgroundWorker;
 
         public MainWindow()
         {
@@ -43,28 +43,20 @@ namespace TestingMSAGL
             _graphViewer.GraphCanvas.Background = (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
             _graphViewer.ObjectUnderMouseCursorChanged += graphViewer_ObjectUnderMouseCursorChanged;
             _graphViewer.BindToPanel(ViewerPanel);
-            
+
 
             _backgroundWorker = new BackgroundWorker
             {
                 WorkerReportsProgress = true,
                 WorkerSupportsCancellation = true
             };
-           
-            
+
+
             _graphViewer.LayoutEditingEnabled = true;
             //todo graphViewer props for pane moving
             //NodeTreeView();
         }
 
-        private void graphViewer_ObjectUnderMouseCursorChanged(object sender, ObjectUnderMouseCursorChangedEventArgs e)
-        {
-            if (_graphViewer.ObjectUnderMouseCursor is IViewerNode node)
-            {
-                _nodeUnderCursor = (Node) node.DrawingObject;
-                statusTextBox.Text = _nodeUnderCursor.Label.Text;
-            }
-        }
         private GraphExtension Graph { get; } = new("root", "0");
         private int NodeCounter { get; set; }
 
@@ -96,7 +88,7 @@ namespace TestingMSAGL
             // first element 
             var root = new NodeComplex(Graph, "Root");
             rootSubgraph.AddSubgraph(root.Subgraph);
-            
+
 
             var ros = new Alternative(Graph, "Root Of Subgraph");
             ros.Composite.Predecessor = root.Composite;
@@ -155,8 +147,34 @@ namespace TestingMSAGL
             Graph.Attr.ClearStyles();
             _graphViewer.Graph = Graph;
             _graphViewer.RunLayoutAsync = true;
+
+            dynamic test = ViewerPanel.Children[0];
+            UIElementCollection children = test.Children;
+            foreach (var child in children)
+            {
+                if (child is System.Windows.Shapes.Shape shape)
+                {
+                    shape.AllowDrop = true;
+                    shape.DragEnter += (o, args) =>
+                    {
+                        if (child is System.Windows.Shapes.Shape shape)
+                        {
+                            oldSapeFill = shape.Fill.Clone();
+                            shape.Fill = Brushes.CadetBlue;
+                        }
+                    };
+                    shape.DragLeave += (o, args) =>
+                    {
+                        if (child is System.Windows.Shapes.Shape shape)
+                        {
+                            shape.Fill = oldSapeFill;
+                        }
+                    };
+                }
+            }
         }
 
+        private Brush oldSapeFill = Brushes.Transparent;
 
         /// <summary>
         ///     Method to create a new node in given Subgraph/Complex
@@ -283,6 +301,7 @@ namespace TestingMSAGL
                         Graph.FindNode(composite.Composite.Successor.DrawingNodeId)
                     );
                 }
+
             _graphViewer.Graph = Graph;
             //todo magic for constraints?!
         }
@@ -315,6 +334,7 @@ namespace TestingMSAGL
             {
                 MessageBox.Show("More than one complex selected! " + e);
             }
+
             // todo can't handle clicked elementary nodes
         } // todo buggy as hell
 
@@ -450,7 +470,7 @@ namespace TestingMSAGL
             InsertNode();
             _graphViewer.Graph = Graph;
         }
-          
+
         private void ViewerPanel_OnMouseLeftButtonDown(object sender, MouseEventArgs e)
         {
             // todo get this to work!
@@ -474,7 +494,7 @@ namespace TestingMSAGL
 
         private void AddAlternativMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            
+
             var forDragging = _graphViewer.Entities
                 .Single(x => x.MarkedForDragging);
             var subgraph = ((IViewerNode) forDragging).Node;
@@ -554,66 +574,42 @@ namespace TestingMSAGL
             public ObservableCollection<MenuItem> Items { get; set; }
         }
 
-
-
-        private void Alternative_OnMouseMove(object sender, MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-            
-            if (e.LeftButton is not MouseButtonState.Pressed) return;
-            
-            var data = new DataObject();
-            data.SetData(DataFormats.StringFormat, Alternative.Name);
-            DragDrop.DoDragDrop(this, data, DragDropEffects.Move);
-        }
-        
         private void Fixed_OnMouseMove(object sender, MouseEventArgs e)
         {
             base.OnMouseMove(e);
-
             if (e.LeftButton is not MouseButtonState.Pressed) return;
-            
+
             var data = new DataObject();
             data.SetData(DataFormats.StringFormat, Fixed.Name);
 
             DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
-            
+
         }
+
         private void Parallel_OnMouseMove(object sender, MouseEventArgs e)
         {
             base.OnMouseMove(e);
 
             if (e.LeftButton is not MouseButtonState.Pressed) return;
-            
+
             var data = new DataObject();
             data.SetData(DataFormats.StringFormat, Parallel.Name);
 
             DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
         }
+
         private void Single_OnMouseMove(object sender, MouseEventArgs e)
         {
             base.OnMouseMove(e);
 
             if (e.LeftButton is not MouseButtonState.Pressed) return;
-            
+
             var data = new DataObject();
             data.SetData(DataFormats.StringFormat, Single.Name);
 
             DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
         }
-        
-        private void Node_OnMouseMove(object sender, MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
 
-            if (e.LeftButton is not MouseButtonState.Pressed) return;
-            
-            var data = new DataObject();
-            data.SetData(DataFormats.StringFormat, Node.Name);
-
-            DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
-        }
-        
         /// <summary>
         /// holds logic for type switching
         /// </summary>
@@ -622,60 +618,106 @@ namespace TestingMSAGL
         private void ViewerPanel_OnDrop(object sender, DragEventArgs e)
         {
             base.OnDrop(e);
-            
-            if (e.Data.GetDataPresent(DataFormats.StringFormat) && _nodeUnderCursor != null)
-            {
-                NodeComplex createdComplex = null;
-                var dataString = e.Data.GetData(DataFormats.StringFormat) as string;
-                
-                var markedNode = _graphViewer.Entities.Cast<IViewerNode>().Single(x => x.DrawingObject.Equals(_nodeUnderCursor));
-                markedNode.MarkedForDragging = true;
-                //todo refactoring 
-                if (dataString != null)
-                {
-                    if (dataString.Contains("Alternative"))
-                    {
-                        createdComplex = new Alternative(Graph, dataString);
-                       
-                    } else if(dataString.Contains("Fixed"))
-                    {
-                        createdComplex = new Fixed(Graph, dataString); 
-                        
-                    } else if(dataString.Contains("Parallel"))
-                    {
-                        createdComplex = new Parallel(Graph, dataString); 
-                        
-                    } else if(dataString.Contains("Single"))
-                    {
-                        createdComplex = new Single(Graph, dataString);                       
-                    } else if (dataString.Contains("Node"))
-                    {
-                        if (_nodeUnderCursor != null)
-                        {
-                            InsertNode();
-                            _graphViewer.Graph = Graph;
-                        }
-                    }
+        }
 
-                    if (_nodeUnderCursor != null && createdComplex != null)
-                    {
-                        InsertSubgraph(createdComplex, _nodeUnderCursor);
-                    }
-                    
-                }
-            }
-            e.Handled = false;
+        private Point PointOrigin = new Point();
+        private TranslateTransform PointTranlation;
+        private Decorator draggedItem;
+        private bool dragInProgess = false;
+
+        private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton is not MouseButtonState.Pressed) return;
+            draggedItem = sender as Decorator;
+            var location = e.GetPosition(this);
+            PointOrigin = new Point(location.X, location.Y);
+            PointTranlation = new TranslateTransform(location.X, location.Y);
+            dragInProgess = true;
+        }
+
+        private void Node_OnMouseMove(object sender, MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            if (e.LeftButton is not MouseButtonState.Pressed) return;
+
+            var border = sender as Border;
+            var location = e.GetPosition(this);
+            PointTranlation.X = location.X - PointOrigin.X;
+            PointTranlation.Y = location.Y - PointOrigin.Y;
+
+            Console.WriteLine("X: " + PointTranlation.X + " | Y: " + PointTranlation.Y);
+            border.RenderTransform = PointTranlation;
+
+            var data = new DataObject();
+            data.SetData(DataFormats.StringFormat, Node.Name);
+
+            DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
         }
 
 
         private void ViewerPanel_OnDragOver(object sender, DragEventArgs e)
         {
             MouseLabel.Content = e.GetPosition(this).ToString();
-            var position = e.GetPosition(this);
-            
+            // if ((e.KeyStates & DragDropKeyStates.LeftMouseButton) != 0) return;
+
+            var location = e.GetPosition(this);
+            PointTranlation.X = location.X - PointOrigin.X;
+            PointTranlation.Y = location.Y - PointOrigin.Y;
+
+            draggedItem.BringIntoView();
+
+            Console.WriteLine("X: " + PointTranlation.X + " | Y: " + PointTranlation.Y);
+            draggedItem.RenderTransform = PointTranlation;
 
 
         }
 
+        private void graphViewer_ObjectUnderMouseCursorChanged(object sender, ObjectUnderMouseCursorChangedEventArgs e)
+        {
+            if (_graphViewer.ObjectUnderMouseCursor is IViewerNode node)
+            {
+                _nodeUnderCursor = (Node) node.DrawingObject;
+                statusTextBox.Text = _nodeUnderCursor.Label.Text;
+                TryFinishDrag();
+
+            }
+        }
+
+        private void TryFinishDrag()
+        {
+            if (dragInProgess && draggedItem != null && _nodeUnderCursor != null)
+            {
+                NodeComplex createdComplex = null;
+                var dataString = draggedItem.Name;
+
+                var markedNode = _graphViewer.Entities.Cast<IViewerNode>()
+                    .Single(x => x.DrawingObject.Equals(_nodeUnderCursor));
+                markedNode.MarkedForDragging = true;
+                //todo refactoring : beim Mousbutton Dwon kann das element schon erzeugt werden dan ist hier nur node / subgraph test notwendig.
+                switch (dataString)
+                {
+                    case "Alternative":
+                        InsertSubgraph(new Alternative(Graph, dataString + "120293481"), _nodeUnderCursor);
+                        break;
+                    case "Fixed":
+                        InsertSubgraph(new Fixed(Graph, dataString), _nodeUnderCursor);
+                        break;
+                    case "Parallel":
+                        InsertSubgraph(new Parallel(Graph, dataString), _nodeUnderCursor);
+                        break;
+                    case "Single":
+                        InsertSubgraph(new Single(Graph, dataString), _nodeUnderCursor);
+                        break;
+                    case "Node":
+                        InsertNode();
+                        break;
+                    default: throw new Exception("Not Implemented yet.");
+                }
+
+                dragInProgess = false;
+                draggedItem = null;
+                _graphViewer.Graph = Graph;
+            }
+        }
     }
 }
