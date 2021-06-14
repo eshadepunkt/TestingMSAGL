@@ -74,10 +74,10 @@
                 BorderThickness="2"
                 Background="Gold"
                 CornerRadius="10">
-                <TextBlock Text="Alternative" 
+                <TextBlock Text="Alternative"
                            Margin="10"
-                           HorizontalAlignment="Center"></TextBlock>
-            </Border> 
+                           HorizontalAlignment="Center" />
+            </Border>
             <Border
                 x:Name="Fixed"
                 MouseMove="Fixed_OnMouseMove"
@@ -88,10 +88,10 @@
                 BorderThickness="2"
                 Background="Gray"
                 CornerRadius="10">
-                <TextBlock Text="Fixed" 
+                <TextBlock Text="Fixed"
                            Margin="10"
-                           HorizontalAlignment="Center"></TextBlock>
-            </Border> 
+                           HorizontalAlignment="Center" />
+            </Border>
             <Border
                 x:Name="Parallel"
                 MouseMove="Parallel_OnMouseMove"
@@ -102,10 +102,10 @@
                 BorderThickness="2"
                 Background="YellowGreen"
                 CornerRadius="10">
-                <TextBlock Text="Parallel" 
+                <TextBlock Text="Parallel"
                            Margin="10"
-                           HorizontalAlignment="Center"></TextBlock>
-            </Border> 
+                           HorizontalAlignment="Center" />
+            </Border>
             <Border
                 x:Name="Single"
                 MouseMove="Single_OnMouseMove"
@@ -116,10 +116,10 @@
                 BorderThickness="2"
                 Background="DarkMagenta"
                 CornerRadius="10">
-                <TextBlock Text="Single" 
+                <TextBlock Text="Single"
                            Margin="10"
-                           HorizontalAlignment="Center"></TextBlock>
-            </Border> 
+                           HorizontalAlignment="Center" />
+            </Border>
             <Border
                 x:Name="Node"
                 MouseMove="Node_OnMouseMove"
@@ -130,11 +130,11 @@
                 BorderThickness="2"
                 Background="White"
                 CornerRadius="10">
-                <TextBlock Text="Node" 
+                <TextBlock Text="Node"
                            Margin="10"
-                           HorizontalAlignment="Center"></TextBlock>
+                           HorizontalAlignment="Center" />
             </Border>
-           
+
 
         </StackPanel>
 
@@ -171,7 +171,7 @@
                        Margin="0 10 0 0">
                 <StatusBarItem>
                     <TextBox x:Name="statusTextBox"
-                        Text="no object under cursor.." Height="26"/>
+                             Text="no object under cursor.." Height="26" />
                 </StatusBarItem>
             </StatusBar>
         </StackPanel>
@@ -182,12 +182,9 @@
                    Margin="15 0 15 15"
                    x:Name="ViewerPanel"
                    Background="White"
-                   AllowDrop="True"
+                   AllowDrop="False"
                    MouseRightButtonDown="cm_MouseRightButtonDown"
-                   MouseLeftButtonDown="ViewerPanel_OnMouseLeftButtonDown"
-                   Drop="ViewerPanel_OnDrop"
-                   DragOver="ViewerPanel_OnDragOver"
-                   >
+                   Drop="ViewerPanel_OnDrop">
             <DockPanel.ContextMenu>
                 <ContextMenu Name="cm" Opened="cm_Opened" Closed="cm_Closed" StaysOpen="true">
                     <MenuItem Name="InsertNodeMenuItem" Header="Insert Node" Click="InsertNodeCM_Click" />
