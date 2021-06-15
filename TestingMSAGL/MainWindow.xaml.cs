@@ -319,8 +319,8 @@ namespace TestingMSAGL
         {
             base.OnDrop(e);
 
-
-            if (e.Data.GetDataPresent(DataFormats.StringFormat))
+            //todo fix work around for _nodeUnderCursor being null and crashing the app
+            if (e.Data.GetDataPresent(DataFormats.StringFormat) && _nodeUnderCursor != null)
             {
                 NodeComplex createdComplex = null;
                 var dataString = e.Data.GetData(DataFormats.StringFormat) as string;
