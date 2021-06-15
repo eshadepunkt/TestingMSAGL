@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
+using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
 using TestingMSAGL.DataLinker;
 using TestingMSAGL.DataStructure;
@@ -71,12 +72,9 @@ namespace TestingMSAGL.ComplexEditor
             //todo rework initialization
             // Drawing Board
             var rootSubgraph = new Subgraph("rootSubgraph");
-
-
             // first element 
             var root = new NodeComplex(Graph, "Root");
             rootSubgraph.AddSubgraph(root.Subgraph);
-
 
             var ros = new Alternative(Graph, "Root Of Subgraph");
             ros.Composite.Predecessor = root.Composite;
@@ -125,8 +123,13 @@ namespace TestingMSAGL.ComplexEditor
 
 
             NodeCounter = Graph.NodeCount;
-
             Graph.Attr.BackgroundColor = Color.Orange;
+            Graph.Directed = true;
+            Graph.LayoutAlgorithmSettings.ClusterMargin = 12;
+            Graph.LayoutAlgorithmSettings.PackingMethod = PackingMethod.Columns;
+            Graph.Attr.LayerDirection = LayerDirection.BT;
+
+
             GraphViewer.RunLayoutAsync = true;
             refreshLayout();
 
@@ -137,20 +140,23 @@ namespace TestingMSAGL.ComplexEditor
         ///     Method to create a new node in given Subgraph/Complex
         ///     no refresh implemented!
         /// </summary>
-        public void InsertNode()
+        public void InsertNode(IWithId node)
         {
             // Possible to Insert into more then one ?
             try
             {
                 var forDragging = GraphViewer.Entities
                     .SingleOrDefault(x => x.MarkedForDragging);
-                if (forDragging == null) return;
+                if (forDragging == null && node != null)
+                    // todo fix issues of straying nodes due to SingleOrDefault
+                    // todo implement proper handling
+                    return;
 
                 var subgraph = forDragging as IViewerNode;
                 GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(subgraph);
                 if (subgraph?.Node is Subgraph)
                 {
-                    var node = new NodeElementary(Graph, "New Node");
+                    node ??= new NodeElementary(Graph, "New Node");
                     var nodeComplex = Graph.GetComplexNodeById(subgraph.Node.Id);
                     //todo check if member exists?
                     if (!nodeComplex.AddMember(node)) MessageBox.Show("Could not add to member list");
@@ -271,11 +277,11 @@ namespace TestingMSAGL.ComplexEditor
         ///     Creates 10 Nodes, if a complex is marked.
         /// </summary>
         /// <param name="numberOfNodes"></param>
-        public void CreateTenNodesForTesting(int numberOfNodes)
+        public void CreateAnyAmountOfNodesForTesting(int numberOfNodes)
         {
             if (!GraphViewer.Entities.Any(x => x.MarkedForDragging)) return;
 
-            for (var i = 0; i < numberOfNodes; i++) InsertNode();
+            for (var i = 0; i < numberOfNodes; i++) InsertNode(null);
         }
 
         /// <summary>
@@ -368,6 +374,25 @@ namespace TestingMSAGL.ComplexEditor
         public IViewerObject findOneNodeSelected()
         {
             return GraphViewer.Entities.Single(x => x.MarkedForDragging);
+        }
+
+        /// <summary>
+        ///     creates types of NodeComplex, or NodeElementary - defaults to NodeComplex (no routed operation)
+        ///     add new types here
+        /// </summary>
+        /// <param name="routedOperation"></param>
+        /// <returns></returns>
+        public IWithId GetIWithId(string routedOperation)
+        {
+            return routedOperation switch
+            {
+                "Alternative" => new Alternative(Graph, routedOperation),
+                "Parallel" => new Parallel(Graph, routedOperation),
+                "Fixed" => new Fixed(Graph, routedOperation),
+                "Single" => new Single(Graph, routedOperation),
+                "Node" => new NodeElementary(Graph, "ComplexNodeDefault"),
+                _ => new NodeComplex(Graph, "ComplexNodeDefault")
+            };
         }
     }
 }
