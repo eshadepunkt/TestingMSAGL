@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -35,19 +34,8 @@ namespace TestingMSAGL
                 (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
             Editor.GraphViewer.ObjectUnderMouseCursorChanged += graphViewer_ObjectUnderMouseCursorChanged;
             Editor.GraphViewer.BindToPanel(ViewerPanel);
-            var test = Editor.GraphViewer.GraphCanvas.Children;
-            Editor.GraphViewer.GraphCanvas.IsEnabledChanged += GraphCanvasOnIsEnabledChanged;
             ViewerPanel.ClipToBounds = true;
-            //Editor.GraphViewer.GraphCanvas.MouseMove += GraphCanvasOnMouseMove;
-            // Editor.GraphViewer.GraphCanvas.MouseDown += GraphCanvasOnMouseDown;
-            ViewerPanel.Initialized += ViewerPanelOnInitialized;
-            ViewerPanel.Loaded += ViewerPanelOnLoaded;
-            Editor.GraphViewer.GraphCanvas.Initialized += GraphCanvasOnInitialized;
-            Editor.GraphViewer.GraphCanvas.Loaded += GraphCanvasOnLoaded;
             Editor.GraphViewer.LayoutComplete += GraphViewerOnLayoutComplete;
-
-            //todo graphViewer props for pane moving
-            //NodeTreeView();
         }
 
         private Editor Editor { get; } = new();
@@ -57,6 +45,7 @@ namespace TestingMSAGL
             dynamic test = ViewerPanel.Children[0];
             UIElementCollection children = test.Children;
             foreach (var child in children)
+            {
                 if (child is Path path)
                 {
                     path.AllowDrop = true;
@@ -73,26 +62,12 @@ namespace TestingMSAGL
                         if (child is Path path) path.Fill = _oldShapeFill;
                     };
                 }
-        }
 
-        private void GraphCanvasOnLoaded(object sender, RoutedEventArgs e)
-        {
-        }
-
-        private void GraphCanvasOnInitialized(object sender, EventArgs e)
-        {
-        }
-
-        private void ViewerPanelOnLoaded(object sender, RoutedEventArgs e)
-        {
-        }
-
-        private void ViewerPanelOnInitialized(object sender, EventArgs e)
-        {
-        }
-
-        private void GraphCanvasOnIsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
+                //todo experimental header for ComplexNodes
+                if (child is Rectangle rectangle)
+                {
+                }
+            }
         }
 
 
@@ -124,10 +99,10 @@ namespace TestingMSAGL
 
         private void Hexa_button_Click(object sender, RoutedEventArgs e)
         {
-            var count = int.Parse(CounterText.Text);
+            var amount = int.Parse(CounterText.Text);
 
-            Editor.CreateTenNodesForTesting(count);
-            if (count > 0) Editor.refreshLayout();
+            Editor.CreateAnyAmountOfNodesForTesting(amount);
+            if (amount > 0) Editor.refreshLayout();
         }
 
         private void cm_Opened(object sender, RoutedEventArgs e)
@@ -178,7 +153,7 @@ namespace TestingMSAGL
 
         private void InsertNodeCM_Click(object sender, RoutedEventArgs e)
         {
-            Editor.InsertNode();
+            Editor.InsertNode(null);
             Editor.refreshLayout();
         }
 
@@ -298,20 +273,14 @@ namespace TestingMSAGL
 
             if (e.LeftButton is not MouseButtonState.Pressed) return;
 
-            graphViewer_ObjectUnderMouseCursorChanged(sender, null);
             var data = new DataObject();
             data.SetData(DataFormats.StringFormat, Node.Name);
 
             DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
         }
 
-        private void GraphViewer_MouseUp(object sender, EventArgs e)
-        {
-        }
-
-
         /// <summary>
-        ///     holds logic for type switching
+        ///     holds logic for type switching based on the DoDragDrop Data
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -319,67 +288,35 @@ namespace TestingMSAGL
         {
             base.OnDrop(e);
 
-            //todo fix work around for _nodeUnderCursor being null and crashing the app
-            if (e.Data.GetDataPresent(DataFormats.StringFormat) && _nodeUnderCursor != null)
+            if (!e.Data.GetDataPresent(DataFormats.StringFormat)) return;
+
+            var dataString = e.Data.GetData(DataFormats.StringFormat) as string;
+            var hit = e.Source as Path;
+
+            if (hit?.Tag is not IViewerObject markedNode) return;
+
+            markedNode.MarkedForDragging = true;
+            var subgraph = markedNode as IViewerNode;
+
+            if (dataString != null)
             {
-                NodeComplex createdComplex = null;
-                var dataString = e.Data.GetData(DataFormats.StringFormat) as string;
-                var hit = e.Source as Path;
-                if (hit?.Tag is not IViewerObject markedNode) return;
-                markedNode.MarkedForDragging = true;
-                var subgraph = markedNode as IViewerNode;
-
-
-                //todo refactoring 
-                if (dataString != null)
+                var complex = Editor.GetIWithId(dataString);
+                // todo remove legacy code - probably move to factory as well
+                if (complex is NodeElementary)
                 {
-                    if (dataString.Contains("Alternative"))
-                        createdComplex = new Alternative(Editor.Graph, dataString);
-                    else if (dataString.Contains("Fixed"))
-                        createdComplex = new Fixed(Editor.Graph, dataString);
-                    else if (dataString.Contains("Parallel"))
-                        createdComplex = new Parallel(Editor.Graph, dataString);
-                    else if (dataString.Contains("Single"))
-                        createdComplex = new Single(Editor.Graph, dataString);
-                    else if (dataString.Contains("Node"))
-                        if (_nodeUnderCursor != null)
-                        {
-                            Editor.InsertNode();
-                            Editor.GraphViewer.Graph = Editor.Graph;
-                        }
-
-                    if (_nodeUnderCursor != null && createdComplex != null)
-                        Editor.InsertSubgraph(createdComplex, subgraph);
-                    markedNode.MarkedForDragging = false;
-
-                    Editor.GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(markedNode);
+                    Editor.InsertNode(complex);
+                    Editor.refreshLayout();
                 }
+                else
+                {
+                    Editor.InsertSubgraph(complex, subgraph);
+                }
+
+                markedNode.MarkedForDragging = false;
+                Editor.GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(markedNode);
             }
 
             e.Handled = true;
-        }
-
-
-        private void GraphCanvasOnMouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-                _mMouseLeftButtonDownPoint = e.GetPosition(Editor.GraphViewer.GraphCanvas);
-        }
-
-        private void GraphCanvasOnMouseMove(object sender, MouseEventArgs e)
-        {
-        }
-
-        public class MenuItem
-        {
-            public MenuItem()
-            {
-                Items = new ObservableCollection<MenuItem>();
-            }
-
-            public string Title { get; set; }
-
-            public ObservableCollection<MenuItem> Items { get; set; }
         }
     }
 }

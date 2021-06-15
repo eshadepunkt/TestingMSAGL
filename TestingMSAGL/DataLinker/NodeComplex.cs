@@ -7,11 +7,14 @@ namespace TestingMSAGL.DataLinker
     public class NodeComplex : IWithId
 
     {
+        private GraphExtension _graph;
+
         public NodeComplex(GraphExtension graph, string name)
         {
             var composite = new CompositeComplex {Name = name, DrawingNodeId = AddNode(graph)};
             Composite = composite;
             graph.AddNodeWithId(this);
+            _graph = graph;
         }
 
         /// <summary>
@@ -41,7 +44,11 @@ namespace TestingMSAGL.DataLinker
         private string AddNode(Graph graph)
         {
             var nodeId = Guid.NewGuid().ToString();
-            Subgraph = new Subgraph(nodeId) {Attr = {FillColor = Color.Beige, LabelMargin = 10}};
+            Subgraph = new Subgraph(nodeId)
+            {
+                Attr = {FillColor = Color.Beige, LabelMargin = 2}, DiameterOfOpenCollapseButton = 12
+            };
+
             graph.AddNode(Subgraph);
             return nodeId;
         }

@@ -165,13 +165,13 @@
                 <Button Content="Create Node(s)" x:Name="Hexa_button" Click="Hexa_button_Click" />
                 <!--<Button Content="CreateRndGraph" x:Name="CreateRndGraph" Click="CreateRndGraph_OnClick" />
             <Button Content="Create Edge on Selected Node" x:Name="EdgeSelectedNode" Click="EdgeSelectedNode_Click" />-->
-                <TextBox x:Name="CounterText" Text="0" Width="50" />
+                <TextBox x:Name="CounterText" Text="0" Width="50" AllowDrop="False" />
             </StackPanel>
             <StatusBar Width="150" Height="28"
                        Margin="0 10 0 0">
                 <StatusBarItem>
                     <TextBox x:Name="statusTextBox"
-                             Text="no object under cursor.." Height="26" />
+                             Text="no object under cursor.." Height="26" AllowDrop="False" />
                 </StatusBarItem>
             </StatusBar>
         </StackPanel>
