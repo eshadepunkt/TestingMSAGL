@@ -7,7 +7,7 @@ namespace TestingMSAGL.DataStructure.RoutedOperation
     {
         public Parallel(GraphExtension graph, string name) : base(graph, name)
         {
-            Subgraph.LabelText = "Parallel: " + Subgraph.Id;
+            Subgraph.LabelText = "Parallel: " + Subgraph.Id.Split('-')[1];
             Subgraph.Attr.Shape = Shape.Box;
             Subgraph.Attr.FillColor = Color.YellowGreen;
             graph.LayerConstraints.AddSameLayerNeighbors();

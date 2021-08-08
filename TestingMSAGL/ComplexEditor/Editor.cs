@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
+using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
+using Microsoft.Msagl.Layout.Layered;
 using TestingMSAGL.DataLinker;
 using TestingMSAGL.DataStructure;
 using TestingMSAGL.DataStructure.RoutedOperation;
 using Color = Microsoft.Msagl.Drawing.Color;
-using Shape = System.Windows.Shapes.Shape;
 using Single = TestingMSAGL.DataStructure.RoutedOperation.Single;
 
 namespace TestingMSAGL.ComplexEditor
@@ -22,12 +23,16 @@ namespace TestingMSAGL.ComplexEditor
 
         public Editor()
         {
-            GraphViewer = new GraphViewerExtended {LayoutEditingEnabled = true};
+            GraphViewer = new GraphViewerExtended { LayoutEditingEnabled = true };
             //initGraph(null, null);
             //GraphViewer.GraphCanvas.Background = (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
         }
 
-        public GraphExtension Graph { get; } = new("root", "0");
+        public GraphExtension Graph { get; } = new("root", "0")
+        {
+            Attr = { LayerDirection = LayerDirection.LR }
+        };
+
         private int NodeCounter { get; set; }
 
         /// <summary>
@@ -36,29 +41,6 @@ namespace TestingMSAGL.ComplexEditor
         public void refreshLayout()
         {
             GraphViewer.Graph = Graph;
-            allUIElementsForDragDrop();
-        }
-
-        private void allUIElementsForDragDrop()
-        {
-            var children = GraphViewer.GraphCanvas.Children;
-            foreach (var child in children)
-                if (child is Shape shape)
-                {
-                    shape.AllowDrop = true;
-                    shape.DragEnter += (o, args) =>
-                    {
-                        if (child is Shape shape)
-                        {
-                            _oldShapeFill = shape.Fill.Clone();
-                            shape.Fill = Brushes.CadetBlue;
-                        }
-                    };
-                    shape.DragLeave += (o, args) =>
-                    {
-                        if (child is Shape shape) shape.Fill = _oldShapeFill;
-                    };
-                }
         }
 
 
@@ -115,6 +97,11 @@ namespace TestingMSAGL.ComplexEditor
             //c3.AddMember(e4);  
             //c3.AddMember(e5);
 
+            // add edge for testing purposes
+
+            Graph.AddEdge(e2.NodeId, e3.NodeId);
+
+
             // if(c3 is Alternative alternative)
             Console.WriteLine("Test");
             var composites = root.Composite.Members;
@@ -125,9 +112,40 @@ namespace TestingMSAGL.ComplexEditor
             NodeCounter = Graph.NodeCount;
             Graph.Attr.BackgroundColor = Color.Orange;
             Graph.Directed = true;
-            Graph.LayoutAlgorithmSettings.ClusterMargin = 12;
-            Graph.LayoutAlgorithmSettings.PackingMethod = PackingMethod.Columns;
-            Graph.Attr.LayerDirection = LayerDirection.BT;
+
+            //Graph.Attr.LayerDirection = LayerDirection.LR;
+            Graph.LayoutAlgorithmSettings = new SugiyamaLayoutSettings
+            {
+                MinNodeWidth = 1,
+                MinimalHeight = 1,
+                ClusterMargin = 5,
+                Transformation = PlaneTransformation.Rotation(Math.PI / 2),
+                PackingMethod = PackingMethod.Columns,
+                PackingAspectRatio = 0.1,
+                LayeringOnly = true,
+                GridSizeByX = 100,
+                GridSizeByY = 50
+            };
+
+            /*
+            Graph.LayoutAlgorithmSettings = new FastIncrementalLayoutSettings()
+            {
+                PackingMethod = PackingMethod.Columns,
+                NodeSeparation = 1,
+                MinConstraintLevel = 2,
+                RespectEdgePorts = true,
+                AttractiveInterClusterForceConstant = 0.5,
+                UpdateClusterBoundariesFromChildren = true,
+                AvoidOverlaps = true,
+                Converged = true,
+                MaxIterations = 200,
+                ClusterMargin = 5,
+                ClusterGravity = 180,
+                ApproximateRepulsion = true,
+
+
+            };
+            */
 
 
             GraphViewer.RunLayoutAsync = true;
@@ -142,7 +160,9 @@ namespace TestingMSAGL.ComplexEditor
         /// </summary>
         public void InsertNode(IWithId node)
         {
-            // Possible to Insert into more then one ?
+            //todo  Possible to Insert into more then one ?
+
+
             try
             {
                 var forDragging = GraphViewer.Entities

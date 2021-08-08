@@ -11,7 +11,7 @@ namespace TestingMSAGL.DataLinker
 
         public NodeComplex(GraphExtension graph, string name)
         {
-            var composite = new CompositeComplex {Name = name, DrawingNodeId = AddNode(graph)};
+            var composite = new CompositeComplex { Name = name, DrawingNodeId = AddNode(graph) };
             Composite = composite;
             graph.AddNodeWithId(this);
             _graph = graph;
@@ -44,10 +44,17 @@ namespace TestingMSAGL.DataLinker
         private string AddNode(Graph graph)
         {
             var nodeId = Guid.NewGuid().ToString();
+            // todo implement proper fix for shortening the guuid
             Subgraph = new Subgraph(nodeId)
             {
-                Attr = {FillColor = Color.Beige, LabelMargin = 2}, DiameterOfOpenCollapseButton = 12
+                Attr = { FillColor = Color.Transparent, LabelMargin = 2 }, DiameterOfOpenCollapseButton = 10
             };
+            Subgraph.LabelText = "Root " + Subgraph.Id.Split('-')[1];
+            Subgraph.Label.FontSize = 10;
+            Subgraph.Label.FontName = "New Courier";
+            Subgraph.Label.FontColor = Color.Cyan;
+            Subgraph.Label.Height = 10;
+            Subgraph.Label.Width = 50;
 
             graph.AddNode(Subgraph);
             return nodeId;

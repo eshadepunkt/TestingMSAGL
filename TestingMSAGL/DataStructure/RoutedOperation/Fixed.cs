@@ -7,7 +7,7 @@ namespace TestingMSAGL.DataStructure.RoutedOperation
     {
         public Fixed(GraphExtension graph, string name) : base(graph, name)
         {
-            Subgraph.LabelText = "Fixed: " + Subgraph.Id;
+            Subgraph.LabelText = "Fixed: " + Subgraph.Id.Split('-')[1];
             Subgraph.Attr.Shape = Shape.Box;
             Subgraph.Attr.FillColor = Color.Gray;
         }
