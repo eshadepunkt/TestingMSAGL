@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
+using Microsoft.Msagl.WpfGraphControl;
 using Microsoft.Win32;
 using TestingMSAGL.ComplexEditor;
 using TestingMSAGL.DataLinker;
 using TestingMSAGL.DataStructure.RoutedOperation;
+using TestingMSAGL.View.Adorner;
 using Single = TestingMSAGL.DataStructure.RoutedOperation.Single;
 
 namespace TestingMSAGL
@@ -31,11 +35,18 @@ namespace TestingMSAGL
             Editor.GraphViewer.GraphCanvas.Height = ViewerPanel.Height;
             Editor.GraphViewer.GraphCanvas.Width = ViewerPanel.Width;
             Editor.GraphViewer.GraphCanvas.Background =
-                (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
+                (SolidColorBrush)new BrushConverter().ConvertFromString("#4dd2ff");
             Editor.GraphViewer.ObjectUnderMouseCursorChanged += graphViewer_ObjectUnderMouseCursorChanged;
             Editor.GraphViewer.BindToPanel(ViewerPanel);
             ViewerPanel.ClipToBounds = true;
             Editor.GraphViewer.LayoutComplete += GraphViewerOnLayoutComplete;
+            CreateAdornerForAllComposites(compositePanel);
+        }
+
+        private void CreateAdornerForAllComposites(Panel stackPanel)
+        {
+            var adornerLayer = AdornerLayer.GetAdornerLayer(stackPanel);
+            foreach (UIElement toAdorn in stackPanel.Children) adornerLayer?.Add(new RectangleAdorner(toAdorn));
         }
 
         private Editor Editor { get; } = new();
@@ -46,29 +57,55 @@ namespace TestingMSAGL
             UIElementCollection children = test.Children;
             foreach (var child in children)
             {
-                if (child is Path path)
+                /*if (child is Border border)
                 {
+                    var textblock = new TextBlock()
+                    {
+                        Text = "Test",
+                        MinHeight = 20,
+                        MinWidth = 100
+                    };
+                    border.Child = textblock;
+                    border.Width = 100;
+
+                }*/
+
+
+                if (child is not Path { Tag: VNode { DrawingObject: Subgraph } } path) continue;
+                {
+                    var tag = child as Path;
+                    var vnode = tag.Tag as Cluster;
+                    if (vnode != null) vnode.IsCollapsed = false;
                     path.AllowDrop = true;
                     path.DragEnter += (o, args) =>
                     {
-                        if (child is Path path)
-                        {
-                            _oldShapeFill = path.Fill.Clone();
-                            path.Fill = Brushes.CadetBlue;
-                        }
+                        //if (child is not Path path) return;
+                        _oldShapeFill = path.Fill.Clone();
+                        path.Fill = Brushes.CadetBlue;
                     };
                     path.DragLeave += (o, args) =>
                     {
-                        if (child is Path path) path.Fill = _oldShapeFill;
+                        //if (child is Path path) 
+                        path.Fill = _oldShapeFill;
                     };
                 }
-
-                //todo experimental header for ComplexNodes
-                if (child is Rectangle rectangle)
-                {
-                }
             }
+            // foreach (var cluster in Editor.Graph.GeometryGraph.RootCluster.AllClustersDepthFirst())
+            // {
+            //     if (!cluster.Clusters.Any())
+            //     {
+            //         cluster.IsCollapsed = !cluster.IsCollapsed;
+            //     }
+            // }
         }
+        // foreach (var subgraph in Editor.GraphViewer.Graph.RootSubgraph.AllSubgraphsDepthFirstExcludingSelf())
+        // {
+        //     if (!subgraph.Nodes.Any() && !subgraph.Subgraphs.Any())
+        //     {
+        //         Editor.GetIWithId(subgraph)
+        //         new Node("root") {Attr = {Shape = Shape.Circle, FillColor = Color.White}, Label = {FontSize = 5}});
+        //     }
+        // }
 
 
         private void graphViewer_ObjectUnderMouseCursorChanged(object sender, ObjectUnderMouseCursorChangedEventArgs e)
@@ -142,12 +179,12 @@ namespace TestingMSAGL
             {
                 Editor.GraphViewer.InsertingEdge = false;
                 EditMode.Background = null;
-                EditMode.Background = (SolidColorBrush) defaultColor;
+                EditMode.Background = (SolidColorBrush)defaultColor;
             }
             else
             {
                 Editor.GraphViewer.InsertingEdge = true;
-                EditMode.Background = (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
+                EditMode.Background = (SolidColorBrush)new BrushConverter().ConvertFromString("#4dd2ff");
             }
         }
 
@@ -160,7 +197,7 @@ namespace TestingMSAGL
 
         private void AddAlternativMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            var subgraph = (IViewerNode) Editor.findOneNodeSelected();
+            var subgraph = (IViewerNode)Editor.findOneNodeSelected();
             if (subgraph.Node is Subgraph)
                 Editor.InsertSubgraph(new Alternative(Editor.Graph, "New Alternative"), subgraph);
             else
@@ -169,7 +206,7 @@ namespace TestingMSAGL
 
         private void AddParallelMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            var subgraph = (IViewerNode) Editor.findOneNodeSelected();
+            var subgraph = (IViewerNode)Editor.findOneNodeSelected();
             if (subgraph.Node is Subgraph)
                 Editor.InsertSubgraph(new Parallel(Editor.Graph, "New Parallel"), subgraph);
             else
@@ -178,7 +215,7 @@ namespace TestingMSAGL
 
         private void AddFixedMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            var subgraph = (IViewerNode) Editor.findOneNodeSelected();
+            var subgraph = (IViewerNode)Editor.findOneNodeSelected();
             if (subgraph.Node is Subgraph)
                 Editor.InsertSubgraph(new Fixed(Editor.Graph, "New Fixed"), subgraph);
             else
@@ -187,7 +224,7 @@ namespace TestingMSAGL
 
         private void AddSingleMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            var subgraph = (IViewerNode) Editor.findOneNodeSelected();
+            var subgraph = (IViewerNode)Editor.findOneNodeSelected();
             if (subgraph.Node is Subgraph)
                 Editor.InsertSubgraph(new Single(Editor.Graph, "New Single"), subgraph);
             else
@@ -225,6 +262,7 @@ namespace TestingMSAGL
             base.OnMouseMove(e);
 
             if (e.LeftButton is not MouseButtonState.Pressed) return;
+            ClearNodeDecorationsWhileDragging();
 
             var data = new DataObject();
             data.SetData(DataFormats.StringFormat, Alternative.Name);
@@ -235,7 +273,9 @@ namespace TestingMSAGL
         {
             base.OnMouseMove(e);
 
+
             if (e.LeftButton is not MouseButtonState.Pressed) return;
+            ClearNodeDecorationsWhileDragging();
 
             var data = new DataObject();
             data.SetData(DataFormats.StringFormat, Fixed.Name);
@@ -247,7 +287,9 @@ namespace TestingMSAGL
         {
             base.OnMouseMove(e);
 
+
             if (e.LeftButton is not MouseButtonState.Pressed) return;
+            ClearNodeDecorationsWhileDragging();
 
             var data = new DataObject();
             data.SetData(DataFormats.StringFormat, Parallel.Name);
@@ -261,6 +303,8 @@ namespace TestingMSAGL
 
             if (e.LeftButton is not MouseButtonState.Pressed) return;
 
+            ClearNodeDecorationsWhileDragging();
+
             var data = new DataObject();
             data.SetData(DataFormats.StringFormat, Single.Name);
 
@@ -273,10 +317,27 @@ namespace TestingMSAGL
 
             if (e.LeftButton is not MouseButtonState.Pressed) return;
 
+            ClearNodeDecorationsWhileDragging();
+
+
             var data = new DataObject();
             data.SetData(DataFormats.StringFormat, Node.Name);
-
+            var adornerLayer = AdornerLayer.GetAdornerLayer(Alternative);
+            adornerLayer?.Add(new RectangleAdorner(Alternative));
             DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
+        }
+
+        /// <summary>
+        ///     holds logic for clearing the dragging decorations - possible fix for unintentional drag 'n drop into multiple
+        ///     complex nodes
+        /// </summary>
+        private void ClearNodeDecorationsWhileDragging()
+        {
+            foreach (var entity in Editor.GraphViewer.Entities)
+            {
+                entity.MarkedForDragging = false;
+                Editor.GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(entity);
+            }
         }
 
         /// <summary>

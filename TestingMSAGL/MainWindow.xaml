@@ -56,7 +56,7 @@
 
         </StackPanel>
 
-        <StackPanel Grid.Column="1" Grid.Row="2">
+        <StackPanel Grid.Column="1" Grid.Row="2" x:Name="compositePanel">
 
             <TextBlock Text="Standard Elements"
                        Margin="0 15 0 10"
