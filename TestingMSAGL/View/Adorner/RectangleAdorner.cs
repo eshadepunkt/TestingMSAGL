@@ -17,12 +17,29 @@ namespace TestingMSAGL.View.Adorner
 
         protected override void OnRender(DrawingContext drawingContext)
         {
-            var adornedElementRect = new Rect(AdornedElement.DesiredSize);
             if (_adornedElement is not Border border) return;
+            var adornedElementRect = new Rect(AdornedElement.DesiredSize);
+            var textBlock = new TextBlock
+            {
+                //todo find a better way to display the text
+                Text = border.Name,
+                FontSize = 48
+            };
+
             var renderBrush = border.Background.Clone();
             renderBrush.Opacity = 0.5;
             Pen renderPen = new(new SolidColorBrush(Colors.Black), 1.5);
-            drawingContext.DrawRectangle(renderBrush, renderPen, adornedElementRect);
+
+            var borderForTextBlockAndBrush = new Border
+            {
+                Background = renderBrush,
+                RenderSize = AdornedElement.DesiredSize,
+                Child = textBlock
+            };
+
+            BitmapCacheBrush bcb = new(borderForTextBlockAndBrush);
+            drawingContext.DrawRoundedRectangle(bcb, renderPen, adornedElementRect, 3, 3);
+
             //var renderRadius = 5.0;
         }
     }

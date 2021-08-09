@@ -47,14 +47,14 @@ namespace TestingMSAGL.DataLinker
             // todo implement proper fix for shortening the guuid
             Subgraph = new Subgraph(nodeId)
             {
-                Attr = { FillColor = Color.Transparent, LabelMargin = 2 }, DiameterOfOpenCollapseButton = 10
+                Attr = { FillColor = Color.Transparent, LabelMargin = 10, Padding = 10 },
+                DiameterOfOpenCollapseButton = 10
             };
             Subgraph.LabelText = "Root " + Subgraph.Id.Split('-')[1];
-            Subgraph.Label.FontSize = 10;
+            Subgraph.Label.FontSize = 8;
             Subgraph.Label.FontName = "New Courier";
-            Subgraph.Label.FontColor = Color.Cyan;
-            Subgraph.Label.Height = 10;
-            Subgraph.Label.Width = 50;
+            Subgraph.Label.FontColor = Color.Black;
+
 
             graph.AddNode(Subgraph);
             return nodeId;

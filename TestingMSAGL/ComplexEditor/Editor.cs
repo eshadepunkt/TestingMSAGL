@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using Microsoft.Msagl.Core.Geometry.Curves;
-using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.Layout.Layered;
 using TestingMSAGL.DataLinker;
@@ -28,10 +26,16 @@ namespace TestingMSAGL.ComplexEditor
             //GraphViewer.GraphCanvas.Background = (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
         }
 
+
         public GraphExtension Graph { get; } = new("root", "0")
         {
-            Attr = { LayerDirection = LayerDirection.LR }
+            LayoutAlgorithmSettings = new SugiyamaLayoutSettings
+            {
+                GroupSplit = 10,
+                MinNodeWidth = 100
+            }
         };
+
 
         private int NodeCounter { get; set; }
 
@@ -99,13 +103,14 @@ namespace TestingMSAGL.ComplexEditor
 
             // add edge for testing purposes
 
-            Graph.AddEdge(e2.NodeId, e3.NodeId);
+            //Graph.AddEdge(e2.NodeId, e3.NodeId);
 
 
             // if(c3 is Alternative alternative)
             Console.WriteLine("Test");
             var composites = root.Composite.Members;
 
+            GraphViewer.RunLayoutAsync = true;
             Graph.RootSubgraph = rootSubgraph;
 
 
@@ -113,42 +118,22 @@ namespace TestingMSAGL.ComplexEditor
             Graph.Attr.BackgroundColor = Color.Orange;
             Graph.Directed = true;
 
+
             //Graph.Attr.LayerDirection = LayerDirection.LR;
-            Graph.LayoutAlgorithmSettings = new SugiyamaLayoutSettings
+            /*Graph.LayoutAlgorithmSettings = new SugiyamaLayoutSettings
             {
-                MinNodeWidth = 1,
-                MinimalHeight = 1,
-                ClusterMargin = 5,
-                Transformation = PlaneTransformation.Rotation(Math.PI / 2),
+                MinNodeWidth = 10,
+                MinimalHeight = 10,
+                ClusterMargin = 10,
                 PackingMethod = PackingMethod.Columns,
                 PackingAspectRatio = 0.1,
                 LayeringOnly = true,
-                GridSizeByX = 100,
-                GridSizeByY = 50
-            };
-
-            /*
-            Graph.LayoutAlgorithmSettings = new FastIncrementalLayoutSettings()
-            {
-                PackingMethod = PackingMethod.Columns,
-                NodeSeparation = 1,
-                MinConstraintLevel = 2,
-                RespectEdgePorts = true,
-                AttractiveInterClusterForceConstant = 0.5,
-                UpdateClusterBoundariesFromChildren = true,
-                AvoidOverlaps = true,
-                Converged = true,
-                MaxIterations = 200,
-                ClusterMargin = 5,
-                ClusterGravity = 180,
-                ApproximateRepulsion = true,
+                MaxAspectRatioEccentricity = 10,
+                LabelCornersPreserveCoefficient = 2,
+                LiftCrossEdges = true
+            };*/
 
 
-            };
-            */
-
-
-            GraphViewer.RunLayoutAsync = true;
             refreshLayout();
 
             var test = GraphViewer.GraphCanvas.Children;

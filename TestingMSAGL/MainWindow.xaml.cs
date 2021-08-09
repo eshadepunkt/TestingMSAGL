@@ -66,6 +66,10 @@ namespace TestingMSAGL
             UIElementCollection children = test.Children;
             foreach (var child in children)
             {
+                if (child is TextBlock textBlock)
+                {
+                }
+
                 if (child is not Path { Tag: VNode { DrawingObject: Subgraph } } path) continue;
                 {
                     var tag = child as Path;
@@ -309,7 +313,9 @@ namespace TestingMSAGL
 
             var data = new DataObject();
             data.SetData(DataFormats.StringFormat, Node.Name);
-            _adorner = _adornerLayer.GetAdorners(sender as UIElement).FirstOrDefault();
+            if (sender is UIElement element)
+                _adorner =
+                    (_adornerLayer.GetAdorners(element) ?? throw new InvalidOperationException()).FirstOrDefault();
             DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
         }
 
