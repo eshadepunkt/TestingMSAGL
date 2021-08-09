@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -26,6 +27,8 @@ namespace TestingMSAGL
         private Point _mMouseRightButtonDownPoint;
         private IViewerNode _nodeUnderCursor;
         private Brush _oldShapeFill = Brushes.Transparent;
+        private AdornerLayer _adornerLayer;
+        private Adorner _adorner;
 
 
         public MainWindow()
@@ -40,37 +43,29 @@ namespace TestingMSAGL
             Editor.GraphViewer.BindToPanel(ViewerPanel);
             ViewerPanel.ClipToBounds = true;
             Editor.GraphViewer.LayoutComplete += GraphViewerOnLayoutComplete;
-            CreateAdornerForAllComposites(compositePanel);
         }
 
         private void CreateAdornerForAllComposites(Panel stackPanel)
         {
-            var adornerLayer = AdornerLayer.GetAdornerLayer(stackPanel);
-            foreach (UIElement toAdorn in stackPanel.Children) adornerLayer?.Add(new RectangleAdorner(toAdorn));
+            _adornerLayer = AdornerLayer.GetAdornerLayer(stackPanel);
+            foreach (UIElement toAdorn in stackPanel.Children)
+                if (toAdorn is Border)
+                {
+                    _adorner = new RectangleAdorner(toAdorn);
+                    _adorner.Visibility = Visibility.Collapsed;
+                    _adornerLayer?.Add(_adorner);
+                }
         }
 
         private Editor Editor { get; } = new();
 
         private void GraphViewerOnLayoutComplete(object sender, EventArgs e)
         {
+            CreateAdornerForAllComposites(compositePanel);
             dynamic test = ViewerPanel.Children[0];
             UIElementCollection children = test.Children;
             foreach (var child in children)
             {
-                /*if (child is Border border)
-                {
-                    var textblock = new TextBlock()
-                    {
-                        Text = "Test",
-                        MinHeight = 20,
-                        MinWidth = 100
-                    };
-                    border.Child = textblock;
-                    border.Width = 100;
-
-                }*/
-
-
                 if (child is not Path { Tag: VNode { DrawingObject: Subgraph } } path) continue;
                 {
                     var tag = child as Path;
@@ -90,22 +85,7 @@ namespace TestingMSAGL
                     };
                 }
             }
-            // foreach (var cluster in Editor.Graph.GeometryGraph.RootCluster.AllClustersDepthFirst())
-            // {
-            //     if (!cluster.Clusters.Any())
-            //     {
-            //         cluster.IsCollapsed = !cluster.IsCollapsed;
-            //     }
-            // }
         }
-        // foreach (var subgraph in Editor.GraphViewer.Graph.RootSubgraph.AllSubgraphsDepthFirstExcludingSelf())
-        // {
-        //     if (!subgraph.Nodes.Any() && !subgraph.Subgraphs.Any())
-        //     {
-        //         Editor.GetIWithId(subgraph)
-        //         new Node("root") {Attr = {Shape = Shape.Circle, FillColor = Color.White}, Label = {FontSize = 5}});
-        //     }
-        // }
 
 
         private void graphViewer_ObjectUnderMouseCursorChanged(object sender, ObjectUnderMouseCursorChangedEventArgs e)
@@ -263,6 +243,8 @@ namespace TestingMSAGL
 
             if (e.LeftButton is not MouseButtonState.Pressed) return;
             ClearNodeDecorationsWhileDragging();
+            _adorner = _adornerLayer.GetAdorners(sender as UIElement).FirstOrDefault();
+
 
             var data = new DataObject();
             data.SetData(DataFormats.StringFormat, Alternative.Name);
@@ -276,6 +258,7 @@ namespace TestingMSAGL
 
             if (e.LeftButton is not MouseButtonState.Pressed) return;
             ClearNodeDecorationsWhileDragging();
+            _adorner = _adornerLayer.GetAdorners(sender as UIElement).FirstOrDefault();
 
             var data = new DataObject();
             data.SetData(DataFormats.StringFormat, Fixed.Name);
@@ -290,6 +273,7 @@ namespace TestingMSAGL
 
             if (e.LeftButton is not MouseButtonState.Pressed) return;
             ClearNodeDecorationsWhileDragging();
+            _adorner = _adornerLayer.GetAdorners(sender as UIElement).FirstOrDefault();
 
             var data = new DataObject();
             data.SetData(DataFormats.StringFormat, Parallel.Name);
@@ -305,11 +289,14 @@ namespace TestingMSAGL
 
             ClearNodeDecorationsWhileDragging();
 
+            _adorner = _adornerLayer.GetAdorners(sender as UIElement).FirstOrDefault();
+
             var data = new DataObject();
             data.SetData(DataFormats.StringFormat, Single.Name);
 
             DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
         }
+
 
         private void Node_OnMouseMove(object sender, MouseEventArgs e)
         {
@@ -322,9 +309,28 @@ namespace TestingMSAGL
 
             var data = new DataObject();
             data.SetData(DataFormats.StringFormat, Node.Name);
-            var adornerLayer = AdornerLayer.GetAdornerLayer(Alternative);
-            adornerLayer?.Add(new RectangleAdorner(Alternative));
+            _adorner = _adornerLayer.GetAdorners(sender as UIElement).FirstOrDefault();
             DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
+        }
+
+        /// <summary>
+        ///     removes the adorner, if a non droppable area is dragged above
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MainWindow_OnPreviewDragLeave(object sender, DragEventArgs e)
+        {
+            _adorner.Visibility = Visibility.Collapsed;
+        }
+
+        /// <summary>
+        ///     adds the adorner again, if the area is a droppable area
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MainWindow_OnPreviewDragEnter(object sender, DragEventArgs e)
+        {
+            _adorner.Visibility = Visibility.Visible;
         }
 
         /// <summary>
@@ -377,7 +383,16 @@ namespace TestingMSAGL
                 Editor.GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(markedNode);
             }
 
+            _adornerLayer.Remove(_adorner);
             e.Handled = true;
+        }
+
+        private void MainWindow_OnPreviewDragOver(object sender, DragEventArgs e)
+        {
+            var location = e.GetPosition(this);
+            MouseLabel.Content = location;
+
+            _adorner.RenderTransform = new TranslateTransform(location.X, location.Y);
         }
     }
 }

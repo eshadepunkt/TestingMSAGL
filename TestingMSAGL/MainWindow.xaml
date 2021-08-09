@@ -7,7 +7,10 @@
         Title="MainWindow" Height="720" Width="1280"
         Background="#004d66"
         FontFamily="Fonts/#Dosis"
-        MouseMove="Window_MouseMove">
+        MouseMove="Window_MouseMove"
+        PreviewDragOver="MainWindow_OnPreviewDragOver"
+        PreviewDragLeave="MainWindow_OnPreviewDragLeave"
+        PreviewDragEnter="MainWindow_OnPreviewDragEnter">
 
     <Grid x:Name="MainGrid">
 
