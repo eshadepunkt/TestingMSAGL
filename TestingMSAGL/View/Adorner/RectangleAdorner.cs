@@ -19,11 +19,13 @@ namespace TestingMSAGL.View.Adorner
         {
             if (_adornedElement is not Border border) return;
             var adornedElementRect = new Rect(AdornedElement.DesiredSize);
+            var textBlockOfAdornedElement = border.Child as TextBlock;
             var textBlock = new TextBlock
             {
                 //todo find a better way to display the text
-                Text = border.Name,
-                FontSize = 48
+                Text = textBlockOfAdornedElement?.Text,
+                IsHitTestVisible = false,
+                FontSize = 24
             };
 
             var renderBrush = border.Background.Clone();

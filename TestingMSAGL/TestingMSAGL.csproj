@@ -68,32 +68,35 @@
         <Compile Include="ComplexEditor\Editor.cs"/>
         <Compile Include="DataLinker\IWithId.cs"/>
         <Compile Include="DataLinker\NodeComplex.cs"/>
-    <Compile Include="DataLinker\NodeElementary.cs" />
-    <Compile Include="DataStructure\ComplexType.cs" />
-    <Compile Include="DataStructure\Composite.cs" />
-    <Compile Include="DataStructure\CompositeComplex.cs" />
-    <Compile Include="DataStructure\CompositeElementary.cs" />
-    <Compile Include="DataStructure\GraphExtension.cs" />
+        <Compile Include="DataLinker\NodeElementary.cs"/>
+        <Compile Include="DataStructure\ComplexType.cs"/>
+        <Compile Include="DataStructure\Composite.cs"/>
+        <Compile Include="DataStructure\CompositeComplex.cs"/>
+        <Compile Include="DataStructure\CompositeElementary.cs"/>
+        <Compile Include="DataStructure\GraphExtension.cs"/>
+        <Compile Include="DataStructure\RoutedOperation\NamedOperation.cs"/>
+        <Compile Include="DataStructure\XmlProvider\XmlProvider.cs"/>
+        <Compile Include="IsExternalInit.cs"/>
         <Compile Include="View\Adorner\RectangleAdorner.cs"/>
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DataStructure\GraphViewerExtended.cs" />
-    <Compile Include="DataStructure\IComposite.cs" />
-    <Compile Include="DataStructure\RoutedOperation\Alternative.cs" />
-    <Compile Include="DataStructure\RoutedOperation\Fixed.cs" />
-    <Compile Include="DataStructure\RoutedOperation\Parallel.cs" />
-    <Compile Include="DataStructure\RoutedOperation\Single.cs" />
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-  </ItemGroup>
+        <Page Include="MainWindow.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Compile Include="App.xaml.cs">
+            <DependentUpon>App.xaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Include="DataStructure\GraphViewerExtended.cs"/>
+        <Compile Include="DataStructure\IComposite.cs"/>
+        <Compile Include="DataStructure\RoutedOperation\Alternative.cs"/>
+        <Compile Include="DataStructure\RoutedOperation\Fixed.cs"/>
+        <Compile Include="DataStructure\RoutedOperation\Parallel.cs"/>
+        <Compile Include="DataStructure\RoutedOperation\Single.cs"/>
+        <Compile Include="MainWindow.xaml.cs">
+            <DependentUpon>MainWindow.xaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+    </ItemGroup>
     <ItemGroup>
         <Compile Include="Properties\AssemblyInfo.cs">
             <SubType>Code</SubType>
@@ -113,12 +116,13 @@
     </ItemGroup>
     <ItemGroup>
         <Content Include="Fonts\Dosis.ttf"/>
+        <Content Include="Requests\request.xml"/>
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="AutomaticGraphLayout" Version="1.1.12"/>
         <PackageReference Include="AutomaticGraphLayout.Drawing" Version="1.1.12"/>
-        <PackageReference Include="AutomaticGraphLayout.WpfGraphControl" Version="1.1.12"/>
         <PackageReference Include="DumpExtensions" Version="2.0.0"/>
+        <PackageReference Include="Microsoft.Msagl.WpfGraphControl" Version="1.0.0.13"/>
         <PackageReference Include="TecWare.PPSn.Core" Version="1.0.56"/>
         <PackageReference Include="TecWare.PPSn.DesktopUI" Version="1.0.56"/>
     </ItemGroup>

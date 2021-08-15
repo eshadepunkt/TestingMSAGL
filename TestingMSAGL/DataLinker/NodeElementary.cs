@@ -9,7 +9,7 @@ namespace TestingMSAGL.DataLinker
     {
         public NodeElementary(GraphExtension graph, string name)
         {
-            var composite = new CompositeElementary { Name = name, DrawingNodeId = AddNode(graph) };
+            var composite = new CompositeElementary { Name = name, DrawingNodeId = AddNode(graph, name) };
             Composite = composite;
             graph.AddNodeWithId(this);
         }
@@ -19,11 +19,15 @@ namespace TestingMSAGL.DataLinker
         public string NodeId => Composite.DrawingNodeId;
         public string ParentId { get; set; }
 
-        private string AddNode(Graph graph)
+        private string AddNode(Graph graph, string name = "")
         {
             var nodeId = Guid.NewGuid().ToString();
             Node = new Node(nodeId) { Attr = { LineWidth = 1, FillColor = Color.WhiteSmoke } };
-            Node.LabelText = "Label Nr. " + Node.Id.Split('-')[1];
+            if (name != string.Empty)
+                Node.LabelText = name;
+            else
+                Node.LabelText = "Label Nr. " + Node.Id.Split('-')[1];
+
             Node.Label.FontSize = 5;
             Node.Label.FontName = "New Courier";
             Node.Label.FontColor = Color.Blue;

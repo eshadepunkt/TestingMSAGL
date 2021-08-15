@@ -103,7 +103,7 @@ namespace TestingMSAGL.ComplexEditor
 
             // add edge for testing purposes
 
-            //Graph.AddEdge(e2.NodeId, e3.NodeId);
+            Graph.AddEdge(e2.NodeId, "Test", e3.NodeId);
 
 
             // if(c3 is Alternative alternative)
@@ -395,8 +395,8 @@ namespace TestingMSAGL.ComplexEditor
                 "Parallel" => new Parallel(Graph, routedOperation),
                 "Fixed" => new Fixed(Graph, routedOperation),
                 "Single" => new Single(Graph, routedOperation),
-                "Node" => new NodeElementary(Graph, "ComplexNodeDefault"),
-                _ => new NodeComplex(Graph, "ComplexNodeDefault")
+                "Node" => new NodeElementary(Graph, ""),
+                _ => new NodeElementary(Graph, routedOperation)
             };
         }
     }

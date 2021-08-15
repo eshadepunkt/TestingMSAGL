@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,6 +14,7 @@ using Microsoft.Win32;
 using TestingMSAGL.ComplexEditor;
 using TestingMSAGL.DataLinker;
 using TestingMSAGL.DataStructure.RoutedOperation;
+using TestingMSAGL.DataStructure.XmlProvider;
 using TestingMSAGL.View.Adorner;
 using Single = TestingMSAGL.DataStructure.RoutedOperation.Single;
 
@@ -43,7 +45,53 @@ namespace TestingMSAGL
             Editor.GraphViewer.BindToPanel(ViewerPanel);
             ViewerPanel.ClipToBounds = true;
             Editor.GraphViewer.LayoutComplete += GraphViewerOnLayoutComplete;
+
+            var xdoc = new XmlProvider();
+            var operations = xdoc.GetAllXmlElements(".././Requests/request.xml");
+
+
+            OperationsLoad(operations);
         }
+
+        private void OperationsLoad(IEnumerable<NamedOperation> operations)
+        {
+            foreach (var operation in operations)
+            {
+                var border = new Border();
+                border.MouseMove += Node_OnMouseMove;
+                border.Width = 100;
+                border.Height = 50;
+                border.Margin = new Thickness(5, 5, 0, 10);
+                border.BorderBrush = new SolidColorBrush(Colors.Black);
+                border.BorderThickness = new Thickness(2);
+                border.Background = new SolidColorBrush(Colors.White);
+                border.CornerRadius = new CornerRadius(10);
+                border.Padding = new Thickness(5);
+                border.ClipToBounds = true;
+
+                var textBlock = new TextBlock
+                {
+                    Text = operation.Name,
+                    Margin = new Thickness(10),
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    FontSize = 8
+                };
+
+                border.Child = textBlock;
+
+
+                compositePanel.Children.Add(border);
+            }
+
+            var separator = new Separator
+            {
+                BorderBrush = (Brush)new BrushConverter().ConvertFromString("#ccf2ff"),
+                BorderThickness = new Thickness(5),
+                Height = 5
+            };
+            compositePanel.Children.Add(separator);
+        }
+
 
         private void CreateAdornerForAllComposites(Panel stackPanel)
         {
@@ -312,7 +360,9 @@ namespace TestingMSAGL
 
 
             var data = new DataObject();
-            data.SetData(DataFormats.StringFormat, Node.Name);
+            var borderTextfield = ((Border)sender).Child;
+            if (borderTextfield is TextBlock textBlock)
+                data.SetData(DataFormats.StringFormat, textBlock.Text);
             if (sender is UIElement element)
                 _adorner =
                     (_adornerLayer.GetAdorners(element) ?? throw new InvalidOperationException()).FirstOrDefault();
