@@ -25,106 +25,113 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <DebugType>pdbonly</DebugType>
-        <Optimize>true</Optimize>
-        <OutputPath>bin\Release\</OutputPath>
-        <DefineConstants>TRACE</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-    </PropertyGroup>
-    <ItemGroup>
-        <Reference Include="AutomaticGraphLayout.Drawing, Version=0.0.0.0, Culture=neutral, PublicKeyToken=6baa2c1345e83b6e">
-            <HintPath>..\..\..\.nuget\packages\automaticgraphlayout.drawing\1.1.12\lib\netstandard2.0\AutomaticGraphLayout.Drawing.dll</HintPath>
-        </Reference>
-        <Reference Include="Microsoft.CSharp"/>
-        <Reference Include="Microsoft.Msagl.WpfGraphControl, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6baa2c1345e83b6e">
-            <HintPath>..\..\automatic-graph-layout\GraphLayout\tools\WpfGraphControl\bin\Release\net472\win-x64\Microsoft.Msagl.WpfGraphControl.dll</HintPath>
-        </Reference>
-        <Reference Include="System"/>
-        <Reference Include="System.Core"/>
-        <Reference Include="System.Data"/>
-        <Reference Include="System.Data.DataSetExtensions"/>
-        <Reference Include="System.Data.Linq"/>
-        <Reference Include="System.Drawing"/>
-        <Reference Include="System.Runtime.Serialization"/>
-        <Reference Include="System.ServiceModel"/>
-        <Reference Include="System.Web"/>
-        <Reference Include="System.Xml"/>
-        <Reference Include="System.Xaml">
-            <RequiredTargetFramework>4.0</RequiredTargetFramework>
-        </Reference>
-        <Reference Include="System.Xml.Linq"/>
-        <Reference Include="WindowsBase"/>
-        <Reference Include="PresentationCore"/>
-        <Reference Include="PresentationFramework"/>
-    </ItemGroup>
-    <ItemGroup>
-        <ApplicationDefinition Include="App.xaml">
-            <Generator>MSBuild:Compile</Generator>
-            <SubType>Designer</SubType>
-        </ApplicationDefinition>
-        <Compile Include="ComplexEditor\Editor.cs"/>
-        <Compile Include="DataLinker\IWithId.cs"/>
-        <Compile Include="DataLinker\NodeComplex.cs"/>
-        <Compile Include="DataLinker\NodeElementary.cs"/>
-        <Compile Include="DataStructure\ComplexType.cs"/>
-        <Compile Include="DataStructure\Composite.cs"/>
-        <Compile Include="DataStructure\CompositeComplex.cs"/>
-        <Compile Include="DataStructure\CompositeElementary.cs"/>
-        <Compile Include="DataStructure\GraphExtension.cs"/>
-        <Compile Include="DataStructure\RoutedOperation\NamedOperation.cs"/>
-        <Compile Include="DataStructure\XmlProvider\XmlProvider.cs"/>
-        <Compile Include="IsExternalInit.cs"/>
-        <Compile Include="View\Adorner\RectangleAdorner.cs"/>
-        <Page Include="MainWindow.xaml">
-            <Generator>MSBuild:Compile</Generator>
-            <SubType>Designer</SubType>
-        </Page>
-        <Compile Include="App.xaml.cs">
-            <DependentUpon>App.xaml</DependentUpon>
-            <SubType>Code</SubType>
-        </Compile>
-        <Compile Include="DataStructure\GraphViewerExtended.cs"/>
-        <Compile Include="DataStructure\IComposite.cs"/>
-        <Compile Include="DataStructure\RoutedOperation\Alternative.cs"/>
-        <Compile Include="DataStructure\RoutedOperation\Fixed.cs"/>
-        <Compile Include="DataStructure\RoutedOperation\Parallel.cs"/>
-        <Compile Include="DataStructure\RoutedOperation\Single.cs"/>
-        <Compile Include="MainWindow.xaml.cs">
-            <DependentUpon>MainWindow.xaml</DependentUpon>
-            <SubType>Code</SubType>
-        </Compile>
-    </ItemGroup>
-    <ItemGroup>
-        <Compile Include="Properties\AssemblyInfo.cs">
-            <SubType>Code</SubType>
-        </Compile>
-        <Compile Include="Properties\Resources.Designer.cs">
-            <AutoGen>True</AutoGen>
-            <DesignTime>True</DesignTime>
-            <DependentUpon>Resources.resx</DependentUpon>
-        </Compile>
-        <EmbeddedResource Include="Properties\Resources.resx">
-            <Generator>ResXFileCodeGenerator</Generator>
-            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-        </EmbeddedResource>
-    </ItemGroup>
-    <ItemGroup>
-        <None Include="App.config"/>
-    </ItemGroup>
-    <ItemGroup>
-        <Content Include="Fonts\Dosis.ttf"/>
-        <Content Include="Requests\request.xml"/>
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="AutomaticGraphLayout" Version="1.1.12"/>
-        <PackageReference Include="AutomaticGraphLayout.Drawing" Version="1.1.12"/>
-        <PackageReference Include="DumpExtensions" Version="2.0.0"/>
-        <PackageReference Include="Microsoft.Msagl.WpfGraphControl" Version="1.0.0.13"/>
-        <PackageReference Include="TecWare.PPSn.Core" Version="1.0.56"/>
-        <PackageReference Include="TecWare.PPSn.DesktopUI" Version="1.0.56"/>
-    </ItemGroup>
-    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AutomaticGraphLayout.Drawing, Version=0.0.0.0, Culture=neutral, PublicKeyToken=6baa2c1345e83b6e">
+      <HintPath>..\..\..\.nuget\packages\automaticgraphlayout.drawing\1.1.12\lib\netstandard2.0\AutomaticGraphLayout.Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Msagl.WpfGraphControl, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6baa2c1345e83b6e">
+      <HintPath>..\..\automatic-graph-layout\GraphLayout\tools\WpfGraphControl\bin\Release\net472\win-x64\Microsoft.Msagl.WpfGraphControl.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="ComplexEditor\Editor.cs" />
+    <Compile Include="DataLinker\IWithId.cs" />
+    <Compile Include="DataLinker\NodeComplex.cs" />
+    <Compile Include="DataLinker\NodeElementary.cs" />
+    <Compile Include="DataStructure\ComplexType.cs" />
+    <Compile Include="DataStructure\Composite.cs" />
+    <Compile Include="DataStructure\CompositeComplex.cs" />
+    <Compile Include="DataStructure\CompositeElementary.cs" />
+    <Compile Include="DataStructure\GraphExtension.cs" />
+    <Compile Include="DataStructure\RoutedOperation\NamedOperation.cs" />
+    <Compile Include="DataStructure\XmlProvider\XmlProvider.cs" />
+    <Compile Include="IsExternalInit.cs" />
+    <Compile Include="UserControls\PropertyGrid\PropertyGrid.xaml.cs">
+      <DependentUpon>PropertyGrid.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Adorner\RectangleAdorner.cs" />
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DataStructure\GraphViewerExtended.cs" />
+    <Compile Include="DataStructure\IComposite.cs" />
+    <Compile Include="DataStructure\RoutedOperation\Alternative.cs" />
+    <Compile Include="DataStructure\RoutedOperation\Fixed.cs" />
+    <Compile Include="DataStructure\RoutedOperation\Parallel.cs" />
+    <Compile Include="DataStructure\RoutedOperation\Single.cs" />
+    <Compile Include="MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="UserControls\PropertyGrid\PropertyGrid.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Fonts\Dosis.ttf" />
+    <Content Include="Requests\request.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AutomaticGraphLayout" Version="1.1.12" />
+    <PackageReference Include="AutomaticGraphLayout.Drawing" Version="1.1.12" />
+    <PackageReference Include="DumpExtensions" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Msagl.WpfGraphControl" Version="1.0.0.13" />
+    <PackageReference Include="TecWare.PPSn.Core" Version="1.0.56" />
+    <PackageReference Include="TecWare.PPSn.DesktopUI" Version="1.0.56" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -71,5 +71,7 @@ namespace TestingMSAGL.DataStructure
         {
             return obj as IViewerObject;
         }
+        
+        
     }
 }

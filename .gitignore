@@ -311,3 +311,6 @@ obj/
 /TestingMSAGL/wwwroot/lib/
 /TestingMSAGL.XUnitTest/Zpp/Ordergraphs/GanttChart/*.json
 /TestingMSAGL.XUnitTest/Zpp/Ordergraphs/*.txt
+/TestingMSAGL/ThirdPartyLibs/MSAGL/automatic-graph-layout-master/GraphLayout/Test/MSAGLTests/Resources/Constraints
+/TestingSuite
+/TestingSuite_472

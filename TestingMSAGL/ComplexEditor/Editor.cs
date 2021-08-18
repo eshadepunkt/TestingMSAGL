@@ -81,9 +81,9 @@ namespace TestingMSAGL.ComplexEditor
 
 
             ////
-            var e1 = new NodeElementary(Graph, "I am groot!");
-            var e2 = new NodeElementary(Graph, "We are groot!");
-            var e3 = new NodeElementary(Graph, "We are not groot!");
+            var e1 = new NodeElementary(Graph, "");
+            var e2 = new NodeElementary(Graph, "");
+            var e3 = new NodeElementary(Graph, "");
             c2.AddMember(e1);
             c2.AddMember(e2);
             c2.AddMember(e3);
@@ -115,7 +115,7 @@ namespace TestingMSAGL.ComplexEditor
 
 
             NodeCounter = Graph.NodeCount;
-            Graph.Attr.BackgroundColor = Color.Orange;
+            //Graph.Attr.BackgroundColor = Color.Orange;
             Graph.Directed = true;
 
 

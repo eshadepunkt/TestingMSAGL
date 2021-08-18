@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web.UI.WebControls;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -16,6 +17,7 @@ using TestingMSAGL.DataLinker;
 using TestingMSAGL.DataStructure.RoutedOperation;
 using TestingMSAGL.DataStructure.XmlProvider;
 using TestingMSAGL.View.Adorner;
+using Panel = System.Windows.Controls.Panel;
 using Single = TestingMSAGL.DataStructure.RoutedOperation.Single;
 
 namespace TestingMSAGL
@@ -39,20 +41,24 @@ namespace TestingMSAGL
             Loaded += Editor.initGraph;
             Editor.GraphViewer.GraphCanvas.Height = ViewerPanel.Height;
             Editor.GraphViewer.GraphCanvas.Width = ViewerPanel.Width;
-            Editor.GraphViewer.GraphCanvas.Background =
-                (SolidColorBrush)new BrushConverter().ConvertFromString("#4dd2ff");
+            //Editor.GraphViewer.GraphCanvas.Background =
+            //    (SolidColorBrush)new BrushConverter().ConvertFromString("#4dd2ff");
             Editor.GraphViewer.ObjectUnderMouseCursorChanged += graphViewer_ObjectUnderMouseCursorChanged;
             Editor.GraphViewer.BindToPanel(ViewerPanel);
             ViewerPanel.ClipToBounds = true;
             Editor.GraphViewer.LayoutComplete += GraphViewerOnLayoutComplete;
 
-            var xdoc = new XmlProvider();
-            var operations = xdoc.GetAllXmlElements(".././Requests/request.xml");
+            //var xdoc = new XmlProvider();
+            //var operations = xdoc.GetAllXmlElements("../.././Requests/request.xml");
 
-
-            OperationsLoad(operations);
+            //OperationsLoad(operations);
         }
 
+        /// <summary>
+        /// creates all operations found in a given XML
+        /// displayed as a border with a text block inside
+        /// </summary>
+        /// <param name="operations"></param>
         private void OperationsLoad(IEnumerable<NamedOperation> operations)
         {
             foreach (var operation in operations)
@@ -78,8 +84,6 @@ namespace TestingMSAGL
                 };
 
                 border.Child = textBlock;
-
-
                 compositePanel.Children.Add(border);
             }
 
@@ -90,6 +94,8 @@ namespace TestingMSAGL
                 Height = 5
             };
             compositePanel.Children.Add(separator);
+
+            
         }
 
 
@@ -449,6 +455,38 @@ namespace TestingMSAGL
             MouseLabel.Content = location;
 
             _adorner.RenderTransform = new TranslateTransform(location.X, location.Y);
+        }
+
+        private void Open_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog();
+            if(openFileDialog.ShowDialog() == true)
+            {
+                var xdoc = new XmlProvider();
+                var operations = xdoc.GetAllXmlElements(openFileDialog.FileName);
+                OperationsLoad(operations);
+                buildNodePropertyDisplay(operations);
+            }
+        }
+        /// <summary>
+        /// hardcoded to main grid
+        /// </summary>
+        /// <param name="operations"></param>
+        private void buildNodePropertyDisplay(IEnumerable<NamedOperation> operations)
+        {
+            if (operations == null) return;
+            ListViewForProps.Visibility = Visibility.Visible;
+            operationsElements.Visibility = Visibility.Visible;
+            //todo needs generics
+            foreach (var operation in operations)
+            {
+                ListViewForProps.Items.Add("\n" + operation.Id + " : " + operation.Name);
+                foreach (var data in operation.dataSet)
+                    ListViewForProps.Items.Add("\t" + data.Split(':')[0] +  ": " + data.Split(':')[1]);
+            }
+            CreateAdornerForAllComposites(compositePanel);
+
+
         }
     }
 }
