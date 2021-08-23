@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web.UI.WebControls;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -18,6 +17,7 @@ using TestingMSAGL.DataStructure.RoutedOperation;
 using TestingMSAGL.DataStructure.XmlProvider;
 using TestingMSAGL.View.Adorner;
 using Panel = System.Windows.Controls.Panel;
+using Parallel = TestingMSAGL.DataStructure.RoutedOperation.Parallel;
 using Single = TestingMSAGL.DataStructure.RoutedOperation.Single;
 
 namespace TestingMSAGL
@@ -25,7 +25,7 @@ namespace TestingMSAGL
     /// <summary>
     ///     Interaktionslogik für MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         private Point _mMouseLeftButtonDownPoint;
         private Point _mMouseRightButtonDownPoint;
@@ -48,10 +48,6 @@ namespace TestingMSAGL
             ViewerPanel.ClipToBounds = true;
             Editor.GraphViewer.LayoutComplete += GraphViewerOnLayoutComplete;
 
-            //var xdoc = new XmlProvider();
-            //var operations = xdoc.GetAllXmlElements("../.././Requests/request.xml");
-
-            //OperationsLoad(operations);
         }
 
         /// <summary>
@@ -80,7 +76,8 @@ namespace TestingMSAGL
                     Text = operation.Name,
                     Margin = new Thickness(10),
                     HorizontalAlignment = HorizontalAlignment.Center,
-                    FontSize = 8
+                    FontSize = 8,
+                    ClipToBounds = true
                 };
 
                 border.Child = textBlock;
@@ -151,7 +148,8 @@ namespace TestingMSAGL
             if (Editor.GraphViewer.ObjectUnderMouseCursor is IViewerNode node)
             {
                 _nodeUnderCursor = node;
-                statusTextBox.Text = _nodeUnderCursor.Node.Label.Text;
+                if (_nodeUnderCursor.Node.Label != null)
+                    statusTextBox.Text = _nodeUnderCursor.Node.Label.Text;
             }
         }
 
@@ -442,7 +440,7 @@ namespace TestingMSAGL
                 }
 
                 markedNode.MarkedForDragging = false;
-                Editor.GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(markedNode);
+                //Editor.GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(markedNode);
             }
 
             _adornerLayer.Remove(_adorner);
@@ -485,8 +483,6 @@ namespace TestingMSAGL
                     ListViewForProps.Items.Add("\t" + data.Split(':')[0] +  ": " + data.Split(':')[1]);
             }
             CreateAdornerForAllComposites(compositePanel);
-
-
         }
     }
 }

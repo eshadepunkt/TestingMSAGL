@@ -35,13 +35,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AutomaticGraphLayout.Drawing, Version=0.0.0.0, Culture=neutral, PublicKeyToken=6baa2c1345e83b6e">
-      <HintPath>..\..\..\.nuget\packages\automaticgraphlayout.drawing\1.1.12\lib\netstandard2.0\AutomaticGraphLayout.Drawing.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Msagl.WpfGraphControl, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6baa2c1345e83b6e">
-      <HintPath>..\..\automatic-graph-layout\GraphLayout\tools\WpfGraphControl\bin\Release\net472\win-x64\Microsoft.Msagl.WpfGraphControl.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />

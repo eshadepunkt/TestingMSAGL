@@ -65,20 +65,20 @@ namespace TestingMSAGL.DataLinker
         /// </summary>
         /// <param name="elementary"></param>
         /// <returns></returns>
-        public bool AddMember(NodeElementary elementary)
-        {
-            if (Composite.AddMember(elementary.Composite))
-            {
-                elementary.ParentId = Composite.DrawingNodeId;
-                Subgraph.AddNode(elementary.Node);
-                return true;
-            }
+        //public bool AddMember(NodeElementary elementary)
+        //{
+        //    if (Composite.AddMember(elementary.Composite))
+        //    {
+        //        elementary.ParentId = Composite.DrawingNodeId;
+        //        Subgraph.AddNode(elementary.Node);
+        //        return true;
+        //    }
 
-            return false;
+        //    return false;
 
-            // TODO Maybe another member list is required here. . . 
-            //TODO maybe some black magic for constraints
-        }
+        //    // TODO Maybe another member list is required here. . . 
+        //    //TODO maybe some black magic for constraints
+        //}
 
         private void SetFormat(ComplexType format)
         {
