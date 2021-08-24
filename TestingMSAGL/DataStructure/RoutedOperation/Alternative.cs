@@ -7,9 +7,11 @@ namespace TestingMSAGL.DataStructure.RoutedOperation
     {
         public Alternative(GraphExtension graph, string name) : base(graph, name)
         {
+            var color = Color.Gold;
+            color.A = base.tranparency;
             Subgraph.LabelText = "Alternative:\n " + Subgraph.Id.Split('-')[1];
             Subgraph.Attr.Shape = Shape.Box;
-            Subgraph.Attr.FillColor = Color.Gold;
+            Subgraph.Attr.FillColor = color;
         }
     }
 }

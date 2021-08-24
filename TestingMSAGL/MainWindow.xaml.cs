@@ -50,6 +50,8 @@ namespace TestingMSAGL
 
         }
 
+        
+
         /// <summary>
         /// creates all operations found in a given XML
         /// displayed as a border with a text block inside
@@ -150,6 +152,8 @@ namespace TestingMSAGL
                 _nodeUnderCursor = node;
                 if (_nodeUnderCursor.Node.Label != null)
                     statusTextBox.Text = _nodeUnderCursor.Node.Label.Text;
+                else
+                    statusTextBox.Text = _nodeUnderCursor.Node.Id;
             }
         }
 
@@ -170,20 +174,34 @@ namespace TestingMSAGL
         }
 
 
-        private void Hexa_button_Click(object sender, RoutedEventArgs e)
+        private void CreateNodesButtonClick(object sender, RoutedEventArgs e)
         {
+            if (!System.Text.RegularExpressions.Regex.IsMatch(CounterText.Text.ToString(), "\\d+"))
+            {
+                MessageBox.Show("Es sind nur ganze Zahlen erlaubt!");
+                return;
+            }
             var amount = int.Parse(CounterText.Text);
 
             Editor.CreateAnyAmountOfNodesForTesting(amount);
             if (amount > 0) Editor.refreshLayout();
         }
+        private void CounterText_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (!System.Text.RegularExpressions.Regex.IsMatch(e.Key.ToString(), "\\d+"))
+                e.Handled = true;
+        }
+
 
         private void cm_Opened(object sender, RoutedEventArgs e)
         {
+           
+            
         }
 
         private void cm_Closed(object sender, RoutedEventArgs e)
         {
+            ClearAllNodeDecorations();
         }
 
 
@@ -195,11 +213,21 @@ namespace TestingMSAGL
         private void cm_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             _mMouseRightButtonDownPoint = e.GetPosition(this);
+
+            if (Editor.GraphViewer.Entities.Count(entity => entity.MarkedForDragging == true) > 1 && _nodeUnderCursor.MarkedForDragging == false)
+                return;
+            if (!_nodeUnderCursor.MarkedForDragging)
+            {
+                ClearAllNodeDecorations();
+                Editor.GraphViewer.LayoutEditor.DecorateObjectForDragging(_nodeUnderCursor);
+                _nodeUnderCursor.MarkedForDragging = true;
+            }
         }
 
 
         private void ResetGraph_Click(object sender, RoutedEventArgs e)
         {
+            Editor.DeleteNode();
         }
 
         private void EdgeSelectedNode_Click(object sender, RoutedEventArgs e)
@@ -295,15 +323,16 @@ namespace TestingMSAGL
 
         private void Alternative_OnMouseMove(object sender, MouseEventArgs e)
         {
+            var border = sender as Border;
             base.OnMouseMove(e);
 
             if (e.LeftButton is not MouseButtonState.Pressed) return;
-            ClearNodeDecorationsWhileDragging();
+            ClearAllNodeDecorations();
             _adorner = _adornerLayer.GetAdorners(sender as UIElement).FirstOrDefault();
 
 
             var data = new DataObject();
-            data.SetData(DataFormats.StringFormat, Alternative.Name);
+            data.SetData(DataFormats.StringFormat, border.Name);
             DragDrop.DoDragDrop(this, data, DragDropEffects.Move);
         }
 
@@ -313,7 +342,7 @@ namespace TestingMSAGL
 
 
             if (e.LeftButton is not MouseButtonState.Pressed) return;
-            ClearNodeDecorationsWhileDragging();
+            ClearAllNodeDecorations();
             _adorner = _adornerLayer.GetAdorners(sender as UIElement).FirstOrDefault();
 
             var data = new DataObject();
@@ -328,7 +357,7 @@ namespace TestingMSAGL
 
 
             if (e.LeftButton is not MouseButtonState.Pressed) return;
-            ClearNodeDecorationsWhileDragging();
+            ClearAllNodeDecorations();
             _adorner = _adornerLayer.GetAdorners(sender as UIElement).FirstOrDefault();
 
             var data = new DataObject();
@@ -343,7 +372,7 @@ namespace TestingMSAGL
 
             if (e.LeftButton is not MouseButtonState.Pressed) return;
 
-            ClearNodeDecorationsWhileDragging();
+            ClearAllNodeDecorations();
 
             _adorner = _adornerLayer.GetAdorners(sender as UIElement).FirstOrDefault();
 
@@ -360,7 +389,7 @@ namespace TestingMSAGL
 
             if (e.LeftButton is not MouseButtonState.Pressed) return;
 
-            ClearNodeDecorationsWhileDragging();
+            ClearAllNodeDecorations();
 
 
             var data = new DataObject();
@@ -397,7 +426,7 @@ namespace TestingMSAGL
         ///     holds logic for clearing the dragging decorations - possible fix for unintentional drag 'n drop into multiple
         ///     complex nodes
         /// </summary>
-        private void ClearNodeDecorationsWhileDragging()
+        private void ClearAllNodeDecorations()
         {
             foreach (var entity in Editor.GraphViewer.Entities)
             {
@@ -484,5 +513,7 @@ namespace TestingMSAGL
             }
             CreateAdornerForAllComposites(compositePanel);
         }
+
+      
     }
 }

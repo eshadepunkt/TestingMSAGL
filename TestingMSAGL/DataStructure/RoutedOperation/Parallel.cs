@@ -7,9 +7,11 @@ namespace TestingMSAGL.DataStructure.RoutedOperation
     {
         public Parallel(GraphExtension graph, string name) : base(graph, name)
         {
+            var color = Color.YellowGreen;
+            color.A = base.tranparency;
             Subgraph.LabelText = "Parallel: " + Subgraph.Id.Split('-')[1];
             Subgraph.Attr.Shape = Shape.Box;
-            Subgraph.Attr.FillColor = Color.YellowGreen;
+            Subgraph.Attr.FillColor = color;
             graph.LayerConstraints.AddSameLayerNeighbors();
         }
     }

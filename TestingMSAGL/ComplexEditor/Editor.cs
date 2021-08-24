@@ -29,7 +29,7 @@ namespace TestingMSAGL.ComplexEditor
         }
 
 
-        public GraphExtension Graph { get; } = new("root", "0");
+        public GraphExtension Graph { get; private set; } = new("root", "0");
 
 
 
@@ -264,6 +264,8 @@ namespace TestingMSAGL.ComplexEditor
             var test = GraphViewer.GraphCanvas.Children;
         }
 
+      
+
         /// <summary>
         ///     Method to create a new node in given Subgraph/Complex
         ///     no refresh implemented!
@@ -286,7 +288,7 @@ namespace TestingMSAGL.ComplexEditor
                 GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(subgraph);
                 if (subgraph?.Node is Subgraph)
                 {
-                    node ??= new NodeElementary(Graph, "New Node");
+                    node ??= new NodeElementary(Graph, "");
                     var nodeComplex = Graph.GetComplexNodeById(subgraph.Node.Id);
                     //todo check if member exists?
                     if (!nodeComplex.AddMember(node)) MessageBox.Show("Could not add to member list");
@@ -452,7 +454,7 @@ namespace TestingMSAGL.ComplexEditor
 
                 foreach (var viewerNode in forDragging)
                 {
-                    GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(viewerNode);
+                    //GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(viewerNode);
                     HandleNodeRelations(viewerNode);
                     
                     //todo extract as method to Graph Extension

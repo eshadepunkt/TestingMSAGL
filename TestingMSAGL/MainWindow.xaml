@@ -153,17 +153,20 @@
         <StackPanel Grid.Column="4" Grid.Row="1" Orientation="Horizontal" Height="28" 
                     VerticalAlignment="Top"
                     HorizontalAlignment="Right">
-                <Button Content="Create Node(s)" x:Name="Hexa_button" Click="Hexa_button_Click" />
-                <TextBox x:Name="CounterText" Text="0" Width="50" AllowDrop="False" 
-                         HorizontalContentAlignment="Center"
-                         VerticalContentAlignment="Center"/>
-            <StatusBar Width="150"
+            <StatusBar Width="250"
                        Margin="0 0 0 0">
                 <StatusBarItem HorizontalAlignment="Right">
                     <TextBox x:Name="statusTextBox"
                              Text="no object under cursor.." AllowDrop="False" />
                 </StatusBarItem>
             </StatusBar>
+                <Button Content="Create Node(s)" x:Name="Hexa_button" Click="CreateNodesButtonClick" />
+                <TextBox x:Name="CounterText" Text="0" Width="50" AllowDrop="False" 
+                         HorizontalContentAlignment="Center"
+                         VerticalContentAlignment="Center"
+                         KeyDown="CounterText_KeyDown"
+                         />
+            
             </StackPanel>
 
         <DockPanel Grid.Column="2" Grid.Row="2"
