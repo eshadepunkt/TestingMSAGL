@@ -8,7 +8,7 @@ namespace TestingMSAGL.DataLinker
 
     {
         private readonly GraphExtension _graph;
-        internal readonly byte tranparency = 95;
+        internal readonly byte tranparency = 98;
 
         public NodeComplex(GraphExtension graph, string name)
         {
@@ -47,13 +47,14 @@ namespace TestingMSAGL.DataLinker
             var nodeId = Guid.NewGuid().ToString();
             // todo implement proper fix for shortening the guuid
 
-            var color = Color.Transparent;
+            var color = Color.Gray;
+            color.A = 75;
             
 
             Subgraph = new Subgraph(nodeId)
             {
                 Attr = { FillColor = color, LabelMargin = 10, Padding = 10 },
-                DiameterOfOpenCollapseButton = 10
+                DiameterOfOpenCollapseButton = 5
             };
             Subgraph.LabelText = "Root " + Subgraph.Id.Split('-')[1];
             Subgraph.Label.FontSize = 8;
@@ -122,11 +123,12 @@ namespace TestingMSAGL.DataLinker
         }
 
 
+        //todo inspect logic
         public bool RemoveMember(IWithId child)
         {
             if (child is NodeElementary elementary) return Composite.RemoveMember(elementary.Composite);
-
             return false;
+            
         }
     }
 }

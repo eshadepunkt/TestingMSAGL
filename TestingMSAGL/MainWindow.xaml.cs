@@ -11,14 +11,14 @@ using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.WpfGraphControl;
 using Microsoft.Win32;
+using TecWare.DE.Data;
 using TestingMSAGL.ComplexEditor;
 using TestingMSAGL.DataLinker;
 using TestingMSAGL.DataStructure.RoutedOperation;
 using TestingMSAGL.DataStructure.XmlProvider;
 using TestingMSAGL.View.Adorner;
 using Panel = System.Windows.Controls.Panel;
-using Parallel = TestingMSAGL.DataStructure.RoutedOperation.Parallel;
-using Single = TestingMSAGL.DataStructure.RoutedOperation.Single;
+
 
 namespace TestingMSAGL
 {
@@ -33,6 +33,7 @@ namespace TestingMSAGL
         private Brush _oldShapeFill = Brushes.Transparent;
         private AdornerLayer _adornerLayer;
         private Adorner _adorner;
+        private Editor Editor { get; } = new();
 
 
         public MainWindow()
@@ -41,16 +42,84 @@ namespace TestingMSAGL
             Loaded += Editor.initGraph;
             Editor.GraphViewer.GraphCanvas.Height = ViewerPanel.Height;
             Editor.GraphViewer.GraphCanvas.Width = ViewerPanel.Width;
-            //Editor.GraphViewer.GraphCanvas.Background =
-            //    (SolidColorBrush)new BrushConverter().ConvertFromString("#4dd2ff");
             Editor.GraphViewer.ObjectUnderMouseCursorChanged += graphViewer_ObjectUnderMouseCursorChanged;
+            Editor.GraphViewer.LayoutComplete += GraphViewerOnLayoutComplete;
             Editor.GraphViewer.BindToPanel(ViewerPanel);
             ViewerPanel.ClipToBounds = true;
-            Editor.GraphViewer.LayoutComplete += GraphViewerOnLayoutComplete;
-
         }
 
-        
+        private void GraphViewerOnLayoutComplete(object sender, EventArgs e)
+        {
+            CreateAdornerForAllComposites(compositePanel);
+            dynamic test = ViewerPanel.Children[0];
+            UIElementCollection children = test.Children;
+            foreach (var child in children)
+            {
+                if (child is TextBlock textBlock)
+                {
+                    
+                }
+
+                if (child is not Path { Tag: VNode { DrawingObject: Subgraph } } path) continue;
+                {
+                    var tag = child as Path;
+                    var vnode = tag.Tag as Cluster;
+                    if (vnode != null) vnode.IsCollapsed = false;
+                    path.AllowDrop = true;
+                    path.DragEnter += (o, args) =>
+                    {
+                        //if (child is not Path path) return;
+                        _oldShapeFill = path.Fill.Clone();
+                        path.Fill = Brushes.CadetBlue;
+                    };
+                    path.DragLeave += (o, args) =>
+                    {
+                        //if (child is Path path) 
+                        path.Fill = _oldShapeFill;
+                    };
+                }
+            }
+        }
+        /// <summary>
+        /// captures mouse movement and displays it 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_MouseMove(object sender, MouseEventArgs e)
+        {
+            MouseLabel.Content = e.GetPosition(this).ToString();
+        }
+        /// <summary>
+        /// hardcoded non-dynamic datagrid of imported xml files
+        /// </summary>
+        /// <param name="operations"></param>
+        private void buildNodePropertyDisplay(IEnumerable<NamedOperation> operations)
+        {
+            if (operations == null) return;
+            ListViewForProps.Visibility = Visibility.Visible;
+            operationsElements.Visibility = Visibility.Visible;
+            //todo needs generics
+            foreach (var operation in operations)
+            {
+                ListViewForProps.Items.Add("\n" + operation.Id + " : " + operation.Name);
+                foreach (var data in operation.dataSet)
+                    ListViewForProps.Items.Add("\t" + data.Split(':')[0] +  ": " + data.Split(':')[1]);
+            }
+            CreateAdornerForAllComposites(compositePanel);
+        }
+        private void graphViewer_ObjectUnderMouseCursorChanged(object sender, ObjectUnderMouseCursorChangedEventArgs e)
+        {
+            if (Editor.GraphViewer.ObjectUnderMouseCursor is IViewerNode node)
+            {
+                _nodeUnderCursor = node;
+                if (_nodeUnderCursor.Node.Label != null)
+                    statusTextBox.Text = _nodeUnderCursor.Node.Label.Text;
+                else
+                    statusTextBox.Text = _nodeUnderCursor.Node.Id;
+            }
+        }
+
+        #region left navigation
 
         /// <summary>
         /// creates all operations found in a given XML
@@ -62,7 +131,7 @@ namespace TestingMSAGL
             foreach (var operation in operations)
             {
                 var border = new Border();
-                border.MouseMove += Node_OnMouseMove;
+                //border.MouseMove += Node_OnMouseMove;
                 border.Width = 100;
                 border.Height = 50;
                 border.Margin = new Thickness(5, 5, 0, 10);
@@ -92,6 +161,8 @@ namespace TestingMSAGL
                 BorderThickness = new Thickness(5),
                 Height = 5
             };
+            ViewerPanel.SetValue(Grid.ColumnSpanProperty, 3);
+            StatusDisplayPanel.SetValue(Grid.ColumnProperty, 4);
             compositePanel.Children.Add(separator);
 
             
@@ -110,58 +181,9 @@ namespace TestingMSAGL
                 }
         }
 
-        private Editor Editor { get; } = new();
+        #endregion
 
-        private void GraphViewerOnLayoutComplete(object sender, EventArgs e)
-        {
-            CreateAdornerForAllComposites(compositePanel);
-            dynamic test = ViewerPanel.Children[0];
-            UIElementCollection children = test.Children;
-            foreach (var child in children)
-            {
-                if (child is TextBlock textBlock)
-                {
-                }
-
-                if (child is not Path { Tag: VNode { DrawingObject: Subgraph } } path) continue;
-                {
-                    var tag = child as Path;
-                    var vnode = tag.Tag as Cluster;
-                    if (vnode != null) vnode.IsCollapsed = false;
-                    path.AllowDrop = true;
-                    path.DragEnter += (o, args) =>
-                    {
-                        //if (child is not Path path) return;
-                        _oldShapeFill = path.Fill.Clone();
-                        path.Fill = Brushes.CadetBlue;
-                    };
-                    path.DragLeave += (o, args) =>
-                    {
-                        //if (child is Path path) 
-                        path.Fill = _oldShapeFill;
-                    };
-                }
-            }
-        }
-
-
-        private void graphViewer_ObjectUnderMouseCursorChanged(object sender, ObjectUnderMouseCursorChangedEventArgs e)
-        {
-            if (Editor.GraphViewer.ObjectUnderMouseCursor is IViewerNode node)
-            {
-                _nodeUnderCursor = node;
-                if (_nodeUnderCursor.Node.Label != null)
-                    statusTextBox.Text = _nodeUnderCursor.Node.Label.Text;
-                else
-                    statusTextBox.Text = _nodeUnderCursor.Node.Id;
-            }
-        }
-
-
-        private void MenuItem_OnClick(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
+        #region Context Menu Handling
 
         private void Open_OnClick(object sender, RoutedEventArgs e)
         {
@@ -173,43 +195,10 @@ namespace TestingMSAGL
             // Load content of file in a TextBlock
         }
 
-
-        private void CreateNodesButtonClick(object sender, RoutedEventArgs e)
-        {
-            if (!System.Text.RegularExpressions.Regex.IsMatch(CounterText.Text.ToString(), "\\d+"))
-            {
-                MessageBox.Show("Es sind nur ganze Zahlen erlaubt!");
-                return;
-            }
-            var amount = int.Parse(CounterText.Text);
-
-            Editor.CreateAnyAmountOfNodesForTesting(amount);
-            if (amount > 0) Editor.refreshLayout();
-        }
-        private void CounterText_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (!System.Text.RegularExpressions.Regex.IsMatch(e.Key.ToString(), "\\d+"))
-                e.Handled = true;
-        }
-
-
-        private void cm_Opened(object sender, RoutedEventArgs e)
-        {
-           
-            
-        }
-
         private void cm_Closed(object sender, RoutedEventArgs e)
         {
             ClearAllNodeDecorations();
         }
-
-
-        private void Window_MouseMove(object sender, MouseEventArgs e)
-        {
-            MouseLabel.Content = e.GetPosition(this).ToString();
-        }
-
         private void cm_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             _mMouseRightButtonDownPoint = e.GetPosition(this);
@@ -223,185 +212,132 @@ namespace TestingMSAGL
                 _nodeUnderCursor.MarkedForDragging = true;
             }
         }
-
-
-        private void ResetGraph_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// <summary>
+        /// creates a Complex based on MenuItem.Name
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void GroupComplex_OnClick(object sender, RoutedEventArgs e)
         {
-            Editor.DeleteNode();
+            if (e.OriginalSource is MenuItem menuItem)
+                Editor.ConvertGroupOfElementariesToComplex((NodeComplex) Editor.CreateIWithId(menuItem.Name.Replace("Group","")));
         }
-
-        private void EdgeSelectedNode_Click(object sender, RoutedEventArgs e)
+        /// creates a new ComplexNode based on MenuItem.Name
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AddComplexNode_OnClick(object sender, RoutedEventArgs e)
         {
-            Editor.AddEdge();
-        }
-
-        // todo fix color issues of button
-        private void EditMode_Click(object sender, RoutedEventArgs e)
-        {
-            var defaultColor = EditMode.Background.CloneCurrentValue();
-            if (Editor.GraphViewer.InsertingEdge)
+            if (e.OriginalSource is MenuItem menuItem)
             {
-                Editor.GraphViewer.InsertingEdge = false;
-                EditMode.Background = null;
-                EditMode.Background = (SolidColorBrush)defaultColor;
-            }
-            else
-            {
-                Editor.GraphViewer.InsertingEdge = true;
-                EditMode.Background = (SolidColorBrush)new BrushConverter().ConvertFromString("#4dd2ff");
+                var subgraph = (IViewerNode)Editor.findOneNodeSelected();
+                if (subgraph.Node is Subgraph)
+                    Editor.InsertSubgraph(Editor.CreateIWithId(menuItem.Name.Replace("Add","")), subgraph);
+                else
+                    MessageBox.Show("Error: You tried to insert into an elementary.");
+
             }
         }
-
-        private void InsertNodeCM_Click(object sender, RoutedEventArgs e)
+        private void cm_InsertNode_Click(object sender, RoutedEventArgs e)
         {
             Editor.InsertNode(null);
             Editor.refreshLayout();
         }
-
-
-        private void AddAlternativMenuItem_OnClick(object sender, RoutedEventArgs e)
-        {
-            var subgraph = (IViewerNode)Editor.findOneNodeSelected();
-            if (subgraph.Node is Subgraph)
-                Editor.InsertSubgraph(new Alternative(Editor.Graph, "New Alternative"), subgraph);
-            else
-                MessageBox.Show("Error: You tried to insert into an elementary.");
-        }
-
-        private void AddParallelMenuItem_OnClick(object sender, RoutedEventArgs e)
-        {
-            var subgraph = (IViewerNode)Editor.findOneNodeSelected();
-            if (subgraph.Node is Subgraph)
-                Editor.InsertSubgraph(new Parallel(Editor.Graph, "New Parallel"), subgraph);
-            else
-                MessageBox.Show("Error: You tried to insert into an elementary.");
-        }
-
-        private void AddFixedMenuItem_OnClick(object sender, RoutedEventArgs e)
-        {
-            var subgraph = (IViewerNode)Editor.findOneNodeSelected();
-            if (subgraph.Node is Subgraph)
-                Editor.InsertSubgraph(new Fixed(Editor.Graph, "New Fixed"), subgraph);
-            else
-                MessageBox.Show("Error: You tried to insert into an elementary.");
-        }
-
-        private void AddSingleMenuItem_OnClick(object sender, RoutedEventArgs e)
-        {
-            var subgraph = (IViewerNode)Editor.findOneNodeSelected();
-            if (subgraph.Node is Subgraph)
-                Editor.InsertSubgraph(new Single(Editor.Graph, "New Single"), subgraph);
-            else
-                MessageBox.Show("Error: You tried to insert into an elementary.");
-        }
-
-        private void GroupAlternative_OnClick(object sender, RoutedEventArgs e)
-        {
-            Editor.ConvertGroupOfElementariesToComplex(new Alternative(Editor.Graph, "New Group Alternative"));
-        }
-
-        private void GroupParallel_OnClick(object sender, RoutedEventArgs e)
-        {
-            Editor.ConvertGroupOfElementariesToComplex(new Parallel(Editor.Graph, "New Group Parallel"));
-        }
-
-        private void GroupFixed_OnClick(object sender, RoutedEventArgs e)
-        {
-            Editor.ConvertGroupOfElementariesToComplex(new Fixed(Editor.Graph, "New Group Fixed"));
-        }
-
-        private void GroupSingle_OnClick(object sender, RoutedEventArgs e)
-        {
-            Editor.ConvertGroupOfElementariesToComplex(new Single(Editor.Graph, "New Group Single"));
-        }
-
-        private void DeleteNodeCM_OnClick(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// deletes a marked node
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cm_DeleteNode_OnClick(object sender, RoutedEventArgs e)
         {
             Editor.DeleteNode();
         }
-
-
-        private void Alternative_OnMouseMove(object sender, MouseEventArgs e)
+        /// <summary>
+        /// not yet finished
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ShallowDeleteNodeCM_Click(object sender, RoutedEventArgs e)
         {
-            var border = sender as Border;
+            Editor.ShallowDeleteNode();
+        }
+        #endregion
+
+        #region top navigation
+        private void CreateNodesButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (!System.Text.RegularExpressions.Regex.IsMatch(CounterText.Text.ToString(), "\\d+"))
+            {
+                MessageBox.Show("Es sind nur ganze Zahlen erlaubt!");
+                return;
+            }
+            var amount = int.Parse(CounterText.Text);
+
+            Editor.CreateAnyAmountOfNodesForTesting(amount);
+            if (amount > 0) Editor.refreshLayout();
+        }
+        private void Open_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog();
+            if(openFileDialog.ShowDialog() == true)
+            {
+                var xdoc = new XmlProvider();
+                var operations = xdoc.GetAllXmlElements(openFileDialog.FileName);
+                OperationsLoad(operations);
+                buildNodePropertyDisplay(operations);
+            }
+        }
+        private void MenuItem_Exit_OnClick(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+        private void CounterText_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (!System.Text.RegularExpressions.Regex.IsMatch(e.Key.ToString(), "\\d+"))
+                e.Handled = true;
+        }
+        private void ResetGraph_Click(object sender, RoutedEventArgs e)
+        {
+        }
+        private void InsertEdgeToggle_Checked(object sender, RoutedEventArgs e)
+        {
+            Editor.GraphViewer.InsertingEdge = true;
+        }
+        private void InsertEdgeToggle_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Editor.GraphViewer.InsertingEdge = false;
+        }
+        #endregion
+
+        #region dragNdropOnGraphViewer
+        private void compositePanel_MouseMove(object sender, MouseEventArgs e)
+        {
             base.OnMouseMove(e);
 
-            if (e.LeftButton is not MouseButtonState.Pressed) return;
-            ClearAllNodeDecorations();
-            _adorner = _adornerLayer.GetAdorners(sender as UIElement).FirstOrDefault();
 
+            if (e.OriginalSource is Border or TextBlock)
+            {
+                Cursor = Cursors.Hand;
+            }
+            
+            if (e.LeftButton is not MouseButtonState.Pressed) return;
+            if (e.OriginalSource is not Border border) return;
+            
+            ClearAllNodeDecorations();
+            _adorner = _adornerLayer.GetAdorners(border).FirstOrDefault();
 
             var data = new DataObject();
-            data.SetData(DataFormats.StringFormat, border.Name);
+            if (border.Child is TextBlock textBlock)
+                data.SetData(DataFormats.StringFormat, textBlock.Text);
+            else
+                data.SetData(DataFormats.StringFormat, border.Name);
             DragDrop.DoDragDrop(this, data, DragDropEffects.Move);
         }
-
-        private void Fixed_OnMouseMove(object sender, MouseEventArgs e)
+        private void compositePanel_MouseLeave(object sender, MouseEventArgs e)
         {
-            base.OnMouseMove(e);
-
-
-            if (e.LeftButton is not MouseButtonState.Pressed) return;
-            ClearAllNodeDecorations();
-            _adorner = _adornerLayer.GetAdorners(sender as UIElement).FirstOrDefault();
-
-            var data = new DataObject();
-            data.SetData(DataFormats.StringFormat, Fixed.Name);
-
-            DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
+            Cursor = Cursors.Arrow;
         }
-
-        private void Parallel_OnMouseMove(object sender, MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-
-
-            if (e.LeftButton is not MouseButtonState.Pressed) return;
-            ClearAllNodeDecorations();
-            _adorner = _adornerLayer.GetAdorners(sender as UIElement).FirstOrDefault();
-
-            var data = new DataObject();
-            data.SetData(DataFormats.StringFormat, Parallel.Name);
-
-            DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
-        }
-
-        private void Single_OnMouseMove(object sender, MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-
-            if (e.LeftButton is not MouseButtonState.Pressed) return;
-
-            ClearAllNodeDecorations();
-
-            _adorner = _adornerLayer.GetAdorners(sender as UIElement).FirstOrDefault();
-
-            var data = new DataObject();
-            data.SetData(DataFormats.StringFormat, Single.Name);
-
-            DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
-        }
-
-
-        private void Node_OnMouseMove(object sender, MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-
-            if (e.LeftButton is not MouseButtonState.Pressed) return;
-
-            ClearAllNodeDecorations();
-
-
-            var data = new DataObject();
-            var borderTextfield = ((Border)sender).Child;
-            if (borderTextfield is TextBlock textBlock)
-                data.SetData(DataFormats.StringFormat, textBlock.Text);
-            if (sender is UIElement element)
-                _adorner =
-                    (_adornerLayer.GetAdorners(element) ?? throw new InvalidOperationException()).FirstOrDefault();
-            DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
-        }
-
         /// <summary>
         ///     removes the adorner, if a non droppable area is dragged above
         /// </summary>
@@ -421,22 +357,8 @@ namespace TestingMSAGL
         {
             _adorner.Visibility = Visibility.Visible;
         }
-
         /// <summary>
-        ///     holds logic for clearing the dragging decorations - possible fix for unintentional drag 'n drop into multiple
-        ///     complex nodes
-        /// </summary>
-        private void ClearAllNodeDecorations()
-        {
-            foreach (var entity in Editor.GraphViewer.Entities)
-            {
-                entity.MarkedForDragging = false;
-                Editor.GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(entity);
-            }
-        }
-
-        /// <summary>
-        ///     holds logic for type switching based on the DoDragDrop Data
+        ///     uses DoDragDrop Data to create corresponding objectes
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -456,8 +378,8 @@ namespace TestingMSAGL
 
             if (dataString != null)
             {
-                var complex = Editor.GetIWithId(dataString);
-                // todo remove legacy code - probably move to factory as well
+                var complex = Editor.CreateIWithId(dataString);
+                // todo refactor into real factory
                 if (complex is NodeElementary)
                 {
                     Editor.InsertNode(complex);
@@ -469,51 +391,38 @@ namespace TestingMSAGL
                 }
 
                 markedNode.MarkedForDragging = false;
-                //Editor.GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(markedNode);
             }
-
             _adornerLayer.Remove(_adorner);
             e.Handled = true;
         }
-
+        /// <summary>
+        /// renders the adorner corresponding to the cursor movement
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MainWindow_OnPreviewDragOver(object sender, DragEventArgs e)
         {
             var location = e.GetPosition(this);
             MouseLabel.Content = location;
-
             _adorner.RenderTransform = new TranslateTransform(location.X, location.Y);
         }
 
-        private void Open_Click(object sender, RoutedEventArgs e)
-        {
-            var openFileDialog = new OpenFileDialog();
-            if(openFileDialog.ShowDialog() == true)
-            {
-                var xdoc = new XmlProvider();
-                var operations = xdoc.GetAllXmlElements(openFileDialog.FileName);
-                OperationsLoad(operations);
-                buildNodePropertyDisplay(operations);
-            }
-        }
         /// <summary>
-        /// hardcoded to main grid
+        ///     holds logic for clearing the dragging decorations - potentional fix for unintended drag 'n drop into multiple
+        ///     complex nodes
         /// </summary>
-        /// <param name="operations"></param>
-        private void buildNodePropertyDisplay(IEnumerable<NamedOperation> operations)
+        private void ClearAllNodeDecorations()
         {
-            if (operations == null) return;
-            ListViewForProps.Visibility = Visibility.Visible;
-            operationsElements.Visibility = Visibility.Visible;
-            //todo needs generics
-            foreach (var operation in operations)
+            foreach (var entity in Editor.GraphViewer.Entities)
             {
-                ListViewForProps.Items.Add("\n" + operation.Id + " : " + operation.Name);
-                foreach (var data in operation.dataSet)
-                    ListViewForProps.Items.Add("\t" + data.Split(':')[0] +  ": " + data.Split(':')[1]);
+                entity.MarkedForDragging = false;
+                Editor.GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(entity);
             }
-            CreateAdornerForAllComposites(compositePanel);
         }
+        #endregion
 
-      
+
+
+
     }
 }

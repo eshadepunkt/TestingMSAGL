@@ -11,6 +11,7 @@ using TestingMSAGL.DataLinker;
 using TestingMSAGL.DataStructure;
 using TestingMSAGL.DataStructure.RoutedOperation;
 using Edge = Microsoft.Msagl.Drawing.Edge;
+using Node = Microsoft.Msagl.Drawing.Node;
 using Single = TestingMSAGL.DataStructure.RoutedOperation.Single;
 
 namespace TestingMSAGL.ComplexEditor
@@ -318,10 +319,11 @@ namespace TestingMSAGL.ComplexEditor
         ///     Takes any type of a complex and merges all selected elementaries or complex into it
         /// </summary>
         /// <param name="newComplex"></param>
-        public void ConvertGroupOfElementariesToComplex(NodeComplex newComplex)
+        public void ConvertGroupOfElementariesToComplex(IWithId complex)
         {
             try
             {
+                var newComplex = complex as NodeComplex;
                 var forDragging = GraphViewer.Entities
                     .Where(x => x.MarkedForDragging)
                     .Cast<IViewerNode>()
@@ -504,6 +506,53 @@ namespace TestingMSAGL.ComplexEditor
                 //throw;
             }
         }
+        /// <summary>
+        /// does not function YET
+        /// </summary>
+        // TODO implement proper shallow delete
+        public void ShallowDeleteNode()
+        {
+            try
+            {
+                var forDragging = GraphViewer.Entities
+                   .Where(x => x.MarkedForDragging)
+                   .Cast<IViewerNode>()
+                   .ToList();
+                if (forDragging.Count < 1) return;
+                
+                var compositeList = new List<IWithId>();
+                foreach (var viewerNode in forDragging)
+                {
+                    
+                    var markedComplex = Graph.GetComplexNodeById(viewerNode.Node.Id);
+                    var parent = Graph.GetComplexNodeById(markedComplex.ParentId);
+                    if (markedComplex.Composite.Members.Any())
+                        foreach (var member in markedComplex.Composite.Members)
+                        {
+                            var node = Graph.GetNodeById(member.DrawingNodeId);
+                            if ( node is NodeComplex nodeComplex)
+                                compositeList.Add(nodeComplex);
+                            if (node is NodeElementary nodeElementary)
+                                compositeList.Add(nodeElementary);
+                        }
+
+                    DeleteNode();
+                    bool isTrue;
+                    foreach(var saveNodeWithId in compositeList)
+                        {
+                            isTrue =parent.AddMember(saveNodeWithId);
+                        }
+                    var test123 = parent.RemoveMember(markedComplex);
+                    
+                }
+                refreshLayout();
+                }
+            catch (Exception e)
+            {
+                MessageBox.Show("Error in ShallowDelete()\n" + e);
+                //throw;
+            }
+        }
 
         /// <summary>
         /// checks if Edges to and from that node exists, if so the predecessors now points to the successor of the deleted node
@@ -562,7 +611,7 @@ namespace TestingMSAGL.ComplexEditor
 
         public IViewerObject findOneNodeSelected()
         {
-            return GraphViewer.Entities.Single(x => x.MarkedForDragging);
+            return GraphViewer.Entities.SingleOrDefault(x => x.MarkedForDragging);
         }
 
         /// <summary>
@@ -571,7 +620,7 @@ namespace TestingMSAGL.ComplexEditor
         /// </summary>
         /// <param name="routedOperation"></param>
         /// <returns></returns>
-        public IWithId GetIWithId(string routedOperation)
+        public IWithId CreateIWithId(string routedOperation)
         {
             return routedOperation switch
             {

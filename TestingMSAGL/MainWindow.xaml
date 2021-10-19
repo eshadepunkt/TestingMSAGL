@@ -12,9 +12,8 @@
         PreviewDragOver="MainWindow_OnPreviewDragOver"
         PreviewDragLeave="MainWindow_OnPreviewDragLeave"
         PreviewDragEnter="MainWindow_OnPreviewDragEnter">
-
     <Grid x:Name="MainGrid">
-
+        
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="20" />
             <ColumnDefinition Width="Auto" />
@@ -35,6 +34,7 @@
             <RowDefinition Height="20" />
         </Grid.RowDefinitions>
 
+        
 
         <DockPanel Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2"
                    Margin="0 0 0 15">
@@ -44,33 +44,44 @@
                     <MenuItem x:Name="Open" Header="_Open" Click="Open_Click" />
                     <MenuItem Header="_Save" />
                     <Separator />
-                    <MenuItem Header="_Exit" Click="MenuItem_OnClick" />
+                    <MenuItem Header="_Exit" Click="MenuItem_Exit_OnClick" />
                 </MenuItem>
             </Menu>
         </DockPanel>
 
         <StackPanel Grid.Column="2" Grid.Row="1"
                     Orientation="Horizontal"
-                    Margin="0 0 0 15">
+                    Margin="0 0 0 15"
+                    Background="Transparent">
             <Button x:Name="ZoomIn" Content="+" Width="25" Height="25" />
             <Button x:Name="ZoomOut" Content="-" Width="25" Height="25" />
             <Button x:Name="XMLView" Content="XML View" Width="auto" Height="25" />
             <Button x:Name="ResetGraph" Content="ResetGraph" Width="auto" Height="25" Click="ResetGraph_Click" />
-            <Button x:Name="EditMode" Content="Draw Edge" Width="auto" Height="25" Click="EditMode_Click" />
-            
+            <CheckBox x:Name="InsertEdgeToggle" Content="Insert Edge"
+                      VerticalAlignment="Center"
+                      HorizontalAlignment="Center"
+                      Checked="InsertEdgeToggle_Checked"
+                      Unchecked="InsertEdgeToggle_Unchecked"
+                      ></CheckBox>
         </StackPanel>
 
-        <StackPanel Grid.Column="1" Grid.Row="2" x:Name="compositePanel">
+        <StackPanel Grid.Column="1" Grid.Row="2" 
+                    x:Name="compositePanel" 
+                    MouseMove="compositePanel_MouseMove"
+                    MouseLeave="compositePanel_MouseLeave"
+                    
+                    IsHitTestVisible="True">
 
             <TextBlock Text="Standard Elements"
                        Margin="0 15 0 10"
                        Foreground="White"
                        FontSize="16"
-                       FontWeight="Medium" />
+                       FontWeight="Medium"
+                       IsHitTestVisible="False"/>
             <Separator BorderThickness="5" BorderBrush="#ccf2ff" Height="5" />
             <Border
                 x:Name="Alternative"
-                MouseMove="Alternative_OnMouseMove"
+                
                 Width="100"
                 Height="50"
                 Margin="0 15 0 0"
@@ -84,7 +95,7 @@
             </Border>
             <Border
                 x:Name="Fixed"
-                MouseMove="Fixed_OnMouseMove"
+               
                 Width="100"
                 Height="50"
                 Margin="0 5 0 0"
@@ -98,7 +109,7 @@
             </Border>
             <Border
                 x:Name="Parallel"
-                MouseMove="Parallel_OnMouseMove"
+                
                 Width="100"
                 Height="50"
                 Margin="0 5 0 0"
@@ -112,7 +123,7 @@
             </Border>
             <Border
                 x:Name="Single"
-                MouseMove="Single_OnMouseMove"
+                
                 Width="100"
                 Height="50"
                 Margin="0 5 0 0"
@@ -126,7 +137,7 @@
             </Border>
             <Border
                 x:Name="Node"
-                MouseMove="Node_OnMouseMove"
+                
                 Width="100"
                 Height="50"
                 Margin="0 5 0 10"
@@ -145,12 +156,15 @@
                        FontSize="16"
                        FontWeight="Medium"
                        x:Name="operationsElements"
-                       Visibility="Collapsed"/>
+                       Visibility="Collapsed"
+                       IsHitTestVisible="False"/>
 
 
         </StackPanel>
 
-        <StackPanel Grid.Column="4" Grid.Row="1" Orientation="Horizontal" Height="28" 
+        <StackPanel Grid.Column="5" Grid.Row="1" 
+                    x:Name="StatusDisplayPanel"
+                    Orientation="Horizontal" Height="28" 
                     VerticalAlignment="Top"
                     HorizontalAlignment="Right">
             <StatusBar Width="250"
@@ -170,7 +184,7 @@
             </StackPanel>
 
         <DockPanel Grid.Column="2" Grid.Row="2"
-                   Grid.ColumnSpan="3"
+                   Grid.ColumnSpan="4"
                    Grid.RowSpan="5"
                    Margin="15 0 0 15"
                    x:Name="ViewerPanel"
@@ -179,27 +193,34 @@
                    MouseRightButtonDown="cm_MouseRightButtonDown"
                    Drop="ViewerPanel_OnDrop">
             <DockPanel.ContextMenu>
-                <ContextMenu Name="cm" Opened="cm_Opened" Closed="cm_Closed" StaysOpen="true">
-                    <MenuItem Name="InsertNodeMenuItem" Header="Insert Node" Click="InsertNodeCM_Click" />
-                    <MenuItem Name="AddSubgraphToSelectedNodeMenuItem" Header="Insert ComplexNode">
-                        <MenuItem Name="AddAlternativMenuItem" Header="Insert AlternativeComplex"
-                                  Click="AddAlternativMenuItem_OnClick" />
-                        <MenuItem Name="AddParallelMenuItem" Header="Insert ParallelComplex"
-                                  Click="AddParallelMenuItem_OnClick" />
-                        <MenuItem Name="AddFixedMenuItem" Header="Insert FixedComplex" Click="AddFixedMenuItem_OnClick" />
-                        <MenuItem Name="AddSingleMenuItem" Header="Insert SingleComplex"
-                                  Click="AddSingleMenuItem_OnClick" />
+                <ContextMenu Name="cm" Closed="cm_Closed" StaysOpen="true">
+                    <MenuItem Name="InsertNode" Header="Insert Node" Click="cm_InsertNode_Click" />
+                    <MenuItem Name="AddSubgraphToSelectedNodeMenuItem" Header="Insert ComplexNode"
+                              Click="AddComplexNode_OnClick">
+                        <MenuItem Name="AddAlternative" Header="Insert AlternativeComplex"
+                                  />
+                        <MenuItem Name="AddParallel" Header="Insert ParallelComplex"
+                                  />
+                        <MenuItem Name="AddFixed" Header="Insert FixedComplex" 
+                                  />
+                        <MenuItem Name="AddSingle" Header="Insert SingleComplex"
+                                  />
                     </MenuItem>
-                    <MenuItem Name="GroupElementaries" Header="Group Elementaries to..">
-                        <MenuItem Name="GroupAlternative" Header="..Alternative" Click="GroupAlternative_OnClick" />
-                        <MenuItem Name="GroupParallel" Header="..Parallel" Click="GroupParallel_OnClick" />
-                        <MenuItem Name="GroupFixed" Header="..Fixed" Click="GroupFixed_OnClick" />
-                        <MenuItem Name="GroupSingle" Header="..Single" Click="GroupSingle_OnClick" />
+                    <MenuItem Name="GroupElementaries" Header="Group Elementaries to.." 
+                              Click="GroupComplex_OnClick">
+                        <MenuItem Name="GroupAlternative" Header="..Alternative"
+                                  />
+                        <MenuItem Name="GroupParallel" Header="..Parallel"
+                                  />
+                        <MenuItem Name="GroupFixed" Header="..Fixed"
+                                  />
+                        <MenuItem Name="GroupSingle" Header="..Single"
+                                  />
 
                     </MenuItem>
 
-                    <MenuItem Name="AddEdgeMenuItem" Header="Add Edge" Click="EdgeSelectedNode_Click" />
-                    <MenuItem Name="DeleteNodeCM" Header="Delete Node" Click="DeleteNodeCM_OnClick" />
+                    <MenuItem Name="DeleteNodeCM" Header="Delete Node" Click="cm_DeleteNode_OnClick" />
+                    <MenuItem Name="ShallowDeleteNodeCM" Header="Delete Node - preserve Children" Click="ShallowDeleteNodeCM_Click" />
                 </ContextMenu>
             </DockPanel.ContextMenu>
         </DockPanel>
