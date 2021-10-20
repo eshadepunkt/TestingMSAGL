@@ -319,17 +319,23 @@ namespace TestingMSAGL.ComplexEditor
         /// <summary>
         ///     Takes any type of a complex and merges all selected elementaries or complex into it
         /// </summary>
-        /// <param name="newComplex"></param>
-        public void ConvertGroupOfElementariesToComplex(IWithId complex)
+        /// <param name="complexType">The type of node that the elementaries should be grouped in</param>
+        public void ConvertGroupOfElementariesToComplex(string complexType)
         {
             try
             {
-                var newComplex = complex as NodeComplex;
                 var forDragging = GraphViewer.Entities
                     .Where(x => x.MarkedForDragging)
                     .Cast<IViewerNode>()
                     .ToList();
                 if (forDragging.Count < 1) return;
+                
+                var complex = CreateIWithId(complexType);
+                if (complex is not NodeComplex newComplex)
+                {
+                    MessageBox.Show($"Cannot group elementaries in {{complexType}}");
+                    return;
+                }
 
                 foreach (var viewerNode in forDragging)
                 {
