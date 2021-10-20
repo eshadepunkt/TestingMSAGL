@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
+using Microsoft.Msagl.WpfGraphControl;
 using TestingMSAGL.DataLinker;
 using TestingMSAGL.DataStructure;
 using TestingMSAGL.DataStructure.RoutedOperation;
@@ -18,13 +19,13 @@ namespace TestingMSAGL.ComplexEditor
 {
     public class Editor
     {
-        public readonly GraphViewerExtended GraphViewer;
+        public readonly GraphViewer GraphViewer;
         private Brush _oldShapeFill = Brushes.Transparent;
 
 
         public Editor()
         {
-            GraphViewer = new GraphViewerExtended { LayoutEditingEnabled = true };
+            GraphViewer = new GraphViewer { LayoutEditingEnabled = true };
             //initGraph(null, null);
             //GraphViewer.GraphCanvas.Background = (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
         }
