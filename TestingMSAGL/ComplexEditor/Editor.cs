@@ -12,7 +12,6 @@ using TestingMSAGL.DataLinker;
 using TestingMSAGL.DataStructure;
 using TestingMSAGL.DataStructure.RoutedOperation;
 using Edge = Microsoft.Msagl.Drawing.Edge;
-using Node = Microsoft.Msagl.Drawing.Node;
 using Single = TestingMSAGL.DataStructure.RoutedOperation.Single;
 
 namespace TestingMSAGL.ComplexEditor
