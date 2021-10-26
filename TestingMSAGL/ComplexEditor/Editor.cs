@@ -275,45 +275,50 @@ namespace TestingMSAGL.ComplexEditor
         public void InsertNode(IWithId node)
         {
             //todo  Possible to Insert into more then one ?
+            var selectedSubgraph = GetSelectedNode();
+            if (selectedSubgraph == null) return;
+            
+            GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(selectedSubgraph);
+            if (selectedSubgraph.Node is Subgraph)
+            {
+                node ??= new NodeElementary(Graph, "");
+                var nodeComplex = Graph.GetComplexNodeById(selectedSubgraph.Node.Id);
+                //todo check if member exists?
+                if (!nodeComplex.AddMember(node)) MessageBox.Show("Could not add to member list");
+                //todo add method to detect if children are already present, sort new node as successor of last child
+                //node.Composite.Predecessor = nodeComplex.Composite;
+                //nodeComplex.Composite.Successor = node.Composite;
+                //todo fix issues
+            }
+            //GraphViewer.Graph = Graph;
 
+        } // todo buggy as hell
 
+        /// <summary>
+        /// Get one single selected node. If more than one or no node is selected this will show a descriptive
+        /// error message to the user.
+        /// </summary>
+        /// <returns>The selected node casted to a IViewerNode</returns>
+        private IViewerNode GetSelectedNode()
+        {
             try
             {
-                var forDragging = GraphViewer.Entities
-                    .SingleOrDefault(x => x.MarkedForDragging);
-                if (forDragging == null && node != null)
-                    // todo fix issues of straying nodes due to SingleOrDefault
-                    // todo implement proper handling
-                    return;
-
-                var subgraph = forDragging as IViewerNode;
-                GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(subgraph);
-                if (subgraph?.Node is Subgraph)
+                var selectedNode = findOneNodeSelected();
+                if (selectedNode == null)
                 {
-                    node ??= new NodeElementary(Graph, "");
-                    var nodeComplex = Graph.GetComplexNodeById(subgraph.Node.Id);
-                    //todo check if member exists?
-                    if (!nodeComplex.AddMember(node)) MessageBox.Show("Could not add to member list");
-                    //todo add method to detect if children are already present, sort new node as successor of last child
-                    //node.Composite.Predecessor = nodeComplex.Composite;
-                    //nodeComplex.Composite.Successor = node.Composite;
-                    //todo fix issues
+                    MessageBox.Show("No Complex selected!");
+                    // todo fix issues of straying nodes due to SingleOrDefault
+                    return null;
                 }
-                //GraphViewer.Graph = Graph;
-            }
 
-            // todo repair exception handling and message
-
-            catch (ArgumentNullException e)
-            {
-                MessageBox.Show("No complex selected!" + e);
-                // throw;
+                return selectedNode as IViewerNode;
             }
-            catch (InvalidOperationException invalid)
+            catch (InvalidOperationException exception)
             {
-                MessageBox.Show("More than one complex selected!" + invalid);
+                MessageBox.Show("More than one complex selected!\n" + exception);
+                return null;
             }
-        } // todo buggy as hell
+        } 
 
         //todo probably needs to be extracted to NodeComplex / Elementary 
         /// <summary>
