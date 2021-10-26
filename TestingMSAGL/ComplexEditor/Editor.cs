@@ -351,10 +351,16 @@ namespace TestingMSAGL.ComplexEditor
                     return;
                 }
 
+                // we should topologically sort those..
+                // if an elementary and it's parent are selected and the parent is getting removed first
+                // this will run into a stackoverflow exception
                 foreach (var viewerNode in selectedNodes)
                 {
                     //workaround for select issue
                     GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(viewerNode);
+
+                    var node = Graph.GetNodeById(viewerNode.Node.Id);
+                    var parent = Graph.GetComplexNodeById(node.ParentId);
                     if (viewerNode.Node is Subgraph subgraph)
                     {
                         //todo rework this check, because newComplex is already instantiated but whether deleted nor used
@@ -363,22 +369,12 @@ namespace TestingMSAGL.ComplexEditor
                             MessageBox.Show("Error Root can't be part of a Group!");
                             return;
                         }
+                    }
 
-                        var parent = Graph.GetComplexNodeById(subgraph.ParentSubgraph.Id);
-                        var child = Graph.GetNodeById(subgraph.Id);
-                        parent.AddMember(newComplex);
-                        parent.RemoveMember(child);
-                        newComplex.AddMember(child);
-                    }
-                    else
-                    {
-                        var child = Graph.GetNodeById(viewerNode.Node.Id);
-                        var parent = Graph.GetComplexNodeById(child.ParentId);
-                        parent.RemoveMember(child);
-                        parent.Subgraph.RemoveNode(viewerNode.Node);
-                        parent.AddMember(newComplex);
-                        newComplex.AddMember(child);
-                    }
+                    parent.AddMember(newComplex);
+                    parent.RemoveMember(node);
+                    parent.Subgraph.RemoveNode(viewerNode.Node);
+                    newComplex.AddMember(node);
                 }
 
                 refreshLayout();
