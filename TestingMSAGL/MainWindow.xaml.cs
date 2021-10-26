@@ -221,7 +221,7 @@ namespace TestingMSAGL
         private void GroupComplex_OnClick(object sender, RoutedEventArgs e)
         {
             if (e.OriginalSource is MenuItem menuItem)
-                Editor.ConvertGroupOfElementariesToComplex((NodeComplex) Editor.CreateIWithId(menuItem.Name.Replace("Group","")));
+                Editor.ConvertGroupOfElementariesToComplex(menuItem.Name.Replace("Group",""));
         }
         /// creates a new ComplexNode based on MenuItem.Name
         /// </summary>
