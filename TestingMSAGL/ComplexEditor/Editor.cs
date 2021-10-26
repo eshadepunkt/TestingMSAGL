@@ -318,7 +318,19 @@ namespace TestingMSAGL.ComplexEditor
                 MessageBox.Show("More than one complex selected!\n" + exception);
                 return null;
             }
-        } 
+        }
+
+        /// <summary>
+        /// Get a list of all selected nodes. The nodes will be casted to IViewerNode.
+        /// </summary>
+        /// <returns></returns>
+        private List<IViewerNode> GetSelectedNodes()
+        {
+            return GraphViewer.Entities
+                .Where(x => x.MarkedForDragging)
+                .Cast<IViewerNode>()
+                .ToList();
+        }
 
         //todo probably needs to be extracted to NodeComplex / Elementary 
         /// <summary>
@@ -329,11 +341,8 @@ namespace TestingMSAGL.ComplexEditor
         {
             try
             {
-                var forDragging = GraphViewer.Entities
-                    .Where(x => x.MarkedForDragging)
-                    .Cast<IViewerNode>()
-                    .ToList();
-                if (forDragging.Count < 1) return;
+                var selectedNodes = GetSelectedNodes();
+                if (selectedNodes.Count < 1) return;
                 
                 var complex = CreateIWithId(complexType);
                 if (complex is not NodeComplex newComplex)
@@ -342,7 +351,7 @@ namespace TestingMSAGL.ComplexEditor
                     return;
                 }
 
-                foreach (var viewerNode in forDragging)
+                foreach (var viewerNode in selectedNodes)
                 {
                     //workaround for select issue
                     GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(viewerNode);
@@ -385,19 +394,14 @@ namespace TestingMSAGL.ComplexEditor
         public void AddEdge()
         {
             //todo predecessor successor
-
-            var forDragging = GraphViewer.Entities
-                .Where(x => x.MarkedForDragging)
-                .Cast<IViewerNode>()
-                .ToArray();
-            if (forDragging.Length < 1) return;
+            var selectedNodes = GetSelectedNodes();
+            if (selectedNodes.Count < 1) return;
 
             var nodes = new List<NodeComplex>();
-            foreach (var node in forDragging)
+            foreach (var node in selectedNodes)
             {
                 nodes.Add(Graph.GetComplexNodeById(node.Node.Id));
                 GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(node);
-                ;
             }
 
             foreach (var composite in nodes)
@@ -460,13 +464,10 @@ namespace TestingMSAGL.ComplexEditor
         {
             try
             {
-                var forDragging = GraphViewer.Entities
-                    .Where(x => x.MarkedForDragging)
-                    .Cast<IViewerNode>()
-                    .ToList();
-                if (forDragging.Count < 1) return;
+                var selectedNodes = GetSelectedNodes();
+                if (selectedNodes.Count < 1) return;
 
-                foreach (var viewerNode in forDragging)
+                foreach (var viewerNode in selectedNodes)
                 {
                     //GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(viewerNode);
                     HandleNodeRelations(viewerNode);
@@ -526,14 +527,11 @@ namespace TestingMSAGL.ComplexEditor
         {
             try
             {
-                var forDragging = GraphViewer.Entities
-                   .Where(x => x.MarkedForDragging)
-                   .Cast<IViewerNode>()
-                   .ToList();
-                if (forDragging.Count < 1) return;
+                var selectedNodes = GetSelectedNodes();
+                if (selectedNodes.Count < 1) return;
                 
                 var compositeList = new List<IWithId>();
-                foreach (var viewerNode in forDragging)
+                foreach (var viewerNode in selectedNodes)
                 {
                     
                     var markedComplex = Graph.GetComplexNodeById(viewerNode.Node.Id);
