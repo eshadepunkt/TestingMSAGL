@@ -339,51 +339,43 @@ namespace TestingMSAGL.ComplexEditor
         /// <param name="complexType">The type of node that the elementaries should be grouped in</param>
         public void ConvertGroupOfElementariesToComplex(string complexType)
         {
-            try
+            var selectedNodes = GetSelectedNodes();
+            if (selectedNodes.Count < 1) return;
+            
+            var complex = CreateIWithId(complexType);
+            if (complex is not NodeComplex newComplex)
             {
-                var selectedNodes = GetSelectedNodes();
-                if (selectedNodes.Count < 1) return;
-                
-                var complex = CreateIWithId(complexType);
-                if (complex is not NodeComplex newComplex)
-                {
-                    MessageBox.Show($"Cannot group elementaries in {{complexType}}");
-                    return;
-                }
+                MessageBox.Show($"Cannot group elementaries in {{complexType}}");
+                return;
+            }
+            
+            // we should topologically sort those..
+            // if an elementary and it's parent are selected and the parent is getting removed first
+            // this will run into a stackoverflow exception
+            foreach (var viewerNode in selectedNodes)
+            {
+                //workaround for select issue
+                GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(viewerNode);
 
-                // we should topologically sort those..
-                // if an elementary and it's parent are selected and the parent is getting removed first
-                // this will run into a stackoverflow exception
-                foreach (var viewerNode in selectedNodes)
+                var node = Graph.GetNodeById(viewerNode.Node.Id);
+                var parent = Graph.GetComplexNodeById(node.ParentId);
+                if (viewerNode.Node is Subgraph subgraph)
                 {
-                    //workaround for select issue
-                    GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(viewerNode);
-
-                    var node = Graph.GetNodeById(viewerNode.Node.Id);
-                    var parent = Graph.GetComplexNodeById(node.ParentId);
-                    if (viewerNode.Node is Subgraph subgraph)
+                    //todo rework this check, because newComplex is already instantiated but whether deleted nor used
+                    if (subgraph.ParentSubgraph.ParentSubgraph == null)
                     {
-                        //todo rework this check, because newComplex is already instantiated but whether deleted nor used
-                        if (subgraph.ParentSubgraph.ParentSubgraph == null)
-                        {
-                            MessageBox.Show("Error Root can't be part of a Group!");
-                            return;
-                        }
+                        MessageBox.Show("Error Root can't be part of a Group!");
+                        return;
                     }
-
-                    parent.AddMember(newComplex);
-                    parent.RemoveMember(node);
-                    parent.Subgraph.RemoveNode(viewerNode.Node);
-                    newComplex.AddMember(node);
                 }
 
-                refreshLayout();
+                parent.AddMember(newComplex);
+                parent.RemoveMember(node);
+                parent.Subgraph.RemoveNode(viewerNode.Node);
+                newComplex.AddMember(node);
             }
-            catch (Exception e)
-            {
-                MessageBox.Show("Error in GroupNodes()\n" + e);
-                throw;
-            }
+
+            refreshLayout();
         }
 
         // todo needs complete rework
