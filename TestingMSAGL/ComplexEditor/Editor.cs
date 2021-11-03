@@ -58,6 +58,7 @@ namespace TestingMSAGL.ComplexEditor
             var rootSubgraph = new Subgraph("rootSubgraph");
             // first element 
             var root = new NodeComplex(Graph, "Root");
+            Graph.RootNode = root;
             rootSubgraph.AddSubgraph(root.Subgraph);
 
             //var ros = new Alternative(Graph, "Root Of Subgraph");
@@ -339,7 +340,14 @@ namespace TestingMSAGL.ComplexEditor
         public void ConvertGroupOfElementariesToComplex(string complexType)
         {
             var selectedNodes = GetSelectedNodes();
-            if (selectedNodes.Count < 1) return;
+            if (!selectedNodes.Any()) return;
+
+            var selectedNodeIds = selectedNodes.Select(viewerNode => viewerNode.Node.Id).ToList();
+            if (selectedNodeIds.Contains(Graph.RootNode.Subgraph.Id))
+            {
+                MessageBox.Show("The Root node cannot be part of a group!");
+                return;
+            }
             
             var complex = CreateIWithId(complexType);
             if (complex is not NodeComplex newComplex)
@@ -348,9 +356,14 @@ namespace TestingMSAGL.ComplexEditor
                 return;
             }
             
-            // we should topologically sort those..
-            // if an elementary and it's parent are selected and the parent is getting removed first
-            // this will run into a stackoverflow exception
+            // Get selected node with lowest depth in the graph. This is the node where we will insert the new complex in. 
+            var targetNode = Graph.RootNode;
+            var searchResult = Graph.RootNode.Composite.BreadthFirstSearch(composite => selectedNodeIds.Contains(composite.DrawingNodeId));
+            if (searchResult != null)
+            {
+                targetNode = Graph.GetComplexNodeById(searchResult.ParentId);
+            }
+            
             foreach (var viewerNode in selectedNodes)
             {
                 //workaround for select issue
@@ -358,22 +371,12 @@ namespace TestingMSAGL.ComplexEditor
 
                 var node = Graph.GetNodeById(viewerNode.Node.Id);
                 var parent = Graph.GetComplexNodeById(node.ParentId);
-                if (viewerNode.Node is Subgraph subgraph)
-                {
-                    //todo rework this check, because newComplex is already instantiated but whether deleted nor used
-                    if (subgraph.ParentSubgraph.ParentSubgraph == null)
-                    {
-                        MessageBox.Show("Error Root can't be part of a Group!");
-                        return;
-                    }
-                }
 
-                parent.AddMember(newComplex);
                 parent.RemoveMember(node);
-                parent.Subgraph.RemoveNode(viewerNode.Node);
                 newComplex.AddMember(node);
             }
 
+            targetNode.AddMember(newComplex);
             refreshLayout();
         }
 

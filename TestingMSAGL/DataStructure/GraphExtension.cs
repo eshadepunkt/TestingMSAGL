@@ -9,6 +9,8 @@ namespace TestingMSAGL.DataStructure
     public class GraphExtension : Graph
     {
         public readonly HashSet<IWithId> DataLinkerNodes = new();
+        
+        public NodeComplex RootNode { set; get; }
 
         public GraphExtension(string label, string id) : base(label, id)
         {
