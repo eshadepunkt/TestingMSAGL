@@ -114,10 +114,15 @@ namespace TestingMSAGL.DataLinker
         }
 
 
-        //todo inspect logic
+        // TODO: Check that the element is actually a child.
         public bool RemoveMember(IWithId child)
         {
-            if (child is NodeElementary elementary) return Composite.RemoveMember(elementary.Composite);
+            if (child is NodeElementary elementary)
+            {
+                Subgraph.RemoveNode(elementary.Node);
+                return Composite.RemoveMember(elementary.Composite);
+            }
+            if (child is NodeComplex complex) return Composite.RemoveMember(complex.Composite);
             return false;
             
         }

@@ -205,7 +205,7 @@ namespace TestingMSAGL
 
             if (Editor.GraphViewer.Entities.Count(entity => entity.MarkedForDragging == true) > 1 && _nodeUnderCursor.MarkedForDragging == false)
                 return;
-            if (!_nodeUnderCursor.MarkedForDragging)
+            if (_nodeUnderCursor != null && !_nodeUnderCursor.MarkedForDragging)
             {
                 ClearAllNodeDecorations();
                 Editor.GraphViewer.LayoutEditor.DecorateObjectForDragging(_nodeUnderCursor);

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace TestingMSAGL.DataStructure
 {
@@ -27,6 +29,25 @@ namespace TestingMSAGL.DataStructure
         public bool RemoveMember(Composite composite)
         {
             return Members.Remove(composite);
+        }
+        
+        public Composite BreadthFirstSearch(Predicate<Composite> searchQuery)
+        {
+            var children = new Queue<Composite>(Members);
+            while (children.Any())
+            {
+                var child = children.Dequeue();
+                if (searchQuery.Invoke(child))
+                    return child;
+
+                if (child is not CompositeComplex complexChild)
+                    continue;
+                
+                foreach (var childOfChild in complexChild.Members)
+                    children.Enqueue(childOfChild);
+            }
+
+            return null;
         }
     }
 }

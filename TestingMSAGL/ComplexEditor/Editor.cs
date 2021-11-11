@@ -12,7 +12,6 @@ using TestingMSAGL.DataLinker;
 using TestingMSAGL.DataStructure;
 using TestingMSAGL.DataStructure.RoutedOperation;
 using Edge = Microsoft.Msagl.Drawing.Edge;
-using Node = Microsoft.Msagl.Drawing.Node;
 using Single = TestingMSAGL.DataStructure.RoutedOperation.Single;
 
 namespace TestingMSAGL.ComplexEditor
@@ -59,6 +58,7 @@ namespace TestingMSAGL.ComplexEditor
             var rootSubgraph = new Subgraph("rootSubgraph");
             // first element 
             var root = new NodeComplex(Graph, "Root");
+            Graph.RootNode = root;
             rootSubgraph.AddSubgraph(root.Subgraph);
 
             //var ros = new Alternative(Graph, "Root Of Subgraph");
@@ -275,45 +275,62 @@ namespace TestingMSAGL.ComplexEditor
         public void InsertNode(IWithId node)
         {
             //todo  Possible to Insert into more then one ?
+            var selectedSubgraph = GetSelectedNode();
+            if (selectedSubgraph == null) return;
+            
+            GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(selectedSubgraph);
+            if (selectedSubgraph.Node is Subgraph)
+            {
+                node ??= new NodeElementary(Graph, "");
+                var nodeComplex = Graph.GetComplexNodeById(selectedSubgraph.Node.Id);
+                //todo check if member exists?
+                if (!nodeComplex.AddMember(node)) MessageBox.Show("Could not add to member list");
+                //todo add method to detect if children are already present, sort new node as successor of last child
+                //node.Composite.Predecessor = nodeComplex.Composite;
+                //nodeComplex.Composite.Successor = node.Composite;
+                //todo fix issues
+            }
+            //GraphViewer.Graph = Graph;
 
+        } // todo buggy as hell
 
+        /// <summary>
+        /// Get one single selected node. If more than one or no node is selected this will show a descriptive
+        /// error message to the user.
+        /// </summary>
+        /// <returns>The selected node casted to a IViewerNode</returns>
+        private IViewerNode GetSelectedNode()
+        {
             try
             {
-                var forDragging = GraphViewer.Entities
-                    .SingleOrDefault(x => x.MarkedForDragging);
-                if (forDragging == null && node != null)
-                    // todo fix issues of straying nodes due to SingleOrDefault
-                    // todo implement proper handling
-                    return;
-
-                var subgraph = forDragging as IViewerNode;
-                GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(subgraph);
-                if (subgraph?.Node is Subgraph)
+                var selectedNode = findOneNodeSelected();
+                if (selectedNode == null)
                 {
-                    node ??= new NodeElementary(Graph, "");
-                    var nodeComplex = Graph.GetComplexNodeById(subgraph.Node.Id);
-                    //todo check if member exists?
-                    if (!nodeComplex.AddMember(node)) MessageBox.Show("Could not add to member list");
-                    //todo add method to detect if children are already present, sort new node as successor of last child
-                    //node.Composite.Predecessor = nodeComplex.Composite;
-                    //nodeComplex.Composite.Successor = node.Composite;
-                    //todo fix issues
+                    MessageBox.Show("No Complex selected!");
+                    // todo fix issues of straying nodes due to SingleOrDefault
+                    return null;
                 }
-                //GraphViewer.Graph = Graph;
-            }
 
-            // todo repair exception handling and message
+                return selectedNode as IViewerNode;
+            }
+            catch (InvalidOperationException exception)
+            {
+                MessageBox.Show("More than one complex selected!\n" + exception);
+                return null;
+            }
+        }
 
-            catch (ArgumentNullException e)
-            {
-                MessageBox.Show("No complex selected!" + e);
-                // throw;
-            }
-            catch (InvalidOperationException invalid)
-            {
-                MessageBox.Show("More than one complex selected!" + invalid);
-            }
-        } // todo buggy as hell
+        /// <summary>
+        /// Get a list of all selected nodes. The nodes will be casted to IViewerNode.
+        /// </summary>
+        /// <returns></returns>
+        private List<IViewerNode> GetSelectedNodes()
+        {
+            return GraphViewer.Entities
+                .Where(x => x.MarkedForDragging)
+                .Cast<IViewerNode>()
+                .ToList();
+        }
 
         //todo probably needs to be extracted to NodeComplex / Elementary 
         /// <summary>
@@ -322,77 +339,59 @@ namespace TestingMSAGL.ComplexEditor
         /// <param name="complexType">The type of node that the elementaries should be grouped in</param>
         public void ConvertGroupOfElementariesToComplex(string complexType)
         {
-            try
+            var selectedNodes = GetSelectedNodes();
+            if (!selectedNodes.Any()) return;
+
+            var selectedNodeIds = selectedNodes.Select(viewerNode => viewerNode.Node.Id).ToList();
+            if (selectedNodeIds.Contains(Graph.RootNode.Subgraph.Id))
             {
-                var forDragging = GraphViewer.Entities
-                    .Where(x => x.MarkedForDragging)
-                    .Cast<IViewerNode>()
-                    .ToList();
-                if (forDragging.Count < 1) return;
-                
-                var complex = CreateIWithId(complexType);
-                if (complex is not NodeComplex newComplex)
-                {
-                    MessageBox.Show($"Cannot group elementaries in {{complexType}}");
-                    return;
-                }
-
-                foreach (var viewerNode in forDragging)
-                {
-                    //workaround for select issue
-                    GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(viewerNode);
-                    if (viewerNode.Node is Subgraph subgraph)
-                    {
-                        //todo rework this check, because newComplex is already instantiated but whether deleted nor used
-                        if (subgraph.ParentSubgraph.ParentSubgraph == null)
-                        {
-                            MessageBox.Show("Error Root can't be part of a Group!");
-                            return;
-                        }
-
-                        var parent = Graph.GetComplexNodeById(subgraph.ParentSubgraph.Id);
-                        var child = Graph.GetNodeById(subgraph.Id);
-                        parent.AddMember(newComplex);
-                        parent.RemoveMember(child);
-                        newComplex.AddMember(child);
-                    }
-                    else
-                    {
-                        var child = Graph.GetNodeById(viewerNode.Node.Id);
-                        var parent = Graph.GetComplexNodeById(child.ParentId);
-                        parent.RemoveMember(child);
-                        parent.Subgraph.RemoveNode(viewerNode.Node);
-                        parent.AddMember(newComplex);
-                        newComplex.AddMember(child);
-                    }
-                }
-
-                refreshLayout();
+                MessageBox.Show("The Root node cannot be part of a group!");
+                return;
             }
-            catch (Exception e)
+            
+            var complex = CreateIWithId(complexType);
+            if (complex is not NodeComplex newComplex)
             {
-                MessageBox.Show("Error in GroupNodes()\n" + e);
-                throw;
+                MessageBox.Show($"Cannot group elementaries in {{complexType}}");
+                return;
             }
+            
+            // Get selected node with lowest depth in the graph. This is the node where we will insert the new complex in. 
+            var targetNode = Graph.RootNode;
+            var searchResult = Graph.RootNode.Composite.BreadthFirstSearch(composite => selectedNodeIds.Contains(composite.DrawingNodeId));
+            if (searchResult != null)
+            {
+                targetNode = Graph.GetComplexNodeById(searchResult.ParentId);
+            }
+            
+            foreach (var viewerNode in selectedNodes)
+            {
+                //workaround for select issue
+                GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(viewerNode);
+
+                var node = Graph.GetNodeById(viewerNode.Node.Id);
+                var parent = Graph.GetComplexNodeById(node.ParentId);
+
+                parent.RemoveMember(node);
+                newComplex.AddMember(node);
+            }
+
+            targetNode.AddMember(newComplex);
+            refreshLayout();
         }
 
         // todo needs complete rework
         public void AddEdge()
         {
             //todo predecessor successor
-
-            var forDragging = GraphViewer.Entities
-                .Where(x => x.MarkedForDragging)
-                .Cast<IViewerNode>()
-                .ToArray();
-            if (forDragging.Length < 1) return;
+            var selectedNodes = GetSelectedNodes();
+            if (selectedNodes.Count < 1) return;
 
             var nodes = new List<NodeComplex>();
-            foreach (var node in forDragging)
+            foreach (var node in selectedNodes)
             {
                 nodes.Add(Graph.GetComplexNodeById(node.Node.Id));
                 GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(node);
-                ;
             }
 
             foreach (var composite in nodes)
@@ -455,13 +454,10 @@ namespace TestingMSAGL.ComplexEditor
         {
             try
             {
-                var forDragging = GraphViewer.Entities
-                    .Where(x => x.MarkedForDragging)
-                    .Cast<IViewerNode>()
-                    .ToList();
-                if (forDragging.Count < 1) return;
+                var selectedNodes = GetSelectedNodes();
+                if (selectedNodes.Count < 1) return;
 
-                foreach (var viewerNode in forDragging)
+                foreach (var viewerNode in selectedNodes)
                 {
                     //GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(viewerNode);
                     HandleNodeRelations(viewerNode);
@@ -521,14 +517,11 @@ namespace TestingMSAGL.ComplexEditor
         {
             try
             {
-                var forDragging = GraphViewer.Entities
-                   .Where(x => x.MarkedForDragging)
-                   .Cast<IViewerNode>()
-                   .ToList();
-                if (forDragging.Count < 1) return;
+                var selectedNodes = GetSelectedNodes();
+                if (selectedNodes.Count < 1) return;
                 
                 var compositeList = new List<IWithId>();
-                foreach (var viewerNode in forDragging)
+                foreach (var viewerNode in selectedNodes)
                 {
                     
                     var markedComplex = Graph.GetComplexNodeById(viewerNode.Node.Id);
