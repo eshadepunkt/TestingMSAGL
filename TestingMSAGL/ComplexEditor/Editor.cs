@@ -4,6 +4,7 @@ using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.Layout.Layered;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -29,8 +30,8 @@ namespace TestingMSAGL.ComplexEditor
             
             //initGraph(null, null);
             //GraphViewer.GraphCanvas.Background = (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
-            OclTestProvider.AddConstraints(new[] {"TestingMSAGL"},
-                "context CompositeComplex::AddMember() pre MemberSize: self.Members.Count() < 3", false, true);
+            var constraints = File.ReadAllText("Constraints/Default.ocl");
+            OclTestProvider.AddConstraints(new[] {"TestingMSAGL"}, constraints, false, true);
         }
 
 

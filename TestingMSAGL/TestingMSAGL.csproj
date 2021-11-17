@@ -114,6 +114,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Constraints\Default.ocl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Fonts\Dosis.ttf" />
     <Content Include="Requests\request.xml" />
   </ItemGroup>
