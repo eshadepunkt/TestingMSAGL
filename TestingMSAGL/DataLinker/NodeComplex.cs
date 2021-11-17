@@ -119,8 +119,10 @@ namespace TestingMSAGL.DataLinker
         {
             if (child is NodeElementary elementary)
             {
-                Subgraph.RemoveNode(elementary.Node);
-                return Composite.RemoveMember(elementary.Composite);
+                if (Composite.RemoveMember(elementary.Composite)) {
+                    Subgraph.RemoveNode(elementary.Node);
+                    return true;
+                }
             }
             if (child is NodeComplex complex) return Composite.RemoveMember(complex.Composite);
             return false;

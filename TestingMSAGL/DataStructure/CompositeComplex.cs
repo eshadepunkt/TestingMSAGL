@@ -37,14 +37,14 @@ namespace TestingMSAGL.DataStructure
         public bool AddMember(Composite composite)
         {
             if (Errors.Count != 0)
-            {
                 return false;
-            }
             return Members.Add(composite);
         }
 
         public bool RemoveMember(Composite composite)
         {
+            if (Errors.Count != 0)
+                return false;
             return Members.Remove(composite);
         }
         

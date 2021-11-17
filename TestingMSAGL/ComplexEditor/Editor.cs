@@ -510,12 +510,15 @@ namespace TestingMSAGL.ComplexEditor
                         //todo extract as method to Graph Extension
                         var childComposite = Graph.GetNodeById(viewerNode.Node.Id);
                         var parentComposite = Graph.GetComplexNodeById(childComposite.ParentId);
-                        parentComposite.RemoveMember(childComposite);
-                        // removes nodes from (root)subgraph into Graph
-                        parentComposite.Subgraph.RemoveNode(viewerNode.Node);
-                        // removes straying nodes from Graph
-                        Graph.RemoveNode(viewerNode.Node);
-
+                        if (!parentComposite.RemoveMember(childComposite))
+                        {
+                            MessageBox.Show("Could not remove from member list\n" + string.Join(", ", parentComposite.Composite.ConsumeErrors()));
+                        }
+                        else
+                        {
+                            // removes straying nodes from Graph
+                            Graph.RemoveNode(viewerNode.Node);
+                        }
                     }
 
                     refreshLayout();

@@ -1,2 +1,15 @@
-﻿context CompositeComplex::AddMember()
-    pre MemberSize: self.Members.Count() < 3
+﻿context CompositeComplex::AddMember(composite : Composite)
+    pre MaxMemberSize:
+        self.Members.Count() < 3
+    -- should check id instead of name but currently we do not have the id
+    pre DifferentTasks:
+        string.IsNullOrEmpty(composite.Name) or self.Members->forAll(c|c.Name <> composite.Name)
+    -- type check either needs a check for c# class types (something like oclIsKindOf)
+    -- or we need to add a property to the composite containing its type
+    -- pre TypeCheck: composite.oclIsTypeOf(Composite)
+    -- TODO: Implement Depth Method
+    -- pre MaxDepth: 
+context CompositeComplex::RemoveMember()
+    pre MinMemberSize:
+        self.Members.Count() > 1
+    
