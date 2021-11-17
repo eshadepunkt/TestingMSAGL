@@ -13,6 +13,7 @@ using TestingMSAGL.DataStructure;
 using TestingMSAGL.DataStructure.RoutedOperation;
 using Edge = Microsoft.Msagl.Drawing.Edge;
 using Single = TestingMSAGL.DataStructure.RoutedOperation.Single;
+using OclAspectTest;
 
 namespace TestingMSAGL.ComplexEditor
 {
@@ -25,8 +26,11 @@ namespace TestingMSAGL.ComplexEditor
         public Editor()
         {
             GraphViewer = new GraphViewer { LayoutEditingEnabled = true };
+            
             //initGraph(null, null);
             //GraphViewer.GraphCanvas.Background = (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
+            OclTestProvider.AddConstraints(new[] {"TestingMSAGL"},
+                "context CompositeComplex::AddMember() pre MemberSize: self.Members.Count() < 3", false, true);
         }
 
 
@@ -284,7 +288,13 @@ namespace TestingMSAGL.ComplexEditor
                 node ??= new NodeElementary(Graph, "");
                 var nodeComplex = Graph.GetComplexNodeById(selectedSubgraph.Node.Id);
                 //todo check if member exists?
-                if (!nodeComplex.AddMember(node)) MessageBox.Show("Could not add to member list");
+                if (!nodeComplex.AddMember(node))
+                {
+                    if(node is NodeElementary elementary) 
+                        Graph.RemoveNode(elementary.Node);
+                    MessageBox.Show("Could not add to member list\n" + string.Join(", ", nodeComplex.Composite.ConsumeErrors()));
+                    // nodeComplex.Composite.Errors.Clear();
+                }
                 //todo add method to detect if children are already present, sort new node as successor of last child
                 //node.Composite.Predecessor = nodeComplex.Composite;
                 //nodeComplex.Composite.Successor = node.Composite;
@@ -437,9 +447,16 @@ namespace TestingMSAGL.ComplexEditor
                 GraphViewer.LayoutEditor.RemoveObjDraggingDecorations(subgraph);
 
                 var nodeComplex = Graph.GetComplexNodeById(subgraph.Node.Id);
-                nodeComplex.AddMember(complex);
-
-                refreshLayout();
+                if (!nodeComplex.AddMember(complex))
+                {
+                    if(complex is NodeComplex complexNode) 
+                        Graph.RemoveNode(complexNode.Subgraph);
+                    MessageBox.Show("Could not add to member list\n" + string.Join(", ", nodeComplex.Composite.ConsumeErrors()));
+                }
+                else
+                {
+                    refreshLayout();
+                }
             }
             catch (Exception e)
             {

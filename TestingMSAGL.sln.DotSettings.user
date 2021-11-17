@@ -1,6 +1,6 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=C_003A_005CUsers_005Cmartin_005CRiderProjects_005Cautomatic_002Dgraph_002Dlayout_005CGraphLayout_005Ctools_005CWpfGraphControl_005Cobj_005CDebug_005CMicrosoft_002EMsagl_002EWpfGraphControl_002E1_002E0_002E0_002E13_002Enuspec/@EntryIndexedValue">True</s:Boolean>
-	<s:String x:Key="/Default/CodeInspection/Highlighting/SweaWarningsMode/@EntryValue">DoNotShowAndRun</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/SweaWarningsMode/@EntryValue">ShowAndRun</s:String>
 	
 	
 	<s:String x:Key="/Default/CodeInspection/PencilsConfiguration/ActualSeverity/@EntryValue">INFO</s:String>
@@ -9,4 +9,7 @@
   &lt;Assembly Path="C:\Users\martin\.nuget\packages\dumpextensions\2.0.0\lib\net45\DumpExtensions.dll" /&gt;&#xD;
   &lt;Assembly Path="C:\Users\martin\.nuget\packages\tecware.ppsn.ui\1.0.56\lib\netstandard2.0\PPSnUI.dll" /&gt;&#xD;
   &lt;Assembly Path="C:\Users\martin\RiderProjects\TestingMSAGL\TestingMSAGL\bin\Debug\Microsoft.Msagl.WpfGraphControl.dll" /&gt;&#xD;
-&lt;/AssemblyExplorer&gt;</s:String></wpf:ResourceDictionary>
+  &lt;Assembly Path="C:\Users\richa\Documents\uni\projekt_seminar\HTW-PP-Core\0Harmony.dll" /&gt;&#xD;
+&lt;/AssemblyExplorer&gt;</s:String>
+	<s:String x:Key="/Default/Environment/Hierarchy/Build/BuildTool/CustomBuildToolPath/@EntryValue">C:\Program Files\JetBrains\JetBrains Rider 2021.2.2\tools\MSBuild\Current\Bin\MSBuild.exe</s:String>
+	<s:Int64 x:Key="/Default/Environment/Hierarchy/Build/BuildTool/MsbuildVersion/@EntryValue">1048576</s:Int64></wpf:ResourceDictionary>

@@ -125,5 +125,14 @@
     <PackageReference Include="TecWare.PPSn.Core" Version="1.0.56" />
     <PackageReference Include="TecWare.PPSn.DesktopUI" Version="1.0.56" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\HTW-PP-Core\OclAspectTest\OclAspectTest.csproj">
+      <Project>{e5534e4e-6309-4a79-98bc-0e3b94cdf1b0}</Project>
+      <Name>OclAspectTest</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Test" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
