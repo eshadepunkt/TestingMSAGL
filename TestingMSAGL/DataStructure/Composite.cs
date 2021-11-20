@@ -6,6 +6,8 @@
         public string DrawingNodeId { get; set; }
         public Composite Predecessor { get; set; }
         public Composite Successor { get; set; }
+        
+        public string Type { get; set; }
 
         public string ParentId { get; set; }
         public Composite ComplexComposite { get; }

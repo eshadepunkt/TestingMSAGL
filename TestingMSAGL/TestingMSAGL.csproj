@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{5F41DE82-3293-4BE5-B9E7-82B2711FEEEC}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>TestingMSAGL</RootNamespace>
     <AssemblyName>TestingMSAGL</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
@@ -60,6 +60,14 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ComplexEditor\Editor.cs" />
+    <Compile Include="Constraints\ConstraintProvider.cs" />
+    <Compile Include="Constraints\DifferentTasksConstraint.cs" />
+    <Compile Include="Constraints\IConstraint.cs" />
+    <Compile Include="Constraints\MaxMemberSizeConstraint.cs" />
+    <Compile Include="Constraints\MinMemberSizeConstraint.cs" />
+    <Compile Include="Constraints\NotConstraint.cs" />
+    <Compile Include="Constraints\OrCombinedConstraint.cs" />
+    <Compile Include="Constraints\TypeConstraint.cs" />
     <Compile Include="DataLinker\IWithId.cs" />
     <Compile Include="DataLinker\NodeComplex.cs" />
     <Compile Include="DataLinker\NodeElementary.cs" />

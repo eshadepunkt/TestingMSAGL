@@ -15,6 +15,7 @@ using TestingMSAGL.DataStructure.RoutedOperation;
 using Edge = Microsoft.Msagl.Drawing.Edge;
 using Single = TestingMSAGL.DataStructure.RoutedOperation.Single;
 using OclAspectTest;
+using TestingMSAGL.Constraints;
 
 namespace TestingMSAGL.ComplexEditor
 {
@@ -30,8 +31,18 @@ namespace TestingMSAGL.ComplexEditor
             
             //initGraph(null, null);
             //GraphViewer.GraphCanvas.Background = (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
-            var constraints = File.ReadAllText("Constraints/Default.ocl");
-            OclTestProvider.AddConstraints(new[] {"TestingMSAGL"}, constraints, false, true);
+            var constraints = new List<IConstraint> {
+                new DifferentTasksConstraint(),
+                new MaxMemberSizeConstraint(3),
+                // new OrCombinedConstraint(new TypeConstraint("parallel", TypeConstraint.Mode.NotEquals), new MinMemberSizeConstraint(1))
+                new MinMemberSizeConstraint(1)
+            };
+            var ocl = ConstraintProvider.GenerateOcl(constraints);
+            Console.WriteLine("Generated OCL:");
+            Console.WriteLine(ocl);
+            
+            // var constraints = File.ReadAllText("Constraints/Default.ocl");
+            OclTestProvider.AddConstraints(new[] {"TestingMSAGL"}, ocl, false, true);
         }
 
 
