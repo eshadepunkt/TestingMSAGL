@@ -78,6 +78,7 @@
     <Compile Include="DataStructure\RoutedOperation\NamedOperation.cs" />
     <Compile Include="DataStructure\XmlProvider\XmlProvider.cs" />
     <Compile Include="IsExternalInit.cs" />
+    <Compile Include="Patches\GraphPatch.cs" />
     <Compile Include="UserControls\PropertyGrid\PropertyGrid.xaml.cs">
       <DependentUpon>PropertyGrid.xaml</DependentUpon>
     </Compile>
@@ -132,6 +133,7 @@
     <PackageReference Include="AutomaticGraphLayout" Version="1.1.12" />
     <PackageReference Include="AutomaticGraphLayout.Drawing" Version="1.1.12" />
     <PackageReference Include="DumpExtensions" Version="2.0.0" />
+    <PackageReference Include="Lib.Harmony" Version="2.1.1" />
     <PackageReference Include="Microsoft.Msagl.WpfGraphControl" Version="1.0.0.13" />
     <PackageReference Include="TecWare.PPSn.Core" Version="1.0.56" />
     <PackageReference Include="TecWare.PPSn.DesktopUI" Version="1.0.56" />

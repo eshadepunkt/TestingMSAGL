@@ -7,6 +7,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using HarmonyLib;
 using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.WpfGraphControl;
@@ -14,6 +15,7 @@ using Microsoft.Win32;
 using TecWare.DE.Data;
 using TestingMSAGL.ComplexEditor;
 using TestingMSAGL.DataLinker;
+using TestingMSAGL.DataStructure;
 using TestingMSAGL.DataStructure.RoutedOperation;
 using TestingMSAGL.DataStructure.XmlProvider;
 using TestingMSAGL.View.Adorner;
@@ -34,6 +36,7 @@ namespace TestingMSAGL
         private AdornerLayer _adornerLayer;
         private Adorner _adorner;
         private Editor Editor { get; } = new();
+        public static GraphExtension Graph;
 
 
         public MainWindow()
@@ -46,6 +49,10 @@ namespace TestingMSAGL
             Editor.GraphViewer.LayoutComplete += GraphViewerOnLayoutComplete;
             Editor.GraphViewer.BindToPanel(ViewerPanel);
             ViewerPanel.ClipToBounds = true;
+            
+            Graph = Editor.Graph;
+            var harmony = new Harmony("TestingMSAGL");
+            harmony.PatchAll();
         }
 
         private void GraphViewerOnLayoutComplete(object sender, EventArgs e)
