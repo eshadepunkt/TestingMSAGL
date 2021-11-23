@@ -44,12 +44,25 @@ namespace TestingMSAGL
             Editor.GraphViewer.GraphCanvas.Width = ViewerPanel.Width;
             Editor.GraphViewer.ObjectUnderMouseCursorChanged += graphViewer_ObjectUnderMouseCursorChanged;
             Editor.GraphViewer.LayoutComplete += GraphViewerOnLayoutComplete;
+          
+            
             Editor.GraphViewer.BindToPanel(ViewerPanel);
             ViewerPanel.ClipToBounds = true;
         }
 
+        private void GraphViewer_ViewChangeEvent(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void GraphViewerOnGraphChanged(object sender, EventArgs e)
+        {
+        }
+
         private void GraphViewerOnLayoutComplete(object sender, EventArgs e)
         {
+            Editor.Graph.EvaluateRelations();
+            var testing = Editor.Graph.DataLinkerNodes;
             CreateAdornerForAllComposites(compositePanel);
             dynamic test = ViewerPanel.Children[0];
             UIElementCollection children = test.Children;
@@ -88,6 +101,8 @@ namespace TestingMSAGL
         private void Window_MouseMove(object sender, MouseEventArgs e)
         {
             MouseLabel.Content = e.GetPosition(this).ToString();
+            
+
         }
         /// <summary>
         /// hardcoded non-dynamic datagrid of imported xml files

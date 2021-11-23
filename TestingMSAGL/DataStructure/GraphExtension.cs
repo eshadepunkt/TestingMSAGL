@@ -9,7 +9,7 @@ namespace TestingMSAGL.DataStructure
     public class GraphExtension : Graph
     {
         public readonly HashSet<IWithId> DataLinkerNodes = new();
-        
+
         public NodeComplex RootNode { set; get; }
 
         public GraphExtension(string label, string id) : base(label, id)
@@ -107,7 +107,59 @@ namespace TestingMSAGL.DataStructure
             }
         }
 
-      
+        private Composite GetComposite(IWithId withId)
+        {
+            if (withId is NodeComplex nodeComplex) return nodeComplex.Composite;
+            if (withId is NodeElementary nodeElementary) return nodeElementary.Composite;
+            return null;
+        }
 
+        public void EvaluateRelations()
+        {
+            foreach (var entity in DataLinkerNodes)
+            {
+                var node = GetNodeById(entity.NodeId);
+                if (node is NodeComplex nodeComplex)
+                {
+                    foreach (var edge in nodeComplex.Subgraph.InEdges)
+                    {
+                        var composite = DataLinkerNodes.Where(node => node.NodeId.Contains(edge.Source)).FirstOrDefault();
+                        nodeComplex.Composite.AddPredecessor(GetComposite(composite));
+                    }
+                    foreach (var edge in nodeComplex.Subgraph.OutEdges)
+                    {
+                        var composite = DataLinkerNodes.Where(node => node.NodeId.Contains(edge.Target)).FirstOrDefault();
+                        nodeComplex.Composite.AddSuccessor(GetComposite(composite));
+                    }
+                    foreach (var edge in nodeComplex.Subgraph.SelfEdges)
+                    {
+                        var composite = DataLinkerNodes.Where(node => node.NodeId.Contains(edge.Target)).FirstOrDefault();
+                        nodeComplex.Composite.AddPredecessor(GetComposite(composite));
+                        nodeComplex.Composite.AddSuccessor(GetComposite(composite));
+                    }
+
+                }
+                else
+                if (node is NodeElementary nodeElementary)
+                {
+                    foreach (var edge in nodeElementary.Node.InEdges)
+                    {
+                        var composite = DataLinkerNodes.Where(node => node.NodeId.Contains(edge.Source)).FirstOrDefault();
+                        nodeElementary.Composite.AddPredecessor(GetComposite(composite));
+                    }
+                    foreach (var edge in nodeElementary.Node.OutEdges)
+                    {
+                        var composite = DataLinkerNodes.Where(node => node.NodeId.Contains(edge.Target)).FirstOrDefault();
+                        nodeElementary.Composite.AddSuccessor(GetComposite(composite));
+                    }
+                    foreach (var edge in nodeElementary.Node.SelfEdges)
+                    {
+                        var composite = DataLinkerNodes.Where(node => node.NodeId.Contains(edge.Target)).FirstOrDefault();
+                        nodeElementary.Composite.AddPredecessor(GetComposite(composite));
+                        nodeElementary.Composite.AddSuccessor(GetComposite(composite));
+                    }
+                }
+            }
+        }
     }
 }

@@ -262,7 +262,7 @@ namespace TestingMSAGL.ComplexEditor
             //    Console.WriteLine(error);
             //    throw;
             //}
-
+            
             var test = GraphViewer.GraphCanvas.Children;
         }
 
@@ -319,6 +319,8 @@ namespace TestingMSAGL.ComplexEditor
                 return null;
             }
         }
+
+
 
         /// <summary>
         /// Get a list of all selected nodes. The nodes will be casted to IViewerNode.
