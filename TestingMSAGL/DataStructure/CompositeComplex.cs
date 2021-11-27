@@ -9,19 +9,6 @@ namespace TestingMSAGL.DataStructure
         public CompositeComplex()
         {
             Members = new HashSet<Composite>();
-            Errors = new List<string>();
-        }
-        
-        public List<string> Errors { get; }
-
-        public IEnumerable<string> ConsumeErrors()
-        {
-            while (Errors.Count > 0)
-            {
-                var error = Errors[0];
-                Errors.RemoveAt(0);
-                yield return error;
-            }
         }
 
         /// <summary>
