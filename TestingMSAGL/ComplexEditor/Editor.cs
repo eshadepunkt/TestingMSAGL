@@ -4,7 +4,6 @@ using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.Layout.Layered;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -435,6 +434,50 @@ namespace TestingMSAGL.ComplexEditor
 
             GraphViewer.Graph = Graph;
             //todo magic for constraints?!
+        }
+
+        public Composite GetComposite(IWithId withId)
+        {
+            if (withId is NodeComplex nodeComplex) return nodeComplex.Composite;
+            if (withId is NodeElementary nodeElementary) return nodeElementary.Composite;
+            return null;
+        }
+
+        public void RegisterEdge(Edge edge)
+        {
+            if (edge.Source != edge.Target)
+            {
+                var sourceComposite = GetComposite(Graph.GetNodeById(edge.SourceNode.Id));
+                var targetComposite = GetComposite(Graph.GetNodeById(edge.TargetNode.Id));
+
+                if (sourceComposite != null && targetComposite != null)
+                {
+                    var oldSuccessor = sourceComposite.Successor;
+                    var success = sourceComposite.SetSuccessor(targetComposite);
+                    IEnumerable<string> errors = null;
+                    if (success)
+                    {
+                        success = targetComposite.SetPredecessor(sourceComposite);
+                        if (!success)
+                        {
+                            errors = targetComposite.ConsumeErrors();
+                            // Reset Successor (this should be done via a transaction later)
+                            sourceComposite.SetSuccessor(null);
+                            sourceComposite.SetSuccessor(oldSuccessor);
+                        }
+                    }
+                    else
+                    {
+                        errors = sourceComposite.ConsumeErrors();
+                    }
+                    
+                    if(!success) {
+                        Graph.RemoveEdge(edge);
+                        refreshLayout();
+                        MessageBox.Show("Could not add edge\n" + string.Join(", ", errors));
+                    }
+                }
+            }
         }
 
         /// <summary>
