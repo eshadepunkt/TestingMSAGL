@@ -15,6 +15,7 @@ using Single = TestingMSAGL.DataLinker.RoutedOperation.Single;
 using OclAspectTest;
 using TestingMSAGL.Constraints;
 using TestingMSAGL.DataLinker.RoutedOperation;
+using TestingMSAGL.DataStructure.RoutingOperation;
 
 namespace TestingMSAGL.ComplexEditor
 {
@@ -33,7 +34,7 @@ namespace TestingMSAGL.ComplexEditor
             var constraints = new List<IConstraint> {
                 new DifferentTasksConstraint(),
                 new MaxMemberSizeConstraint(3),
-                // new OrCombinedConstraint(new TypeConstraint("parallel", TypeConstraint.Mode.NotEquals), new MinMemberSizeConstraint(1))
+                new OrCombinedConstraint(new NotConstraint(new TypeConstraint(typeof(ParallelRoutingOperation))), new MinMemberSizeConstraint(2)),
                 new MinMemberSizeConstraint(1),
                 new SinglePredecessorConstraint(),
                 new SingleSuccessorConstraint()

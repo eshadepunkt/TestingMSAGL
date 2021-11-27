@@ -1,34 +1,24 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using TestingMSAGL.DataStructure;
 
 namespace TestingMSAGL.Constraints
 {
     public class TypeConstraint : IConstraint
     {
-        private readonly string _type;
-        private readonly Mode _mode;
+        private readonly Type _type;
 
-        public enum Mode
-        {
-            Equals,
-            NotEquals
-        }
-        
-        public TypeConstraint(string type, Mode mode)
+        public TypeConstraint(Type type)
         {
             _type = type;
-            _mode = mode;
-            Context = typeof(CompositeComplex).GetMethod("AddMember");
+            Context = typeof(CompositeComplex).GetMethod("RemoveMember");
         }
 
         public MethodInfo Context { get; }
         
         public string ToOcl()
         {
-            if (_mode == Mode.Equals)
-                return "composite.Type = '" + _type + "'";
-            else
-                return "composite.Type <> '" + _type + "'";
+            return "\"(self is " + _type.Name + ")\"";
         }
     }
 }

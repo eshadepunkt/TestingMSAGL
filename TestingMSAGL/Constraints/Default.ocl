@@ -6,12 +6,13 @@
         string.IsNullOrEmpty(composite.Name) or self.Members->forAll(c|c.Name <> composite.Name)
     -- type check either needs a check for c# class types (something like oclIsKindOf)
     -- or we need to add a property to the composite containing its type
-    -- pre TypeCheck: composite.oclIsTypeOf(Composite)
     -- TODO: Implement Depth Method
     -- pre MaxDepth: 
-context CompositeComplex::RemoveMember()
+context CompositeComplex::RemoveMember(composite : Composite)
     pre MinMemberSize:
         self.Members.Count() > 1
+    pre TypeCheck: not "(self is ParallelRoutingOperation)" or self.Members.Count() > 2
+
         
 context Composite::SetSuccessor(successor : Composite)
     pre SameLevel:
