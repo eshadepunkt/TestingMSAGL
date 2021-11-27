@@ -6,6 +6,5 @@
         {
             Type = "elementary";
         }
-        public string SomeElementaryAttribute { get; set; }
     }
 }
