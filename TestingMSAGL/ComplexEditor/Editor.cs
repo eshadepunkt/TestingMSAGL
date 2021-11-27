@@ -10,11 +10,11 @@ using System.Windows.Media;
 using Microsoft.Msagl.WpfGraphControl;
 using TestingMSAGL.DataLinker;
 using TestingMSAGL.DataStructure;
-using TestingMSAGL.DataStructure.RoutedOperation;
 using Edge = Microsoft.Msagl.Drawing.Edge;
-using Single = TestingMSAGL.DataStructure.RoutedOperation.Single;
+using Single = TestingMSAGL.DataLinker.RoutedOperation.Single;
 using OclAspectTest;
 using TestingMSAGL.Constraints;
+using TestingMSAGL.DataLinker.RoutedOperation;
 
 namespace TestingMSAGL.ComplexEditor
 {
@@ -75,7 +75,7 @@ namespace TestingMSAGL.ComplexEditor
             // Drawing Board
             var rootSubgraph = new Subgraph("rootSubgraph");
             // first element 
-            var root = new NodeComplex(Graph, "Root");
+            var root = new Single(Graph, "Root");
             Graph.RootNode = root;
             rootSubgraph.AddSubgraph(root.Subgraph);
 

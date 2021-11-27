@@ -4,16 +4,14 @@ using TestingMSAGL.DataStructure;
 
 namespace TestingMSAGL.DataLinker
 {
-    public class NodeComplex : IWithId
+    public abstract class NodeComplex : IWithId
 
     {
         private readonly GraphExtension _graph;
         internal readonly byte tranparency = 98;
 
-        public NodeComplex(GraphExtension graph, string name)
+        protected NodeComplex(GraphExtension graph)
         {
-            var composite = new CompositeComplex { Name = name, DrawingNodeId = AddNode(graph) };
-            Composite = composite;
             graph.AddNodeWithId(this);
             _graph = graph;
         }
@@ -26,7 +24,7 @@ namespace TestingMSAGL.DataLinker
         /// <summary>
         ///     Complex Node Representation
         /// </summary>
-        internal CompositeComplex Composite { get; }
+        internal CompositeComplex Composite { get; init; }
 
         /// <summary>
         ///     Pass node id to Extern
@@ -39,7 +37,7 @@ namespace TestingMSAGL.DataLinker
             set => Composite.ParentId = value;
         }
 
-        private string AddNode(Graph graph)
+        protected string AddNode(Graph graph)
         {
             var nodeId = Guid.NewGuid().ToString();
             // todo implement proper fix for shortening the guuid

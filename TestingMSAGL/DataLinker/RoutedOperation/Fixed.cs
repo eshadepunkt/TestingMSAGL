@@ -1,12 +1,15 @@
 using Microsoft.Msagl.Drawing;
-using TestingMSAGL.DataLinker;
+using TestingMSAGL.DataStructure;
+using TestingMSAGL.DataStructure.RoutingOperation;
 
-namespace TestingMSAGL.DataStructure.RoutedOperation
+namespace TestingMSAGL.DataLinker.RoutedOperation
 {
     public class Fixed : NodeComplex
     {
-        public Fixed(GraphExtension graph, string name) : base(graph, name)
+        public Fixed(GraphExtension graph, string name) : base(graph)
         {
+            Composite = new FixedRoutingOperation { Name = name, DrawingNodeId = AddNode(graph) };
+            
             var color = Color.Gray;
             color.A = base.tranparency;
             Subgraph.LabelText = "Fixed: " + Subgraph.Id.Split('-')[1];

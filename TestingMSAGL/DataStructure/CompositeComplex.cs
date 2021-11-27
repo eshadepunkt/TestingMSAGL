@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace TestingMSAGL.DataStructure
 {
-    public class CompositeComplex : Composite
+    public abstract class CompositeComplex : Composite
     {
-        public CompositeComplex()
+        protected CompositeComplex()
         {
             Members = new HashSet<Composite>();
         }

@@ -82,6 +82,10 @@
     <Compile Include="DataStructure\CompositeComplex.cs" />
     <Compile Include="DataStructure\CompositeElementary.cs" />
     <Compile Include="DataStructure\GraphExtension.cs" />
+    <Compile Include="DataStructure\RoutingOperation\AlternativeRoutingOperation.cs" />
+    <Compile Include="DataStructure\RoutingOperation\FixedRoutingOperation.cs" />
+    <Compile Include="DataStructure\RoutingOperation\ParallelRoutingOperation.cs" />
+    <Compile Include="DataStructure\RoutingOperation\SingleRoutingOperation.cs" />
     <Compile Include="DataStructure\XmlProvider\XmlProvider.cs" />
     <Compile Include="IsExternalInit.cs" />
     <Compile Include="Patches\GraphPatch.cs" />
