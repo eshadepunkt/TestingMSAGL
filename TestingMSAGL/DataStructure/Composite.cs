@@ -14,6 +14,7 @@ namespace TestingMSAGL.DataStructure
         public string ParentId { get; set; }
         public Composite ComplexComposite { get; }
 
+        // This member must be public because errors are set by the OCL constraint provider
         public List<string> Errors { get; } = new();
         
         public IEnumerable<string> ConsumeErrors()
