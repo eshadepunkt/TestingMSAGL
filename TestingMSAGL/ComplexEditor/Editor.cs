@@ -35,14 +35,17 @@ namespace TestingMSAGL.ComplexEditor
                 new DifferentTasksConstraint(),
                 new MaxMemberSizeConstraint(3),
                 // new OrCombinedConstraint(new TypeConstraint("parallel", TypeConstraint.Mode.NotEquals), new MinMemberSizeConstraint(1))
-                new MinMemberSizeConstraint(1)
+                new MinMemberSizeConstraint(1),
+                new SinglePredecessorConstraint(),
+                new SingleSuccessorConstraint()
             };
             var ocl = ConstraintProvider.GenerateOcl(constraints);
             Console.WriteLine("Generated OCL:");
             Console.WriteLine(ocl);
+            OclTestProvider.AddConstraints(new[] {"TestingMSAGL"}, ocl, false, true);
             
             // var constraints = File.ReadAllText("Constraints/Default.ocl");
-            OclTestProvider.AddConstraints(new[] {"TestingMSAGL"}, ocl, false, true);
+            // OclTestProvider.AddConstraints(new[] {"TestingMSAGL"}, constraints, false, true);
         }
 
 
@@ -174,7 +177,7 @@ namespace TestingMSAGL.ComplexEditor
 
             weld.AddMember(closeWeldseam);
             fixate.AddMember(spotWeld);
-            fixate.AddMember(new NodeElementary(Graph, "Punktschweißen"));
+            fixate.AddMember(new NodeElementary(Graph, "Punktschweißen 2"));
             weld.AddMember(fixate);
 
             /// add edges

@@ -67,6 +67,8 @@
     <Compile Include="Constraints\MinMemberSizeConstraint.cs" />
     <Compile Include="Constraints\NotConstraint.cs" />
     <Compile Include="Constraints\OrCombinedConstraint.cs" />
+    <Compile Include="Constraints\SinglePredecessorConstraint.cs" />
+    <Compile Include="Constraints\SingleSuccessorConstraint.cs" />
     <Compile Include="Constraints\TypeConstraint.cs" />
     <Compile Include="DataLinker\IWithId.cs" />
     <Compile Include="DataLinker\NodeComplex.cs" />

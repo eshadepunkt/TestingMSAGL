@@ -35,8 +35,7 @@ namespace TestingMSAGL
         private Brush _oldShapeFill = Brushes.Transparent;
         private AdornerLayer _adornerLayer;
         private Adorner _adorner;
-        private Editor Editor { get; } = new();
-        public static GraphExtension Graph;
+        public static Editor Editor { get; } = new();
 
 
         public MainWindow()
@@ -50,7 +49,6 @@ namespace TestingMSAGL
             Editor.GraphViewer.BindToPanel(ViewerPanel);
             ViewerPanel.ClipToBounds = true;
             
-            Graph = Editor.Graph;
             var harmony = new Harmony("TestingMSAGL");
             harmony.PatchAll();
         }

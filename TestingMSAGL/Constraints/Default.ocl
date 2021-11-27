@@ -12,4 +12,11 @@
 context CompositeComplex::RemoveMember()
     pre MinMemberSize:
         self.Members.Count() > 1
-    
+        
+context Composite::SetSuccessor(successor : Composite)
+    pre SameLevel:
+        self.Successor = null or successor = null
+        
+context Composite::SetPredecessor(predecessor : Composite)
+    pre SameLevel:
+        self.Predecessor = null or predecessor = null
