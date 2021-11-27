@@ -73,11 +73,15 @@
     <Compile Include="DataLinker\IWithId.cs" />
     <Compile Include="DataLinker\NodeComplex.cs" />
     <Compile Include="DataLinker\NodeElementary.cs" />
+    <Compile Include="DataLinker\RoutedOperation\Alternative.cs" />
+    <Compile Include="DataLinker\RoutedOperation\Fixed.cs" />
+    <Compile Include="DataLinker\RoutedOperation\NamedOperation.cs" />
+    <Compile Include="DataLinker\RoutedOperation\Parallel.cs" />
+    <Compile Include="DataLinker\RoutedOperation\Single.cs" />
     <Compile Include="DataStructure\Composite.cs" />
     <Compile Include="DataStructure\CompositeComplex.cs" />
     <Compile Include="DataStructure\CompositeElementary.cs" />
     <Compile Include="DataStructure\GraphExtension.cs" />
-    <Compile Include="DataStructure\RoutedOperation\NamedOperation.cs" />
     <Compile Include="DataStructure\XmlProvider\XmlProvider.cs" />
     <Compile Include="IsExternalInit.cs" />
     <Compile Include="Patches\GraphPatch.cs" />
@@ -94,10 +98,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DataStructure\IComposite.cs" />
-    <Compile Include="DataStructure\RoutedOperation\Alternative.cs" />
-    <Compile Include="DataStructure\RoutedOperation\Fixed.cs" />
-    <Compile Include="DataStructure\RoutedOperation\Parallel.cs" />
-    <Compile Include="DataStructure\RoutedOperation\Single.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
