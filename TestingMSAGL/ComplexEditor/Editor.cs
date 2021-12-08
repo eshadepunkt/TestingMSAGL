@@ -5,6 +5,7 @@ using Microsoft.Msagl.Layout.Layered;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Transactions;
 using System.Windows;
 using System.Windows.Media;
 using Microsoft.Msagl.WpfGraphControl;
@@ -15,6 +16,7 @@ using Single = TestingMSAGL.DataLinker.RoutedOperation.Single;
 using OclAspectTest;
 using TestingMSAGL.Constraints;
 using TestingMSAGL.DataLinker.RoutedOperation;
+using TestingMSAGL.DataStructure.Actions;
 using TestingMSAGL.DataStructure.RoutingOperation;
 
 namespace TestingMSAGL.ComplexEditor
@@ -453,29 +455,22 @@ namespace TestingMSAGL.ComplexEditor
 
                 if (sourceComposite != null && targetComposite != null)
                 {
-                    var oldSuccessor = sourceComposite.Successor;
-                    var success = sourceComposite.SetSuccessor(targetComposite);
-                    IEnumerable<string> errors = null;
-                    if (success)
+                    var sequence = new ActionSequence();
+                    sequence.Enqueue(new SetSuccessorAction(sourceComposite, targetComposite));
+                    sequence.Enqueue(new SetPredecessorAction(targetComposite, sourceComposite));
+
+                    try
                     {
-                        success = targetComposite.SetPredecessor(sourceComposite);
-                        if (!success)
-                        {
-                            errors = targetComposite.ConsumeErrors();
-                            // Reset Successor (this should be done via a transaction later)
-                            sourceComposite.SetSuccessor(null);
-                            sourceComposite.SetSuccessor(oldSuccessor);
-                        }
+                        using var scope = new TransactionScope();
+                        sequence.Enlist();
+                        sequence.Execute();
+                        scope.Complete();
                     }
-                    else
+                    catch (TransactionException _)
                     {
-                        errors = sourceComposite.ConsumeErrors();
-                    }
-                    
-                    if(!success) {
                         Graph.RemoveEdge(edge);
                         refreshLayout();
-                        MessageBox.Show("Could not add edge\n" + string.Join(", ", errors));
+                        MessageBox.Show("Could not add edge\n" + sequence.Error);
                     }
                 }
             }
