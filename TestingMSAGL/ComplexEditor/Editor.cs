@@ -390,7 +390,33 @@ namespace TestingMSAGL.ComplexEditor
             {
                 targetNode = Graph.GetComplexNodeById(searchResult.ParentId);
             }
+
+            var sequence = new ActionSequence();
+            foreach (var viewerNode in selectedNodes)
+            {
+                var composite = GetComposite(Graph.GetNodeById(viewerNode.Node.Id));
+                var parentComposite = Graph.GetComplexNodeById(composite.ParentId).Composite;
+                sequence.Enqueue(new RemoveMemberAction(parentComposite, composite));
+                sequence.Enqueue(new AddMemberAction(newComplex.Composite, composite));
+            }
             
+            sequence.Enqueue(new AddMemberAction(targetNode.Composite, newComplex.Composite));
+
+            try
+            {
+                using var scope = new TransactionScope();
+                sequence.Enlist();
+                sequence.Execute();
+                scope.Complete();
+            }
+            catch (TransactionException e)
+            {
+                MessageBox.Show("Cannot group because of the following error:\n" + sequence.Error);
+                Graph.RemoveNode(newComplex.Subgraph);
+                return;
+            }
+
+
             foreach (var viewerNode in selectedNodes)
             {
                 //workaround for select issue
@@ -399,11 +425,26 @@ namespace TestingMSAGL.ComplexEditor
                 var node = Graph.GetNodeById(viewerNode.Node.Id);
                 var parent = Graph.GetComplexNodeById(node.ParentId);
 
-                parent.RemoveMember(node);
-                newComplex.AddMember(node);
+                if (node is NodeElementary elementary)
+                {
+                    parent.Subgraph.RemoveNode(elementary.Node);
+                    newComplex.Subgraph.AddNode(elementary.Node);
+                    elementary.Composite.ParentId = newComplex.Composite.DrawingNodeId;
+                    elementary.ParentId = newComplex.Composite.DrawingNodeId;
+                }
+                else
+                if(node is NodeComplex complexNode)
+                {
+                    parent.Subgraph.RemoveNode(complexNode.Subgraph);
+                    newComplex.Subgraph.AddSubgraph(complexNode.Subgraph);
+                    complexNode.Composite.ParentId = newComplex.Composite.DrawingNodeId;
+                    complexNode.ParentId = newComplex.Composite.DrawingNodeId;
+                }
             }
 
-            targetNode.AddMember(newComplex);
+            targetNode.Subgraph.AddSubgraph(newComplex.Subgraph);
+            newComplex.Composite.ParentId = targetNode.Composite.DrawingNodeId;
+            newComplex.ParentId = targetNode.Composite.DrawingNodeId;
             refreshLayout();
         }
 
