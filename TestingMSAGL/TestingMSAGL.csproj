@@ -79,6 +79,8 @@
     <Compile Include="DataLinker\RoutedOperation\NamedOperation.cs" />
     <Compile Include="DataLinker\RoutedOperation\Parallel.cs" />
     <Compile Include="DataLinker\RoutedOperation\Single.cs" />
+    <Compile Include="DataStructure\Actions\AddMemberAction.cs" />
+    <Compile Include="DataStructure\Actions\RemoveMemberAction.cs" />
     <Compile Include="DataStructure\Actions\SetPredecessorAction.cs" />
     <Compile Include="DataStructure\Actions\SetSuccessorAction.cs" />
     <Compile Include="DataStructure\Composite.cs" />
