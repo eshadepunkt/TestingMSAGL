@@ -94,20 +94,6 @@
                            HorizontalAlignment="Center" />
             </Border>
             <Border
-                x:Name="Fixed"
-               
-                Width="100"
-                Height="50"
-                Margin="0 5 0 0"
-                BorderBrush="Black"
-                BorderThickness="2"
-                Background="Gray"
-                CornerRadius="10">
-                <TextBlock Text="Fixed"
-                           Margin="10"
-                           HorizontalAlignment="Center" />
-            </Border>
-            <Border
                 x:Name="Parallel"
                 
                 Width="100"
@@ -122,7 +108,7 @@
                            HorizontalAlignment="Center" />
             </Border>
             <Border
-                x:Name="Single"
+                x:Name="Sequential"
                 
                 Width="100"
                 Height="50"
@@ -131,7 +117,7 @@
                 BorderThickness="2"
                 Background="DarkMagenta"
                 CornerRadius="10">
-                <TextBlock Text="Single"
+                <TextBlock Text="Sequential"
                            Margin="10"
                            HorizontalAlignment="Center" />
             </Border>
@@ -201,10 +187,7 @@
                                   />
                         <MenuItem Name="AddParallel" Header="Insert ParallelComplex"
                                   />
-                        <MenuItem Name="AddFixed" Header="Insert FixedComplex" 
-                                  />
-                        <MenuItem Name="AddSingle" Header="Insert SingleComplex"
-                                  />
+                        <MenuItem Name="AddSequential" Header="Insert SequentialComplex" />
                     </MenuItem>
                     <MenuItem Name="GroupElementaries" Header="Group Elementaries to.." 
                               Click="GroupComplex_OnClick">
@@ -212,11 +195,7 @@
                                   />
                         <MenuItem Name="GroupParallel" Header="..Parallel"
                                   />
-                        <MenuItem Name="GroupFixed" Header="..Fixed"
-                                  />
-                        <MenuItem Name="GroupSingle" Header="..Single"
-                                  />
-
+                        <MenuItem Name="GroupSequential" Header="..Sequential" />
                     </MenuItem>
 
                     <MenuItem Name="DeleteNodeCM" Header="Delete Node" Click="cm_DeleteNode_OnClick" />

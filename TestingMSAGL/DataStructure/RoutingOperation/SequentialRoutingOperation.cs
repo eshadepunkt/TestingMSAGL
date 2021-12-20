@@ -1,6 +1,6 @@
 ﻿namespace TestingMSAGL.DataStructure.RoutingOperation
 {
-    public class SingleRoutingOperation : CompositeComplex
+    public class SequentialRoutingOperation : CompositeComplex
     {
     }
 }

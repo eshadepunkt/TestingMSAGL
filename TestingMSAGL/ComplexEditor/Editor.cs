@@ -12,7 +12,6 @@ using Microsoft.Msagl.WpfGraphControl;
 using TestingMSAGL.DataLinker;
 using TestingMSAGL.DataStructure;
 using Edge = Microsoft.Msagl.Drawing.Edge;
-using Single = TestingMSAGL.DataLinker.RoutedOperation.Single;
 using OclAspectTest;
 using TestingMSAGL.Constraints;
 using TestingMSAGL.DataLinker.RoutedOperation;
@@ -35,7 +34,6 @@ namespace TestingMSAGL.ComplexEditor
             //GraphViewer.GraphCanvas.Background = (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
             var constraints = new List<IConstraint> {
                 new DifferentTasksConstraint(),
-                new MaxMemberSizeConstraint(3),
                 new OrCombinedConstraint(new NotConstraint(new TypeConstraint(typeof(ParallelRoutingOperation))), new MinMemberSizeConstraint(2)),
                 new MinMemberSizeConstraint(1),
                 new SinglePredecessorConstraint(),
@@ -78,121 +76,53 @@ namespace TestingMSAGL.ComplexEditor
             // Drawing Board
             var rootSubgraph = new Subgraph("rootSubgraph");
             // first element 
-            var root = new Single(Graph, "Root");
+            var root = new Sequential(Graph, "Root");
             Graph.RootNode = root;
             rootSubgraph.AddSubgraph(root.Subgraph);
 
-            //var ros = new Alternative(Graph, "Root Of Subgraph");
-            //ros.Composite.Predecessor = root.Composite;
-
-            //root.Composite.Successor = ros.Composite;
-            //root.AddMember(ros);
-
-            //var c1 = new Single(Graph, "Complex: 104");
-            //var c2 = new Parallel(Graph, "Complex: 105");
-            ////NodeComplex c3 = new Alternative(Graph, "Complex: 106");
-            //ros.AddMember(c1); // layout Problem. - does not contain any nodes - that's why :)
-            //ros.AddMember(c2);
-            //ros.Composite.Successor = c2.Composite;
-            //c2.Composite.Predecessor = ros.Composite;
-            ////ros.AddMember(c3);
-            ////c3.Composite.Predecessor = c2.Composite;
-            ////c2.Composite.Successor = c3.Composite;
-
-
-            //////
-            //var e1 = new NodeElementary(Graph, "");
-            //var e2 = new NodeElementary(Graph, "");
-            //var e3 = new NodeElementary(Graph, "");
-            //root.AddMember(e2);
-            //root.AddMember(e3);
-            //c2.AddMember(e1);
-            //c2.AddMember(e2);
-            //c2.AddMember(e3);
-            //var c4 = new Fixed(Graph, "heya");
-            ////var c5 = new Fixed(Graph, "fix it!");
-            ////var c6 = new Parallel(Graph, "fix it!");
-
-            ////c4.Composite.Successor = c6.Composite;
-            ////c6.Composite.Predecessor = c4.Composite;
-            //c2.AddMember(c4);
-            //c2.AddMember(c5);
-            //c2.AddMember(c6);
-            //var e4 = new NodeElementary(Graph, "I am Inevitable!");
-            //var e5 = new NodeElementary(Graph, "I am Ironman!");
-            //c3.AddMember(e4);  
-            //c3.AddMember(e5);
-
-            // add edge for testing purposes
-
-            //Graph.AddEdge(e2.NodeId, "Test", e3.NodeId);
-
-
-            // if(c3 is Alternative alternative)
-
-
-            /// Bulding for presentation ///
-            /// preparation
-            /// outer 
-            var preparation = new Parallel(Graph, "");
-            /// inner 
-            var prepFirst = new Single(Graph, "");
-            var prepSecond = new Single(Graph, "");
-
-            var prepFirstOperationOne = new NodeElementary(Graph, "Zerspanen");
-            var prepFirstOperationSecond = new NodeElementary(Graph, "Entgraten");
-            var prepSecondOperationFirst = new NodeElementary(Graph, "Kanten");
-            var prepSecondOperationSecond = new NodeElementary(Graph, "Gewindeschneiden");
-
-            /// root
-            root.AddMember(preparation);
-
-            /// construct preparation node
-
-            prepFirst.AddMember(prepFirstOperationOne);
-            prepFirst.AddMember(prepFirstOperationSecond);
-
-            prepSecond.AddMember(prepSecondOperationFirst);
-            prepSecond.AddMember(prepSecondOperationSecond);
-
-            preparation.AddMember(prepFirst);
-            preparation.AddMember(prepSecond);
-
-            /// assembly
-            /// outer
-
-            var assembly = new Alternative(Graph, "");
-            root.AddMember(assembly);
-
-            /// inner
-
-            var weld = new Single(Graph, "Schweißen");
-            var fixate = new Single(Graph, "Fixieren");
-
-            var weldExternal = new NodeElementary(Graph, "Extern Schweißen");
-            var spotWeld = new NodeElementary(Graph, "Punktschweißen");
-
-            var closeWeldseam = new NodeElementary(Graph, "Schweißnaht schließen");
-
-            assembly.AddMember(weld);
-            assembly.AddMember(weldExternal);
-
-            weld.AddMember(closeWeldseam);
-            fixate.AddMember(spotWeld);
-            fixate.AddMember(new NodeElementary(Graph, "Punktschweißen 2"));
-            weld.AddMember(fixate);
-
-            /// add edges
-
-            Graph.AddEdge(prepFirstOperationOne.NodeId, prepFirstOperationSecond.NodeId);
-            Graph.AddEdge(prepFirst.NodeId, prepSecond.NodeId);
-            Graph.AddEdge(preparation.NodeId, assembly.NodeId);
-            Graph.AddEdge(fixate.NodeId, closeWeldseam.NodeId);
-
-            ///
-
-            var composites = root.Composite.Members;
-
+            var tableParts = new Sequential(Graph, "Tischteile");
+            var tableTopSawing = new NodeElementary(Graph, "Tischplatte sägen");
+            tableParts.AddMember(tableTopSawing);
+            
+            var painting = new Alternative(Graph, "Lackierung");
+            var color = new NodeElementary(Graph, "Farblack auftragen");
+            var clear = new NodeElementary(Graph, "Klarlack auftragen");
+            painting.AddMember(color);
+            painting.AddMember(clear);
+            
+            tableParts.AddMember(painting);
+            Graph.AddEdge(tableTopSawing.NodeId, painting.NodeId);
+            
+            var tableLegs = new Parallel(Graph, "Tischbeine");
+            for (var i = 1; i < 5; i++)
+            {
+                var tableLeg = new Sequential(Graph, "Tischbein " + i);
+                var tableLegSawing = new NodeElementary(Graph, "Tischbein " + i + " sägen");
+                tableLeg.AddMember(tableLegSawing);
+                painting = new Alternative(Graph, "Lackierung");
+                color = new NodeElementary(Graph, "Farblack auftragen");
+                clear = new NodeElementary(Graph, "Klarlack auftragen");
+                painting.AddMember(color);
+                painting.AddMember(clear);
+            
+                tableLeg.AddMember(painting);
+                Graph.AddEdge(tableLegSawing.NodeId, painting.NodeId);
+                
+                tableLegs.AddMember(tableLeg);
+            }
+            
+            tableParts.AddMember(tableLegs);
+            
+            var tableConstruction = new Parallel(Graph, "Tischteile zusammenschrauben");
+            for (var i = 1; i < 5; i++)
+            {
+                var addLeg = new NodeElementary(Graph, "Tischbein " + i + " an Tischplatte schrauben");
+                tableConstruction.AddMember(addLeg);
+            }
+            
+            Graph.AddEdge(tableParts.NodeId, tableConstruction.NodeId);
+            root.AddMember(tableParts);
+            root.AddMember(tableConstruction);
 
             Graph.RootSubgraph = rootSubgraph;
 
@@ -221,10 +151,6 @@ namespace TestingMSAGL.ComplexEditor
                 //    LabelCornersPreserveCoefficient = 2,
                 //    //LiftCrossEdges = true
             };
-
-            var test3 = Graph.CreateLayoutSettings();
-
-
 
             // clear all complex labels
             foreach (var subgraph in root.Subgraph.AllSubgraphsDepthFirst())
@@ -741,8 +667,7 @@ namespace TestingMSAGL.ComplexEditor
             {
                 "Alternative" => new Alternative(Graph, routedOperation),
                 "Parallel" => new Parallel(Graph, routedOperation),
-                "Fixed" => new Fixed(Graph, routedOperation),
-                "Single" => new Single(Graph, routedOperation),
+                "Sequential" => new Sequential(Graph, routedOperation),
                 "Node" => new NodeElementary(Graph, ""),
                 _ => new NodeElementary(Graph, routedOperation)
             };
