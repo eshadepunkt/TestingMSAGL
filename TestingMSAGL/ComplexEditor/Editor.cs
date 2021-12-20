@@ -350,24 +350,11 @@ namespace TestingMSAGL.ComplexEditor
 
                 var node = Graph.GetNodeById(viewerNode.Node.Id);
                 var parent = Graph.GetComplexNodeById(node.ParentId);
-
-                if (node is NodeElementary elementary)
-                {
-                    parent.Subgraph.RemoveNode(elementary.Node);
-                    newComplex.Subgraph.AddNode(elementary.Node);
-                    elementary.Composite.Parent = newComplex.Composite;
-                }
-                else
-                if(node is NodeComplex complexNode)
-                {
-                    parent.Subgraph.RemoveNode(complexNode.Subgraph);
-                    newComplex.Subgraph.AddSubgraph(complexNode.Subgraph);
-                    complexNode.Composite.Parent = newComplex.Composite;
-                }
+                parent.RemoveMemberFromUi(node);
+                newComplex.AddMemberToUi(node);
             }
 
-            targetNode.Subgraph.AddSubgraph(newComplex.Subgraph);
-            newComplex.Composite.Parent = targetNode.Composite;
+            targetNode.AddMemberToUi(newComplex);
             refreshLayout();
         }
 

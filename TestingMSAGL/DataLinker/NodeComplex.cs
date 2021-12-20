@@ -84,41 +84,53 @@ namespace TestingMSAGL.DataLinker
         /// <returns></returns>
         public bool AddMember(IWithId node)
         {
-            if (node is NodeComplex complex)
-                if (Composite.AddMember(complex.Composite))
-                {
+            var result = node switch
+            {
+                NodeComplex complex => Composite.AddMember(complex.Composite),
+                NodeElementary elementary => Composite.AddMember(elementary.Composite),
+                _ => false
+            };
+
+            if(result) AddMemberToUi(node);
+
+            return result;
+        }
+
+        public void AddMemberToUi(IWithId node)
+        {
+            switch (node)
+            {
+                case NodeComplex complex:
                     Subgraph.AddSubgraph(complex.Subgraph);
                     complex.Composite.Parent = Composite;
-
-                    return true;
-                }
-
-            if (node is NodeElementary elementary)
-                if (Composite.AddMember(elementary.Composite))
-                {
+                    break;
+                case NodeElementary elementary:
                     Subgraph.AddNode(elementary.Node);
                     elementary.Composite.Parent = Composite;
-
-                    return true;
-                }
-
-            return false;
+                    break;
+            }
         }
 
 
         // TODO: Check that the element is actually a child.
         public bool RemoveMember(IWithId child)
         {
-            if (child is NodeElementary elementary)
+            var result = child switch
             {
-                if (Composite.RemoveMember(elementary.Composite)) {
-                    Subgraph.RemoveNode(elementary.Node);
-                    return true;
-                }
-            }
-            if (child is NodeComplex complex) return Composite.RemoveMember(complex.Composite);
-            return false;
-            
+                NodeElementary elementary => Composite.RemoveMember(elementary.Composite),
+                NodeComplex complex => Composite.RemoveMember(complex.Composite),
+                _ => false
+            };
+
+            if(result) RemoveMemberFromUi(child);
+
+            return result;
+        }
+
+        public void RemoveMemberFromUi(IWithId child)
+        {
+            if (child is NodeElementary elementary)
+                Subgraph.RemoveNode(elementary.Node);
         }
     }
 }
