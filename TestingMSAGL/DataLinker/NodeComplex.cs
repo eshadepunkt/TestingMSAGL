@@ -31,11 +31,7 @@ namespace TestingMSAGL.DataLinker
         /// </summary>
         public string NodeId => Composite.DrawingNodeId;
 
-        public string ParentId
-        {
-            get => Composite.ParentId;
-            set => Composite.ParentId = value;
-        }
+        public string ParentId => Composite.Parent.DrawingNodeId;
 
         protected string AddNode(Graph graph)
         {
@@ -92,8 +88,7 @@ namespace TestingMSAGL.DataLinker
                 if (Composite.AddMember(complex.Composite))
                 {
                     Subgraph.AddSubgraph(complex.Subgraph);
-
-                    complex.Composite.ParentId = Composite.DrawingNodeId;
+                    complex.Composite.Parent = Composite;
 
                     return true;
                 }
@@ -102,8 +97,7 @@ namespace TestingMSAGL.DataLinker
                 if (Composite.AddMember(elementary.Composite))
                 {
                     Subgraph.AddNode(elementary.Node);
-                    elementary.Composite.ParentId = Composite.DrawingNodeId;
-                    elementary.ParentId = Composite.DrawingNodeId;
+                    elementary.Composite.Parent = Composite;
 
                     return true;
                 }

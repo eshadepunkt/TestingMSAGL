@@ -11,7 +11,7 @@ namespace TestingMSAGL.DataStructure
         
         public string Type { get; set; }
 
-        public string ParentId { get; set; }
+        public Composite Parent { get; set; }
         public Composite ComplexComposite { get; }
 
         // This member must be public because errors are set by the OCL constraint provider

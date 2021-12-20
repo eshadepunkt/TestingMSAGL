@@ -314,14 +314,14 @@ namespace TestingMSAGL.ComplexEditor
             var searchResult = Graph.RootNode.Composite.BreadthFirstSearch(composite => selectedNodeIds.Contains(composite.DrawingNodeId));
             if (searchResult != null)
             {
-                targetNode = Graph.GetComplexNodeById(searchResult.ParentId);
+                targetNode = Graph.GetComplexNodeById(searchResult.Parent.DrawingNodeId);
             }
 
             var sequence = new ActionSequence();
             foreach (var viewerNode in selectedNodes)
             {
                 var composite = GetComposite(Graph.GetNodeById(viewerNode.Node.Id));
-                var parentComposite = Graph.GetComplexNodeById(composite.ParentId).Composite;
+                var parentComposite = Graph.GetComplexNodeById(composite.Parent.DrawingNodeId).Composite;
                 sequence.Enqueue(new RemoveMemberAction(parentComposite, composite));
                 sequence.Enqueue(new AddMemberAction(newComplex.Composite, composite));
             }
@@ -355,22 +355,19 @@ namespace TestingMSAGL.ComplexEditor
                 {
                     parent.Subgraph.RemoveNode(elementary.Node);
                     newComplex.Subgraph.AddNode(elementary.Node);
-                    elementary.Composite.ParentId = newComplex.Composite.DrawingNodeId;
-                    elementary.ParentId = newComplex.Composite.DrawingNodeId;
+                    elementary.Composite.Parent = newComplex.Composite;
                 }
                 else
                 if(node is NodeComplex complexNode)
                 {
                     parent.Subgraph.RemoveNode(complexNode.Subgraph);
                     newComplex.Subgraph.AddSubgraph(complexNode.Subgraph);
-                    complexNode.Composite.ParentId = newComplex.Composite.DrawingNodeId;
-                    complexNode.ParentId = newComplex.Composite.DrawingNodeId;
+                    complexNode.Composite.Parent = newComplex.Composite;
                 }
             }
 
             targetNode.Subgraph.AddSubgraph(newComplex.Subgraph);
-            newComplex.Composite.ParentId = targetNode.Composite.DrawingNodeId;
-            newComplex.ParentId = targetNode.Composite.DrawingNodeId;
+            newComplex.Composite.Parent = targetNode.Composite;
             refreshLayout();
         }
 
