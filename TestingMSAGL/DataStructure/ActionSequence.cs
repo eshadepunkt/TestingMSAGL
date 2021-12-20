@@ -1,44 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Transactions;
 
 namespace TestingMSAGL.DataStructure
 {
-    public class ActionSequence : IEnlistmentNotification
+    public class ActionSequence
     {
-        private bool _enlisted;
         private readonly Queue<ICompositeAction> _sequence = new ();
         private readonly Stack<ICompositeAction> _executedActions = new();
+        private bool _success = true;
 
         public string Error { get; private set; }
 
         public void Enqueue(ICompositeAction action)
         {
-            if (_enlisted)
-            {
-                throw new Exception("Cannot enqueue action after sequence enlisted for execution.");
-            }
-            
             _sequence.Enqueue(action);
         }
-        
 
-        public void Enlist()
-        {
-            var transaction = Transaction.Current;
-            if (transaction == null)
-                throw new Exception("Cannot execute ActionSequence without transaction!");
-            _enlisted = true;
-            transaction.EnlistVolatile(this, EnlistmentOptions.None);
-        }
-        
-        public void Prepare(PreparingEnlistment preparingEnlistment)
-        {
-            preparingEnlistment.Prepared();
-        }
-
-        public void Execute()
+        public bool Execute()
         {
             while(_sequence.Any())
             {
@@ -46,32 +24,23 @@ namespace TestingMSAGL.DataStructure
                 if (!action.Perform())
                 {
                     Error = action.Error;
-                    Console.WriteLine("Forcing Rollback...");
-                    throw new TransactionException();
+                    _success = false;
+                    Rollback();
+                    break;
                 }
                 _executedActions.Push(action);
             }
 
+            return _success;
         }
 
-        public void Commit(Enlistment enlistment)
-        {
-           enlistment.Done();
-        }
-
-        public void Rollback(Enlistment enlistment)
+        public void Rollback()
         {
             while (_executedActions.Any())
             {
                 var action = _executedActions.Pop();
                 action.Rollback();
             }
-            enlistment.Done();
-        }
-
-        public void InDoubt(Enlistment enlistment)
-        {
-            enlistment.Done();
         }
     }
 }

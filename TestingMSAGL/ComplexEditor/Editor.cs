@@ -328,14 +328,7 @@ namespace TestingMSAGL.ComplexEditor
                 sequence.Enqueue(new AddMemberAction(newComplex.Composite, composite));
             }
 
-            try
-            {
-                using var scope = new TransactionScope();
-                sequence.Enlist();
-                sequence.Execute();
-                scope.Complete();
-            }
-            catch (TransactionException e)
+            if(!sequence.Execute())
             {
                 MessageBox.Show("Cannot group because of the following error:\n" + sequence.Error);
                 Graph.RemoveNode(newComplex.Subgraph);
@@ -410,14 +403,7 @@ namespace TestingMSAGL.ComplexEditor
                     sequence.Enqueue(new SetSuccessorAction(sourceComposite, targetComposite));
                     sequence.Enqueue(new SetPredecessorAction(targetComposite, sourceComposite));
 
-                    try
-                    {
-                        using var scope = new TransactionScope();
-                        sequence.Enlist();
-                        sequence.Execute();
-                        scope.Complete();
-                    }
-                    catch (TransactionException _)
+                    if(!sequence.Execute())
                     {
                         Graph.RemoveEdge(edge);
                         refreshLayout();
