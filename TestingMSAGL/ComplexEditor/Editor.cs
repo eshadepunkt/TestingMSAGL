@@ -317,6 +317,9 @@ namespace TestingMSAGL.ComplexEditor
             }
 
             var sequence = new ActionSequence();
+            
+            sequence.Enqueue(new AddMemberAction(targetNode.Composite, newComplex.Composite));
+
             foreach (var viewerNode in selectedNodes)
             {
                 var composite = GetComposite(Graph.GetNodeById(viewerNode.Node.Id));
@@ -324,8 +327,6 @@ namespace TestingMSAGL.ComplexEditor
                 sequence.Enqueue(new RemoveMemberAction(parentComposite, composite));
                 sequence.Enqueue(new AddMemberAction(newComplex.Composite, composite));
             }
-            
-            sequence.Enqueue(new AddMemberAction(targetNode.Composite, newComplex.Composite));
 
             try
             {
