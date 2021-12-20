@@ -4,6 +4,7 @@ using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.Layout.Layered;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Transactions;
 using System.Windows;
@@ -13,10 +14,8 @@ using TestingMSAGL.DataLinker;
 using TestingMSAGL.DataStructure;
 using Edge = Microsoft.Msagl.Drawing.Edge;
 using OclAspectTest;
-using TestingMSAGL.Constraints;
 using TestingMSAGL.DataLinker.RoutedOperation;
 using TestingMSAGL.DataStructure.Actions;
-using TestingMSAGL.DataStructure.RoutingOperation;
 
 namespace TestingMSAGL.ComplexEditor
 {
@@ -32,20 +31,20 @@ namespace TestingMSAGL.ComplexEditor
             
             //initGraph(null, null);
             //GraphViewer.GraphCanvas.Background = (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
-            var constraints = new List<IConstraint> {
-                new DifferentTasksConstraint(),
-                new OrCombinedConstraint(new NotConstraint(new TypeConstraint(typeof(ParallelRoutingOperation))), new MinMemberSizeConstraint(2)),
-                new MinMemberSizeConstraint(1),
-                new SinglePredecessorConstraint(),
-                new SingleSuccessorConstraint()
-            };
-            var ocl = ConstraintProvider.GenerateOcl(constraints);
-            Console.WriteLine("Generated OCL:");
-            Console.WriteLine(ocl);
-            OclTestProvider.AddConstraints(new[] {"TestingMSAGL"}, ocl, false, true);
-            
-            // var constraints = File.ReadAllText("Constraints/Default.ocl");
-            // OclTestProvider.AddConstraints(new[] {"TestingMSAGL"}, constraints, false, true);
+            // var constraints = new List<IConstraint> {
+            //     new DifferentTasksConstraint(),
+            //     new OrCombinedConstraint(new NotConstraint(new TypeConstraint(typeof(ParallelRoutingOperation))), new MinMemberSizeConstraint(2)),
+            //     new MinMemberSizeConstraint(1),
+            //     new SinglePredecessorConstraint(),
+            //     new SingleSuccessorConstraint()
+            // };
+            // var ocl = ConstraintProvider.GenerateOcl(constraints);
+            // Console.WriteLine("Generated OCL:");
+            // Console.WriteLine(ocl);
+            // OclTestProvider.AddConstraints(new[] {"TestingMSAGL"}, ocl, false, true);
+            //
+            var constraints = File.ReadAllText("Constraints/Default.ocl");
+            OclTestProvider.AddConstraints(new[] {"TestingMSAGL"}, constraints, false, true);
         }
 
 
@@ -81,6 +80,7 @@ namespace TestingMSAGL.ComplexEditor
             rootSubgraph.AddSubgraph(root.Subgraph);
 
             var tableParts = new Sequential(Graph, "Tischteile");
+            root.AddMember(tableParts);
             var tableTopSawing = new NodeElementary(Graph, "Tischplatte sägen");
             tableParts.AddMember(tableTopSawing);
             
@@ -114,6 +114,7 @@ namespace TestingMSAGL.ComplexEditor
             tableParts.AddMember(tableLegs);
             
             var tableConstruction = new Parallel(Graph, "Tischteile zusammenschrauben");
+            root.AddMember(tableConstruction);
             for (var i = 1; i < 5; i++)
             {
                 var addLeg = new NodeElementary(Graph, "Tischbein " + i + " an Tischplatte schrauben");
@@ -121,8 +122,6 @@ namespace TestingMSAGL.ComplexEditor
             }
             
             Graph.AddEdge(tableParts.NodeId, tableConstruction.NodeId);
-            root.AddMember(tableParts);
-            root.AddMember(tableConstruction);
 
             Graph.RootSubgraph = rootSubgraph;
 
