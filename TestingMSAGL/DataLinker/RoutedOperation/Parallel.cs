@@ -17,8 +17,6 @@ namespace TestingMSAGL.DataLinker.RoutedOperation
             Subgraph.Attr.Shape = Shape.Box;
             Subgraph.Attr.FillColor = color;
             graph.LayerConstraints.AddSameLayerNeighbors();
-
-            Composite.Type = "parallel";
         }
     }
 }

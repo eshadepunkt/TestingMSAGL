@@ -17,8 +17,6 @@ namespace TestingMSAGL.DataLinker.RoutedOperation
             Subgraph.LabelText = "Alternative:\n " + Subgraph.Id.Split('-')[1];
             Subgraph.Attr.Shape = Shape.Box;
             Subgraph.Attr.FillColor = color;
-
-            Composite.Type = "alternative";
         }
     }
 }

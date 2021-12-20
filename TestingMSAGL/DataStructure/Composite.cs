@@ -9,8 +9,6 @@ namespace TestingMSAGL.DataStructure
         public Composite Predecessor { get; private set; }
         public Composite Successor { get; private set; }
         
-        public string Type { get; set; }
-
         public Composite Parent { get; set; }
         public Composite ComplexComposite { get; }
 
