@@ -2,7 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace TestingMSAGL.View.Adorner
+namespace ComplexEditor.View.Adorner
 {
     public class RectangleAdorner : System.Windows.Documents.Adorner
     {

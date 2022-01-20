@@ -1,8 +1,8 @@
 using System;
 using Microsoft.Msagl.Drawing;
-using TestingMSAGL.DataStructure;
+using ComplexEditor.DataStructure;
 
-namespace TestingMSAGL.DataLinker
+namespace ComplexEditor.DataLinker
 
 {
     public class NodeElementary : IWithId

@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Reflection;
 
-namespace TestingMSAGL.Constraints
+namespace ComplexEditor.Constraints
 {
     public class OrCombinedConstraint : IConstraint
     {

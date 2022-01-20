@@ -1,4 +1,4 @@
-﻿namespace TestingMSAGL.DataLinker
+﻿namespace ComplexEditor.DataLinker
 {
     public interface IWithId
     {

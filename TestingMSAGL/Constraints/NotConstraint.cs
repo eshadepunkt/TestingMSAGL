@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using OCL.Absyn;
 
-namespace TestingMSAGL.Constraints
+namespace ComplexEditor.Constraints
 {
     public class NotConstraint : IConstraint
     {

@@ -1,4 +1,4 @@
-﻿namespace TestingMSAGL.DataStructure
+﻿namespace ComplexEditor.DataStructure
 {
     public class CompositeElementary : Composite
     {

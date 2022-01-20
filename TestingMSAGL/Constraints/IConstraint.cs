@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace TestingMSAGL.Constraints
+namespace ComplexEditor.Constraints
 {
     public interface IConstraint
     {

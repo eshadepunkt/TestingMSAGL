@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TestingMSAGL.DataStructure
+namespace ComplexEditor.DataStructure
 {
     public abstract class Composite : IComposite
     {

@@ -10,14 +10,14 @@ using System.Transactions;
 using System.Windows;
 using System.Windows.Media;
 using Microsoft.Msagl.WpfGraphControl;
-using TestingMSAGL.DataLinker;
-using TestingMSAGL.DataStructure;
+using ComplexEditor.DataLinker;
+using ComplexEditor.DataStructure;
 using Edge = Microsoft.Msagl.Drawing.Edge;
+using ComplexEditor.DataLinker.RoutedOperation;
+using ComplexEditor.DataStructure.Actions;
 using OclAspectTest;
-using TestingMSAGL.DataLinker.RoutedOperation;
-using TestingMSAGL.DataStructure.Actions;
 
-namespace TestingMSAGL.ComplexEditor
+namespace ComplexEditor.ComplexEditor
 {
     public class Editor
     {
@@ -28,7 +28,7 @@ namespace TestingMSAGL.ComplexEditor
         public Editor()
         {
             GraphViewer = new GraphViewer { LayoutEditingEnabled = true };
-            
+
             //initGraph(null, null);
             //GraphViewer.GraphCanvas.Background = (SolidColorBrush) new BrushConverter().ConvertFromString("#4dd2ff");
             // var constraints = new List<IConstraint> {
@@ -44,7 +44,8 @@ namespace TestingMSAGL.ComplexEditor
             // OclTestProvider.AddConstraints(new[] {"TestingMSAGL"}, ocl, false, true);
             //
             var constraints = File.ReadAllText("Constraints/Default.ocl");
-            OclTestProvider.AddConstraints(new[] {"TestingMSAGL"}, constraints, false, true);
+            OclTestProvider.AddConstraints(new[] { "ComplexEditor" }, constraints, false, true);
+            
         }
 
 

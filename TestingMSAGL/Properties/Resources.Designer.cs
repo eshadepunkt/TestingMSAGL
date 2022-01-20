@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TestingMSAGL.Properties
+namespace ComplexEditor.Properties
 {
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
@@ -45,7 +45,7 @@ namespace TestingMSAGL.Properties
                 if ((resourceMan == null))
                 {
                     global::System.Resources.ResourceManager temp =
-                        new global::System.Resources.ResourceManager("TestingMSAGL.Properties.Resources",
+                        new global::System.Resources.ResourceManager("ComplexEditor.Properties.Resources",
                             typeof(Resources).Assembly);
                     resourceMan = temp;
                 }

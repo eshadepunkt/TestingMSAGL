@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Xml;
-using TestingMSAGL.DataLinker.RoutedOperation;
+using ComplexEditor.DataLinker.RoutedOperation;
 
-namespace TestingMSAGL.DataStructure.XmlProvider
+namespace ComplexEditor.DataStructure.XmlProvider
 {
     public class XmlProvider
     {

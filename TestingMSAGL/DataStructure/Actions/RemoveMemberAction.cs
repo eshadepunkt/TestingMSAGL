@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TestingMSAGL.DataStructure.Actions
+namespace ComplexEditor.DataStructure.Actions
 {
     public class RemoveMemberAction : ICompositeAction
     {

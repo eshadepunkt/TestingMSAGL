@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -12,21 +13,25 @@ using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.WpfGraphControl;
 using Microsoft.Win32;
-using TecWare.DE.Data;
-using TestingMSAGL.ComplexEditor;
-using TestingMSAGL.DataLinker;
-using TestingMSAGL.DataLinker.RoutedOperation;
-using TestingMSAGL.DataStructure.XmlProvider;
-using TestingMSAGL.View.Adorner;
+using Neo.IronLua;
+using TecWare.PPSn;
+using TecWare.PPSn.Core.Data;
+using TecWare.PPSn.Data;
+using TecWare.PPSn.UI;
+using ComplexEditor.ComplexEditor;
+using ComplexEditor.DataLinker;
+using ComplexEditor.DataLinker.RoutedOperation;
+using ComplexEditor.DataStructure.XmlProvider;
+using ComplexEditor.View.Adorner;
 using Panel = System.Windows.Controls.Panel;
 
 
-namespace TestingMSAGL
+namespace ComplexEditor
 {
     /// <summary>
     ///     Interaktionslogik für MainWindow.xaml
     /// </summary>
-    public partial class MainWindow
+    public partial class UserControl1 : TecWare.PPSn.Controls.PpsWindowPaneControl
     {
         private Point _mMouseLeftButtonDownPoint;
         private Point _mMouseRightButtonDownPoint;
@@ -37,9 +42,10 @@ namespace TestingMSAGL
         public static Editor Editor { get; } = new();
 
 
-        public MainWindow()
+        public UserControl1(IPpsWindowPaneHost paneHost) : base(paneHost)
         {
             InitializeComponent();
+            
             Loaded += Editor.initGraph;
             Editor.GraphViewer.GraphCanvas.Height = ViewerPanel.Height;
             Editor.GraphViewer.GraphCanvas.Width = ViewerPanel.Width;
@@ -48,8 +54,88 @@ namespace TestingMSAGL
             Editor.GraphViewer.BindToPanel(ViewerPanel);
             ViewerPanel.ClipToBounds = true;
             
-            var harmony = new Harmony("TestingMSAGL");
+            var harmony = new Harmony("ComplexEditor");
             harmony.PatchAll();
+        }
+
+        // pane Wiederwendungssteuerung
+        protected override PpsWindowPaneCompareResult CompareArguments(LuaTable args) => base.CompareArguments(args);
+        // init pane (Datenabfrage)
+        protected override async Task OnLoadAsync(LuaTable args)
+        {
+            //await GetAppokoFromShellAsync();
+            //var xdoc = new XmlProvider();
+            //var operations = xdoc.GetAllXmlElements(view);
+            //OperationsLoad(operations);
+            //buildNodePropertyDisplay(operations);
+            await base.OnLoadAsync(args);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="apkoID"></param>
+        /// <returns></returns>
+        private async Task GetAppokoFromShellAsync(int apkoID)
+        {
+
+            var view = await Task.Run(() => Shell.GetViewData(new PpsDataQuery("views.APHY") { Filter = PpsDataFilterExpression.Compare("APPOAPKOID", PpsDataFilterCompareOperator.Equal, apkoID) }).ToList());
+            // todo refactoring Single responsibility
+            ListViewForProps.Visibility = Visibility.Visible;
+
+            List<NamedOperation> listOfOperations = new List<NamedOperation>();
+
+            foreach (var column in view)
+            {
+
+                var appoID = column["APPOID"];
+                var position = column["APPOPOS"];
+                var head = column["APPOAPKOID"];
+                var header = column["HeaderID"];
+                var predecessor = column["Predecessor"];
+                var successor = column["Successor"];
+                //todo description
+                var name = column["APPONAME"];
+                var id = appoID + "::" + position;
+
+                ListViewForProps.Items.Add(
+                    "Position: " + position +
+                    "\nName: " + name +
+                    "\nHeaderID: " + header +
+                    "\nVorgänger: " + predecessor +
+                    "\nNachfolger: " + successor);
+
+                System.Diagnostics.Debug.Print(
+                    "APPO: " + appoID +
+                    "\nHeaderID: " + header +
+                    "\nVorgänger: " + predecessor +
+                    "\nNachfolger: " + successor);
+
+                var nameOperation = new NamedOperation((int)head, name.ToString(),
+                    new[] {
+                        appoID?.ToString(),
+                        position?.ToString(),
+                        header?.ToString(),
+                        predecessor?.ToString(),
+                        successor?.ToString()
+                    }); ;
+                listOfOperations.Add(nameOperation);
+            }
+            OperationsLoad(listOfOperations);
+            CreateAdornerForAllComposites(compositePanel);
+        }
+
+        // entladen
+        protected override Task<bool> OnUnloadAsync(bool? commit) => base.OnUnloadAsync(commit);
+
+        private async void GetAPPKO_Click(object sender, RoutedEventArgs e)
+        {
+
+            var value = APPOAPKOID.Text;
+            if (value.All(char.IsDigit))
+            {
+                await GetAppokoFromShellAsync(Int32.Parse(value));
+
+            }
         }
 
         private void GraphViewerOnLayoutComplete(object sender, EventArgs e)
@@ -292,10 +378,7 @@ namespace TestingMSAGL
                 buildNodePropertyDisplay(operations);
             }
         }
-        private void MenuItem_Exit_OnClick(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
+      
         private void CounterText_KeyDown(object sender, KeyEventArgs e)
         {
             if (!System.Text.RegularExpressions.Regex.IsMatch(e.Key.ToString(), "\\d+"))

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace TestingMSAGL.DataStructure
+namespace ComplexEditor.DataStructure
 {
     public abstract class CompositeComplex : Composite
     {

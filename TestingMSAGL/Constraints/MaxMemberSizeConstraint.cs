@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
-using TestingMSAGL.DataStructure;
+using ComplexEditor.DataStructure;
 
-namespace TestingMSAGL.Constraints
+namespace ComplexEditor.Constraints
 {
     public class MaxMemberSizeConstraint : IConstraint
     {

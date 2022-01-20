@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Msagl.Drawing;
-using TestingMSAGL.DataLinker;
+using ComplexEditor.DataLinker;
 
-namespace TestingMSAGL.DataStructure
+namespace ComplexEditor.DataStructure
 {
     public class GraphExtension : Graph
     {

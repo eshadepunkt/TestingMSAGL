@@ -1,10 +1,10 @@
 using System.ServiceModel.Channels;
 using Microsoft.Msagl.Drawing;
-using TestingMSAGL.DataLinker;
-using TestingMSAGL.DataStructure;
-using TestingMSAGL.DataStructure.RoutingOperation;
+using ComplexEditor.DataLinker;
+using ComplexEditor.DataStructure;
+using ComplexEditor.DataStructure.RoutingOperation;
 
-namespace TestingMSAGL.DataLinker.RoutedOperation
+namespace ComplexEditor.DataLinker.RoutedOperation
 {
     public class Alternative : NodeComplex
     {
